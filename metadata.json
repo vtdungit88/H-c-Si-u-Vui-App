@@ -1,0 +1,8 @@
+{
+  "name": "Học Siêu Vui",
+  "description": "Nền tảng học tập vui nhộn, vừa học vừa chơi dành cho học sinh. Tùy biến avatar, mở khóa phụ kiện, giải bài tập SGK kiếm sao và xu.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
