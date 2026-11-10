@@ -138,7 +138,7 @@
 
 ### 4.7. Cổng quản trị viên bảo mật (`AdminPanelModal.tsx`)
 - Dành riêng cho quản trị viên **dungvt.hbh VNPT** (`dungvt.hbh@gmail.com`).
-- Xác thực bảo mật: Tài khoản `dungvt.hbh` / Mật khẩu `[REDACTED]`.
+- Xác thực: đăng nhập Supabase Auth; quyền admin kiểm tra ở máy chủ qua bảng `platform_roles` + RLS. Không có tài khoản/mật khẩu nhúng trong mã nguồn hay tài liệu.
 - **Chức năng quản trị viên:**
   1. Quản lý danh sách học sinh: Xem cấp độ, số Xu/Sao, trường lớp, ID tài khoản.
   2. Tinh chỉnh điểm thưởng: Nút tặng nhanh +100 Xu/+2 Sao cho từng em, hoặc tặng quà toàn trường +200 Xu.

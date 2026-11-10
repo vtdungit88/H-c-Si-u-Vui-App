@@ -6,7 +6,6 @@ import {
   saveStudentProfiles, 
   adminUpdateStudent, 
   adminDeleteStudent, 
-  DEFAULT_PASSWORD,
   getAdminAnnouncement,
   setAdminAnnouncement
 } from '../utils/studentStorage';
@@ -63,9 +62,9 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
   onClose,
   onStudentModified
 }) => {
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(() => {
-    return sessionStorage.getItem('hsv_admin_authenticated') === 'true';
-  });
+  // Admin access is disabled until server-side roles (Supabase Auth + platform_roles) are wired in (M2).
+  // No credentials are stored or compared in the browser.
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
 
   // Admin login credentials
   const [adminUsername, setAdminUsername] = useState('');
@@ -108,22 +107,13 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
 
   const handleAdminLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (adminUsername.trim() === 'dungvt.hbh' && adminPassword === '[REDACTED]') {
-      soundManager.play('unlock');
-      setIsAdminAuthenticated(true);
-      sessionStorage.setItem('hsv_admin_authenticated', 'true');
-      setAdminLoginError('');
-      setAdminPassword('');
-    } else {
-      soundManager.play('wrong');
-      setAdminLoginError('Thông tin đăng nhập không chính xác! Vui lòng liên hệ dungvt.hbh@gmail.com.');
-    }
+    soundManager.play('wrong');
+    setAdminLoginError('Khu vực quản trị đang chờ đăng nhập bằng Supabase Auth (vai trò kiểm tra ở máy chủ). Tạm thời chưa mở.');
   };
 
   const handleAdminLogout = () => {
     soundManager.play('click');
     setIsAdminAuthenticated(false);
-    sessionStorage.removeItem('hsv_admin_authenticated');
     setAdminUsername('');
     setAdminPassword('');
   };
@@ -133,14 +123,6 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
     navigator.clipboard.writeText('dungvt.hbh@gmail.com');
     setCopiedEmail(true);
     setTimeout(() => setCopiedEmail(false), 2500);
-  };
-
-  const handleResetPassword = (studentId: string, studentName: string) => {
-    soundManager.play('unlock');
-    adminUpdateStudent(studentId, { password: DEFAULT_PASSWORD });
-    setStatusMsg(`Đã đặt lại mật khẩu cho "${studentName}" về mặc định: ${DEFAULT_PASSWORD}`);
-    onStudentModified();
-    setTimeout(() => setStatusMsg(''), 4000);
   };
 
   const handleAddBonus = (studentId: string, addCoins: number, addStars: number) => {
@@ -490,7 +472,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                         Danh Sách Tài Khoản Học Sinh Đã Đăng Ký
                       </h3>
                       <p className="text-xs text-slate-500 dark:text-slate-400">
-                        Chỉnh sửa số Xu/Sao, đặt lại mật khẩu về "hocvui123", hoặc xóa tài khoản.
+                        Chỉnh sửa số Xu/Sao hoặc xóa tài khoản.
                       </p>
                     </div>
 
@@ -560,15 +542,6 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                                 >
                                   <Plus className="w-3 h-3" />
                                   <span>+100 Xu</span>
-                                </button>
-
-                                <button
-                                  onClick={() => handleResetPassword(p.id, p.name)}
-                                  className="px-2 py-1 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-100 font-bold text-[10px] flex items-center gap-1 cursor-pointer"
-                                  title="Đặt lại mật khẩu về mặc định hocvui123"
-                                >
-                                  <RotateCcw className="w-3 h-3" />
-                                  <span>Reset MK</span>
                                 </button>
 
                                 {!p.isGuest && (
