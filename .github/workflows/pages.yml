@@ -26,8 +26,8 @@ jobs:
       - run: npm run build
         env:
           VITE_BASE: /hocsieuvui/
-          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_SUPABASE_URL: https://owqbwykjabwevkbjroym.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_mFToduXSchitIMvx1HWQaw_JWrWD3IG
       - run: cp dist/index.html dist/404.html
       - uses: actions/configure-pages@v5
         with:
