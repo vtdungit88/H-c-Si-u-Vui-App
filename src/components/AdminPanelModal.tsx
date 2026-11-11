@@ -12,7 +12,6 @@ import {
 import { soundManager } from '../utils/audio';
 import { AvatarRenderer } from './AvatarRenderer';
 import { APP_LOGO_SRC, CURRENT_VERSION } from '../data/versionHistory';
-import { MATH_LESSONS } from '../data/math6Lessons';
 import { SHOP_ITEMS } from '../data/items';
 import { 
   ShieldCheck, 
@@ -192,14 +191,8 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
 
   const handleExportMathLessons = () => {
     soundManager.play('click');
-    const blob = new Blob([JSON.stringify(MATH_LESSONS, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'hocsieuvui-math-lessons-sgk6.json';
-    a.click();
-    URL.revokeObjectURL(url);
-    setStatusMsg('Đã xuất file dữ liệu bài học & câu hỏi SGK Toán 6!');
+    // Lesson/question content now lives in Supabase (answers are private); export is done server-side.
+    setStatusMsg('Nội dung bài học nằm trên máy chủ (đáp án được giữ riêng tư).');
     setTimeout(() => setStatusMsg(''), 4000);
   };
 
@@ -837,7 +830,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                             <FileJson className="w-5 h-5" />
                           </span>
                           <span className="text-[10px] font-mono font-bold bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full">
-                            {MATH_LESSONS.length} bài học SGK
+                            19 bài học SGK (từ máy chủ)
                           </span>
                         </div>
                         <h4 className="font-black text-xs text-slate-900 dark:text-white">

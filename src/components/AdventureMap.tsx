@@ -1,7 +1,7 @@
 import React from 'react';
 import { StudentProfile, MathLesson } from '../types';
-import { MATH_LESSONS } from '../data/math6Lessons';
-import { MATH_6_TERM_2_LESSONS } from '../data/math6Term2Lessons';
+import { fetchCurriculum, type Curriculum } from '../lib/api';
+import { toMathLessons } from '../lib/curriculum';
 import { soundManager } from '../utils/audio';
 import { AvatarRenderer } from './AvatarRenderer';
 import { 
@@ -31,7 +31,16 @@ export const AdventureMap: React.FC<AdventureMapProps> = ({
 }) => {
   const [selectedMapTerm, setSelectedMapTerm] = React.useState<1 | 2>(1);
 
-  const activeLessons = selectedMapTerm === 1 ? MATH_LESSONS : MATH_6_TERM_2_LESSONS;
+  const [curriculum, setCurriculum] = React.useState<Curriculum | null>(null);
+  React.useEffect(() => {
+    let alive = true;
+    fetchCurriculum().then((c) => alive && setCurriculum(c)).catch(() => undefined);
+    return () => { alive = false; };
+  }, []);
+  const activeLessons = React.useMemo(
+    () => toMathLessons(curriculum).filter((l) => (selectedMapTerm === 1 ? l.chapter <= 5 : l.chapter >= 6)),
+    [curriculum, selectedMapTerm]
+  );
 
   // Check completion for current term
   const completedInTermCount = activeLessons.filter((l) => !!student.completedLessons[l.id]).length;
