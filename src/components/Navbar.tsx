@@ -52,7 +52,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   return (
     <header className="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4 md:gap-8">
+      <div className="max-w-screen-2xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-2 md:gap-4 xl:gap-8">
         {/* Zone 1: Brand Wordmark with Mascot Logo */}
         <div
           onClick={() => {
@@ -66,7 +66,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             alt="Học Siêu Vui Mascot Logo"
             className="w-10 h-10 rounded-2xl object-cover shadow-md group-hover:scale-105 transition-transform shrink-0 border border-blue-200 dark:border-blue-800"
           />
-          <div className="flex flex-col">
+          <div className="flex flex-col min-w-0">
             <span className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white leading-none">
               Học Siêu Vui
             </span>
@@ -77,7 +77,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Zone 2: Navigation Links (single-line, concise) */}
-        <nav className="hidden md:flex items-center gap-6 text-sm font-semibold text-slate-600 dark:text-slate-300">
+        <nav aria-label="Điều hướng chính" className="hidden md:flex items-center gap-3 xl:gap-6 text-sm font-semibold text-slate-600 dark:text-slate-300 min-w-0">
           <button
             onClick={() => {
               soundManager.play('click');
@@ -86,8 +86,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             className={`transition-colors whitespace-nowrap shrink-0 hover:text-blue-600 dark:hover:text-blue-400 ${
               currentView === 'study' ? 'text-blue-600 dark:text-blue-400 font-bold underline underline-offset-8' : ''
             }`}
+            title="Bài Học SGK"
+            aria-label="Bài Học SGK"
           >
-            Bài Học SGK
+            <BookOpen className="w-4 h-4 text-blue-500 xl:hidden" />
+            <span className="hidden xl:inline">Bài Học SGK</span>
           </button>
 
           <button
@@ -98,9 +101,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             className={`transition-colors whitespace-nowrap shrink-0 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-1.5 ${
               currentView === 'shop' ? 'text-blue-600 dark:text-blue-400 font-bold underline underline-offset-8' : ''
             }`}
+            title="Studio của tôi"
+            aria-label="Studio của tôi"
           >
             <Sparkles className="w-4 h-4 text-amber-500" />
-            <span>Studio của tôi</span>
+            <span className="hidden xl:inline">Studio của tôi</span>
           </button>
 
           <button
@@ -111,9 +116,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             className={`transition-colors whitespace-nowrap shrink-0 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-1.5 ${
               currentView === 'blitz' ? 'text-blue-600 dark:text-blue-400 font-bold underline underline-offset-8' : ''
             }`}
+            title="Đấu Trường 60s"
+            aria-label="Đấu Trường 60s"
           >
             <Zap className="w-4 h-4 text-orange-500" />
-            <span>Đấu Trường 60s</span>
+            <span className="hidden xl:inline">Đấu Trường 60s</span>
           </button>
 
           <button
@@ -124,9 +131,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             className={`transition-colors whitespace-nowrap shrink-0 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-1.5 ${
               currentView === 'map' ? 'text-blue-600 dark:text-blue-400 font-bold underline underline-offset-8' : ''
             }`}
+            title="Bản Đồ Ải"
+            aria-label="Bản Đồ Ải"
           >
             <Map className="w-4 h-4 text-emerald-500" />
-            <span>Bản Đồ Ải</span>
+            <span className="hidden xl:inline">Bản Đồ Ải</span>
           </button>
 
           <button
@@ -137,14 +146,16 @@ export const Navbar: React.FC<NavbarProps> = ({
             className={`transition-colors whitespace-nowrap shrink-0 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-1.5 ${
               currentView === 'leaderboard' ? 'text-blue-600 dark:text-blue-400 font-bold underline underline-offset-8' : ''
             }`}
+            title="Bảng Xếp Hạng"
+            aria-label="Bảng Xếp Hạng"
           >
             <Trophy className="w-4 h-4 text-amber-500" />
-            <span>Bảng Xếp Hạng</span>
+            <span className="hidden xl:inline">Bảng Xếp Hạng</span>
           </button>
         </nav>
 
         {/* Zone 3: Primary Action & Profile Info */}
-        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+        <div className="flex items-center gap-1 sm:gap-2 min-w-0 shrink">
           {/* Live Online Presence Indicator */}
           {onlineCount !== undefined && (
           <div 
@@ -162,7 +173,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Sound Toggle */}
           <button
             onClick={onToggleSound}
-            className="p-2 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            className="hidden lg:inline-flex p-2 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             title={isMuted ? 'Bật âm thanh' : 'Tắt âm thanh'}
             aria-label="Toggle sound"
           >
@@ -176,12 +187,12 @@ export const Navbar: React.FC<NavbarProps> = ({
                 soundManager.play('click');
                 onOpenInstallShare();
               }}
-              className="flex items-center gap-1.5 py-1.5 px-2.5 sm:px-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold shadow-xs hover:shadow-md transition-all cursor-pointer active:scale-95"
+              className="flex items-center gap-1.5 py-1.5 px-2.5 shrink-0 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold shadow-xs hover:shadow-md transition-all cursor-pointer active:scale-95"
               title="Cài đặt App ra màn hình hoặc chia sẻ Zalo, Facebook"
             >
               <Download className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Cài Đặt App</span>
-              <span className="sm:hidden">App</span>
+              <span className="hidden 2xl:inline">Cài Đặt App</span>
+              <span className="2xl:hidden">App</span>
             </button>
           )}
 
@@ -192,7 +203,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 soundManager.play('click');
                 onOpenAdmin();
               }}
-              className="p-2 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded-xl transition-colors cursor-pointer"
+              className="hidden xl:inline-flex p-2 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded-xl transition-colors cursor-pointer"
               title="Quản trị viên (dungvt.hbh@gmail.com)"
               aria-label="Quản trị viên"
             >
@@ -201,7 +212,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           )}
 
           {/* Quick Wallet preview */}
-          <div className="hidden sm:flex items-center gap-2 text-xs font-mono font-bold px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700">
+          <div className="hidden sm:flex items-center gap-2 shrink-0 text-xs font-mono font-bold px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700">
             <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
               <Coins className="w-3.5 h-3.5" />
               {student.coins}
@@ -219,7 +230,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               soundManager.play('click');
               onOpenCard();
             }}
-            className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl transition-colors cursor-pointer"
+            className="hidden lg:inline-flex p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl transition-colors cursor-pointer"
             title="Xem Thẻ Học Sinh"
             aria-label="Thẻ học sinh"
           >
@@ -232,14 +243,14 @@ export const Navbar: React.FC<NavbarProps> = ({
               soundManager.play('click');
               onOpenProfile();
             }}
-            className="flex items-center gap-2 py-1.5 px-3 bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 dark:hover:bg-blue-900/40 border border-blue-200 dark:border-blue-900 rounded-xl text-slate-900 dark:text-white transition-colors cursor-pointer"
+            className="flex items-center gap-2 py-1.5 px-2 sm:px-3 min-w-0 shrink bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 dark:hover:bg-blue-900/40 border border-blue-200 dark:border-blue-900 rounded-xl text-slate-900 dark:text-white transition-colors cursor-pointer"
             title="Hồ sơ & Đăng nhập"
           >
             <div className="w-7 h-7 rounded-lg overflow-hidden bg-white dark:bg-slate-800 flex items-center justify-center shrink-0 border border-blue-200 dark:border-blue-800">
               <AvatarRenderer config={student.avatarConfig} size="sm" showVehicle={false} showTech={false} showPet={false} />
             </div>
-            <div className="text-left hidden sm:block">
-              <div className="text-xs font-bold leading-none truncate max-w-[95px]">{student.name}</div>
+            <div className="text-left hidden lg:block min-w-0">
+              <div className="text-xs font-bold leading-none truncate max-w-[110px] xl:max-w-[160px]">{student.name}</div>
               <div className="text-[10px] text-blue-600 dark:text-blue-400 leading-none mt-0.5">
                 {student.isGuest ? 'Khách ghé thăm' : student.grade}
               </div>
@@ -253,7 +264,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 soundManager.play('click');
                 onLogout();
               }}
-              className="p-2 text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition-colors cursor-pointer"
+              className="p-2 shrink-0 text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition-colors cursor-pointer"
               title="Đăng xuất tài khoản"
               aria-label="Đăng xuất"
             >
