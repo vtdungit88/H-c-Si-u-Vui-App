@@ -14,8 +14,8 @@ const check = async (name, fn) => {
 };
 
 const run = Date.now();
-const emailA = `ci-test-a-${run}@example.com`;
-const emailB = `ci-test-b-${run}@example.com`;
+const emailA = `ci-test-a-${run}@gmail.com`;
+const emailB = `ci-test-b-${run}@gmail.com`;
 const pw = `Tt-${run}-${Math.random().toString(36).slice(2)}`;
 const anon = mk(), a = mk(), b = mk();
 let lesson, session, qs;
