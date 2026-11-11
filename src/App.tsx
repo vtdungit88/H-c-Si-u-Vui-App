@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { StudentProfile, MathLesson } from './types';
-import { getActiveStudent, logoutStudent } from './utils/studentStorage';
+import { getActiveStudent, createInitialProfile, setActiveStudentId, scrubLegacyPasswords } from './utils/studentStorage';
+import { supabase } from './lib/supabase';
+import { loadStudentProfile, signOut } from './lib/api';
 import { soundManager } from './utils/audio';
 import { Navbar } from './components/Navbar';
 import { AvatarStudio } from './components/AvatarStudio';
@@ -38,7 +40,14 @@ import {
 } from 'lucide-react';
 
 export default function App() {
-  const [student, setStudent] = useState<StudentProfile>(() => getActiveStudent());
+  const [student, setStudent] = useState<StudentProfile>(() => {
+    scrubLegacyPasswords();
+    // Legacy local-only accounts are ignored: identity now comes from Supabase Auth.
+    const guest = createInitialProfile('Bé Siêu Vui', '6', '', 'boy', true);
+    setActiveStudentId(guest.id);
+    return guest;
+  });
+  const [authReady, setAuthReady] = useState(false);
   const [currentView, setCurrentView] = useState<'study' | 'shop' | 'blitz' | 'map' | 'leaderboard'>('study');
   const [currentSubjectId, setCurrentSubjectId] = useState<string>('math');
   const [currentGrade, setCurrentGrade] = useState<GradeLevel>('6');
@@ -50,18 +59,30 @@ export default function App() {
   const [isUpdateNoticeOpen, setIsUpdateNoticeOpen] = useState(false);
   const [showTicker, setShowTicker] = useState(true);
   const [isMuted, setIsMuted] = useState(() => soundManager.getMuted());
-  const [onlineCount, setOnlineCount] = useState(19);
 
-  // Subtle live online presence fluctuation
+  // Restore the Supabase session and keep the profile in sync with auth state.
   useEffect(() => {
-    const interval = setInterval(() => {
-      setOnlineCount((prev) => {
-        const delta = Math.floor(Math.random() * 3) - 1; // -1, 0, or 1
-        const next = prev + delta;
-        return next < 14 ? 14 : next > 28 ? 28 : next;
-      });
-    }, 12000);
-    return () => clearInterval(interval);
+    let cancelled = false;
+    const hydrate = async (user: { id: string } | null) => {
+      if (!user) {
+        const guest = createInitialProfile('Bé Siêu Vui', '6', '', 'boy', true);
+        setActiveStudentId(guest.id);
+        if (!cancelled) setStudent(guest);
+        return;
+      }
+      try {
+        const p = await loadStudentProfile(user as never);
+        if (!cancelled) setStudent(p);
+      } catch (e) {
+        console.error('Không tải được hồ sơ', e);
+      }
+    };
+    supabase.auth.getSession().then(({ data }) => hydrate(data.session?.user ?? null)).finally(() => !cancelled && setAuthReady(true));
+    const { data: sub } = supabase.auth.onAuthStateChange((_evt, session) => {
+      // Defer to avoid awaiting Supabase calls inside the auth callback.
+      setTimeout(() => hydrate(session?.user ?? null), 0);
+    });
+    return () => { cancelled = true; sub.subscription.unsubscribe(); };
   }, []);
 
   // Handle sound toggle
@@ -83,8 +104,7 @@ export default function App() {
 
   const handleLogout = () => {
     soundManager.play('click');
-    const guest = logoutStudent();
-    setStudent(guest);
+    signOut().catch((e) => console.error(e));
   };
 
   const handleRequireLogin = () => {
@@ -104,7 +124,6 @@ export default function App() {
         onLogout={handleLogout}
         onOpenAdmin={() => setIsAdminModalOpen(true)}
         onOpenInstallShare={() => setIsInstallShareOpen(true)}
-        onlineCount={onlineCount}
         isMuted={isMuted}
         onToggleSound={handleToggleSound}
       />
@@ -494,8 +513,8 @@ export default function App() {
       <LoginModal
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
-        onSelectStudent={(s) => setStudent(s)}
         activeStudent={student}
+        onLogout={handleLogout}
       />
 
       {/* Student ID Card Modal */}
