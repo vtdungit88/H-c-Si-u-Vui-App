@@ -24,3 +24,17 @@ jobs:
             dist
             package-lock.json
           retention-days: 7
+  e2e:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund
+      - name: E2E against Supabase (publishable key only)
+        run: node tests/e2e-supabase.mjs
+        env:
+          VITE_SUPABASE_URL: https://owqbwykjabwevkbjroym.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_mFToduXSchitIMvx1HWQaw_JWrWD3IG
