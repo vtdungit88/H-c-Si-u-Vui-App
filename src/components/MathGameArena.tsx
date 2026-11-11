@@ -34,6 +34,7 @@ import {
 
 interface MathGameArenaProps {
   student: StudentProfile;
+  subjectId?: string;
   currentGrade: GradeLevel;
   currentTerm: 1 | 2;
   onUpdateStudent: (updated: StudentProfile) => void;
@@ -43,6 +44,7 @@ interface MathGameArenaProps {
 
 export const MathGameArena: React.FC<MathGameArenaProps> = ({
   student,
+  subjectId = 'math',
   currentGrade,
   currentTerm,
   onUpdateStudent,
@@ -59,9 +61,12 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
 
   useEffect(() => {
     let alive = true;
-    fetchCurriculum().then((c) => alive && setCurriculum(c)).catch((e) => alive && setCurriculumError(String(e.message || e)));
+    setCurriculum(null);
+    setCurriculumError('');
+    if (subjectId !== 'math' && subjectId !== 'science') return () => { alive = false; };
+    fetchCurriculum(subjectId).then((c) => alive && setCurriculum(c)).catch((e) => alive && setCurriculumError(String(e.message || e)));
     return () => { alive = false; };
-  }, []);
+  }, [subjectId]);
 
   const dbLessonIdByCode = React.useMemo(
     () => new Map((curriculum?.lessons ?? []).map((l) => [l.code, l.id] as const)),
@@ -70,8 +75,10 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
 
   const currentLessons: MathLesson[] = React.useMemo(() => {
     if (currentGrade !== '6') return [];
-    return toMathLessons(curriculum).filter((l) => (currentTerm === 1 ? l.chapter <= 5 : l.chapter >= 6));
-  }, [currentGrade, currentTerm, curriculum]);
+    const all = toMathLessons(curriculum);
+    // Science (KHTN 6) shows all 10 chapters; Math 6 splits chapters 1-5 / 6-9 by term.
+    return subjectId === 'science' ? all : all.filter((l) => (currentTerm === 1 ? l.chapter <= 5 : l.chapter >= 6));
+  }, [currentGrade, currentTerm, curriculum, subjectId]);
 
   // Extract unique chapters
   const availableChapters = React.useMemo(() => {
@@ -134,6 +141,11 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
       return;
     }
     soundManager.play('click');
+    if (subjectId === 'science') {
+      // KHTN chapter quizzes are a single mixed-difficulty set (15 questions).
+      void startTierExercise(lesson, 'mixed');
+      return;
+    }
     setSelectedLessonForTiers(lesson);
   };
 
@@ -300,7 +312,7 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
       soundManager.play('fanfare');
       if (result.coins_awarded > 0) confetti({ particleCount: 80, spread: 70, origin: { y: 0.5 } });
       const { data } = await supabase.auth.getUser();
-      if (data.user) onUpdateStudent(await loadStudentProfile(data.user, curriculum ?? undefined));
+      if (data.user) onUpdateStudent(await loadStudentProfile(data.user));
     } catch (e) {
       console.error(e);
       setQuizError('Chưa lưu được kết quả lên máy chủ. Hãy kiểm tra mạng và thử lại.');
@@ -319,12 +331,17 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
           Không tải được danh sách bài học: {curriculumError}
         </div>
       )}
-      {!activeLesson && !curriculum && !curriculumError && (
+      {!activeLesson && !curriculum && !curriculumError && (subjectId === 'math' || subjectId === 'science') && currentGrade === '6' && (
         <div className="mb-4 p-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-sm">Đang tải bài học…</div>
       )}
-      {!activeLesson && curriculum && currentGrade !== '6' && (
+      {!activeLesson && (subjectId !== 'math' && subjectId !== 'science' || currentGrade !== '6') && (
         <div className="mb-4 p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-200 text-sm font-semibold">
-          Phần này đang được xây dựng. Bản dùng thử hiện chỉ có Toán lớp 6.
+          Phần này đang được xây dựng. Bản dùng thử hiện có Toán 6 và Khoa học tự nhiên 6.
+        </div>
+      )}
+      {!activeLesson && subjectId === 'science' && currentGrade === '6' && (
+        <div className="mb-4 p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-200 text-sm font-semibold">
+          Bộ đề Khoa học tự nhiên 6 (Kết nối tri thức) là bản nháp v0.2.0, đang chờ giáo viên thẩm định.
         </div>
       )}
       {isStarting && (

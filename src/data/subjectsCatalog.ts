@@ -9,15 +9,15 @@ export const SUBJECTS_CATALOG: SubjectMeta[] = [
     description: 'Chương trình chuẩn SGK từ Tiểu học (Lớp 1-5) đến THCS (Lớp 6-9). Đầy đủ Tập 1 & Tập 2.',
     status: 'active',
     availableGrades: [
-      { grade: '1', term1Available: true, term2Available: true, notes: 'Đếm số, so sánh, cộng trừ trong phạm vi 10, 100' },
-      { grade: '2', term1Available: true, term2Available: true, notes: 'Phép cộng trừ có nhớ, bảng nhân 2, 5, đo lường' },
-      { grade: '3', term1Available: true, term2Available: true, notes: 'Bảng nhân chia 3-9, chu vi & diện tích hình chữ nhật' },
-      { grade: '4', term1Available: true, term2Available: true, notes: 'Dấu hiệu chia hết, phân số cơ bản, số có nhiều chữ số' },
-      { grade: '5', term1Available: true, term2Available: true, notes: 'Toán chuyển động đều, phân số nâng cao, số thập phân' },
+      { grade: '1', term1Available: false, term2Available: false, notes: 'Sắp ra mắt' },
+      { grade: '2', term1Available: false, term2Available: false, notes: 'Sắp ra mắt' },
+      { grade: '3', term1Available: false, term2Available: false, notes: 'Sắp ra mắt' },
+      { grade: '4', term1Available: false, term2Available: false, notes: 'Sắp ra mắt' },
+      { grade: '5', term1Available: false, term2Available: false, notes: 'Sắp ra mắt' },
       { grade: '6', term1Available: true, term2Available: true, notes: 'Đầy đủ Tập 1 (5 chương) & Tập 2 (Chương 6-9)' },
-      { grade: '7', term1Available: true, term2Available: true, notes: 'Số hữu tỉ Q, số vô tỉ, góc & hai đường thẳng song song' },
-      { grade: '8', term1Available: true, term2Available: true, notes: 'Hằng đẳng thức đáng nhớ, tứ giác, định lí Thalès' },
-      { grade: '9', term1Available: true, term2Available: true, notes: 'Hệ phương trình bậc nhất hai ẩn, căn bậc hai, đường tròn' }
+      { grade: '7', term1Available: false, term2Available: false, notes: 'Sắp ra mắt' },
+      { grade: '8', term1Available: false, term2Available: false, notes: 'Sắp ra mắt' },
+      { grade: '9', term1Available: false, term2Available: false, notes: 'Sắp ra mắt' }
     ]
   },
   {
@@ -42,7 +42,7 @@ export const SUBJECTS_CATALOG: SubjectMeta[] = [
     description: 'Khám phá thế giới vật lý, phản ứng hóa học kỳ thú và thế giới sinh học diệu kỳ.',
     status: 'coming_soon',
     availableGrades: [
-      { grade: '6', term1Available: false, term2Available: false, notes: 'Đang chuẩn bị mô phỏng thí nghiệm' },
+      { grade: '6', term1Available: true, term2Available: true, notes: '10 chương, 150 câu (bản nháp v0.2.0, chờ giáo viên thẩm định)' },
       { grade: '7', term1Available: false, term2Available: false, notes: 'Sắp ra mắt' },
       { grade: '8', term1Available: false, term2Available: false, notes: 'Sắp ra mắt' },
       { grade: '9', term1Available: false, term2Available: false, notes: 'Sắp ra mắt' }
