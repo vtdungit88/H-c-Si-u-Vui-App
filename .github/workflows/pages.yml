@@ -29,7 +29,7 @@ jobs:
           # vnptluongson.cloud is served from the domain root, not /hocsieuvui/.
           VITE_BASE: /
           VITE_SUPABASE_URL: https://owqbwykjabwevkbjroym.supabase.co
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_mFToduXSchitIMvx1HWQaw_JWrWD3IG
       - name: Verify built asset paths
         run: |
           node --input-type=module <<'NODE'
