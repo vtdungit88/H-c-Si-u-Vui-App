@@ -37,10 +37,10 @@ let lesson, session, qs;
 
 await check('anon: can read published chapters/lessons', async () => {
   const c = await anon.from('chapters').select('id').eq('status', 'published');
-  assert(!c.error && c.data.length >= 9, JSON.stringify(c.error));
+  assert(!c.error && c.data.length >= 76, JSON.stringify(c.error));
   const l = await anon.from('lessons').select('id,code').eq('status', 'published');
-  assert(!l.error && l.data.length >= 19);
-  lesson = l.data.find((x) => x.code === 'lesson_1_set')?.id;
+  assert(!l.error && l.data.length >= 76);
+  lesson = l.data.find((x) => x.code === 'toan6_ch1')?.id;
   assert(lesson);
 });
 await check('anon: cannot read questions, answer keys, explanations', async () => {
@@ -50,7 +50,7 @@ await check('anon: cannot read questions, answer keys, explanations', async () =
   assert(k.error || k.data.length === 0, 'anon read answer keys');
 });
 await check('anon: cannot start quiz or read profiles/attempts/roles', async () => {
-  const r = await anon.rpc('start_quiz', { p_lesson: lesson, p_tier: 'basic', p_count: 5 });
+  const r = await anon.rpc('start_quiz', { p_lesson: lesson, p_tier: 'mixed', p_count: 5 });
   assert(r.error, 'anon started quiz');
   for (const t of ['profiles', 'quiz_sessions', 'question_attempts', 'platform_roles', 'student_wallets']) {
     const x = await anon.from(t).select('*').limit(1);
@@ -80,13 +80,13 @@ if (signedUp) {
     const u = (await a.auth.getUser()).data.user;
     const p = await a.from('profiles').select('display_alias').eq('id', u.id).single();
     assert(!p.error && p.data.display_alias === nickA, p.data?.display_alias);
-    const up = await a.from('profiles').update({ display_alias: 'CI Test Alias' }).eq('id', u.id);
+    const up = await a.from('profiles').update({ display_alias: `CI Alias ${run.toString(36)}` }).eq('id', u.id);
     assert(!up.error, up.error?.message);
     const w = await a.from('student_wallets').select('coin_balance,xp_balance').eq('student_id', u.id).single();
     assert(!w.error && Number(w.data.xp_balance) === 0);
   });
   await check('quiz: start returns questions without any answer key', async () => {
-    const r = await a.rpc('start_quiz', { p_lesson: lesson, p_tier: 'basic', p_count: 5 });
+    const r = await a.rpc('start_quiz', { p_lesson: lesson, p_tier: 'mixed', p_count: 5 });
     assert(!r.error, r.error?.message);
     session = r.data.session_id; qs = r.data.questions;
     assert.equal(qs.length, 5);
