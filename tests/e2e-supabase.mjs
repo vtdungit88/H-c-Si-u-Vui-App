@@ -14,8 +14,8 @@ const check = async (name, fn) => {
 };
 
 const run = Date.now();
-const nickA = `CI Test A ${run}`;
-const nickB = `CI Test B ${run}`;
+const nickA = `CI A ${run.toString(36)}`;
+const nickB = `CI B ${run.toString(36)}`;
 const normalize = (n) => n.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'd').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 const emailFor = (n) => `${normalize(n)}@hsv.vnptluongson.cloud`;
 const emailA = emailFor(nickA), emailB = emailFor(nickB);
