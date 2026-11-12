@@ -23,11 +23,28 @@ jobs:
           node-version: 22
       - run: npm install --no-audit --no-fund
       - run: npm run lint
-      - run: npm run build
+      - name: Build for the custom root domain
+        run: npm run build
         env:
-          VITE_BASE: ${{ vars.PAGES_BASE || '/hocsieuvui/' }}
+          # vnptluongson.cloud is served from the domain root, not /hocsieuvui/.
+          VITE_BASE: /
           VITE_SUPABASE_URL: https://owqbwykjabwevkbjroym.supabase.co
           VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_mFToduXSchitIMvx1HWQaw_JWrWD3IG
+      - name: Verify built asset paths
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync } from 'node:fs';
+          const html = readFileSync('dist/index.html', 'utf8');
+          if (!html.includes('src="/assets/')) {
+            console.error('Expected root-relative JS asset path in dist/index.html');
+            process.exit(1);
+          }
+          if (html.includes('/hocsieuvui/assets/')) {
+            console.error('Project-site asset path detected; custom domain requires /assets/.');
+            process.exit(1);
+          }
+          console.log('Custom-domain asset paths verified.');
+          NODE
       - run: cp dist/index.html dist/404.html
       - uses: actions/configure-pages@v5
         with:
