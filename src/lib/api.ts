@@ -16,7 +16,7 @@ export const UI_TO_DB_TIER: Record<UiTier, DbTier> = { easy: 'basic', medium: 'a
 export const DB_TO_UI_TIER: Record<DbTier, UiTier> = { basic: 'easy', application: 'medium', advanced: 'hard', mixed: 'mixed' };
 
 export type SubjectKey = 'math' | 'science' | 'all';
-const CHAPTER_PREFIX: Record<Exclude<SubjectKey, 'all'>, string> = { math: 'toan6-c', science: 'khtn6-c' };
+const CHAPTER_PREFIX: Record<Exclude<SubjectKey, 'all'>, string> = { math: 'toan', science: 'khtn' };
 
 export interface DbChapter { id: string; code: string; title: string; sequence_no: number }
 export interface DbLesson {
@@ -104,25 +104,28 @@ export async function getCurrentUser(): Promise<User | null> {
 }
 
 // ---------- Curriculum (public read of published content) ----------
-const curriculumCache = new Map<SubjectKey, Promise<Curriculum>>();
+const curriculumCache = new Map<string, Promise<Curriculum>>();
 
-export function fetchCurriculum(subject: SubjectKey = 'math'): Promise<Curriculum> {
-  const hit = curriculumCache.get(subject);
+export function fetchCurriculum(subject: SubjectKey = 'math', grade?: number): Promise<Curriculum> {
+  const cacheKey = `${subject}:${grade ?? 'all'}`;
+  const hit = curriculumCache.get(cacheKey);
   if (hit) return hit;
   const p = (async () => {
+    let chQuery = supabase.from('chapters').select('id,code,title,sequence_no').eq('status', 'published');
+    if (grade) chQuery = chQuery.eq('grade_id', grade);
     const [ch, ls] = await Promise.all([
-      supabase.from('chapters').select('id,code,title,sequence_no').eq('grade_id', 6).eq('status', 'published').order('sequence_no'),
+      chQuery.order('sequence_no'),
       supabase.from('lessons').select('id,chapter_id,code,title,sequence_no,learning_material').eq('status', 'published').order('sequence_no')
     ]);
     if (ch.error) fail('chapters', ch.error);
     if (ls.error) fail('lessons', ls.error);
     const wanted = (Object.keys(CHAPTER_PREFIX) as (keyof typeof CHAPTER_PREFIX)[]).filter((k) => subject === 'all' || subject === k);
-    const chapters = (ch.data as DbChapter[]).filter((c) => wanted.some((k) => c.code.startsWith(CHAPTER_PREFIX[k])));
+    const chapters = (ch.data as DbChapter[]).filter((c) => wanted.some((k) => /^(toan|khtn)\d+-c/.test(c.code) && c.code.startsWith(CHAPTER_PREFIX[k])));
     const ids = new Set(chapters.map((c) => c.id));
     return { chapters, lessons: (ls.data as DbLesson[]).filter((l) => ids.has(l.chapter_id)) };
   })();
-  curriculumCache.set(subject, p);
-  p.catch(() => curriculumCache.delete(subject));
+  curriculumCache.set(cacheKey, p);
+  p.catch(() => curriculumCache.delete(cacheKey));
   return p;
 }
 

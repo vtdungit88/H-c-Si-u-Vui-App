@@ -64,21 +64,17 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
     setCurriculum(null);
     setCurriculumError('');
     if (subjectId !== 'math' && subjectId !== 'science') return () => { alive = false; };
-    fetchCurriculum(subjectId).then((c) => alive && setCurriculum(c)).catch((e) => alive && setCurriculumError(String(e.message || e)));
+    fetchCurriculum(subjectId, Number(currentGrade)).then((c) => alive && setCurriculum(c)).catch((e) => alive && setCurriculumError(String(e.message || e)));
     return () => { alive = false; };
-  }, [subjectId]);
+  }, [subjectId, currentGrade]);
 
   const dbLessonIdByCode = React.useMemo(
     () => new Map((curriculum?.lessons ?? []).map((l) => [l.code, l.id] as const)),
     [curriculum]
   );
 
-  const currentLessons: MathLesson[] = React.useMemo(() => {
-    if (currentGrade !== '6') return [];
-    const all = toMathLessons(curriculum);
-    // Science (KHTN 6) shows all 10 chapters; Math 6 splits chapters 1-5 / 6-9 by term.
-    return subjectId === 'science' ? all : all.filter((l) => (currentTerm === 1 ? l.chapter <= 5 : l.chapter >= 6));
-  }, [currentGrade, currentTerm, curriculum, subjectId]);
+  // Every chapter is one mixed-difficulty set and is available in both terms.
+  const currentLessons: MathLesson[] = React.useMemo(() => toMathLessons(curriculum), [curriculum]);
 
   // Extract unique chapters
   const availableChapters = React.useMemo(() => {
@@ -105,12 +101,10 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
     }
   }, [availableChapters, selectedChapter]);
 
-  // Modal for picking one of the 3 exercises of a lesson
-  const [selectedLessonForTiers, setSelectedLessonForTiers] = useState<MathLesson | null>(null);
 
   // Active quiz state
   const [activeLesson, setActiveLesson] = useState<MathLesson | null>(null);
-  const [selectedTier, setSelectedTier] = useState<LessonDifficultyTier>('easy');
+  const [selectedTier, setSelectedTier] = useState<LessonDifficultyTier>('mixed');
   const [activeQuestions, setActiveQuestions] = useState<MathQuestion[]>([]);
   const [isReplayLesson, setIsReplayLesson] = useState(false);
   const [lastAnswerResult, setLastAnswerResult] = useState<'correct' | 'wrong' | null>(null);
@@ -141,12 +135,7 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
       return;
     }
     soundManager.play('click');
-    if (subjectId === 'science') {
-      // KHTN chapter quizzes are a single mixed-difficulty set (15 questions).
-      void startTierExercise(lesson, 'mixed');
-      return;
-    }
-    setSelectedLessonForTiers(lesson);
+    void startTierExercise(lesson, 'mixed');
   };
 
   const mapQuestion = (q: QuizQuestion): MathQuestion => ({
@@ -186,7 +175,6 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
       setStreak(0);
       setIsLessonFinished(false);
       setTimeLeft(60);
-      setSelectedLessonForTiers(null);
       questionStartRef.current = Date.now();
     } catch (e) {
       soundManager.play('wrong');
@@ -600,13 +588,12 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
                 <button
                   onClick={() => {
                     soundManager.play('click');
-                    setSelectedLessonForTiers(activeLesson);
                     setActiveLesson(null);
                   }}
                   className="py-2.5 px-4 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer"
                 >
                   <Layers className="w-3.5 h-3.5" />
-                  Chọn Bài Tập Khác (Dễ / Vừa / Khó)
+                  Chọn Chương Khác
                 </button>
                 <button
                   onClick={() => {
@@ -643,19 +630,17 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
                 <span>Chương Trình Bài Học Chuẩn SGK Hiện Hành</span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-black mt-1">
-                {currentGrade === '6'
-                  ? `Chinh Phục Môn Toán 6 - Tập ${currentTerm}`
-                  : `Chinh Phục Môn Toán Lớp ${currentGrade} - Tập ${currentTerm}`}
+                {subjectId === 'science' ? `Khoa Học Tự Nhiên ${currentGrade}` : `Chinh Phục Môn Toán Lớp ${currentGrade}`}
               </h1>
               <p className="text-xs sm:text-sm text-blue-100 mt-1 max-w-xl">
-                Mỗi bài học gồm 3 bài tập độc lập (Dễ, Trung bình, Nâng cao), 15 câu/bài, 60s/câu. Tích lũy Xu & Sao đổi quà tại Studio!
+                Mỗi chương là một bài ôn luyện 15 câu trộn đủ mức độ, 60s/câu. Tích lũy Xu & Sao đổi quà tại Studio!
               </p>
             </div>
 
             <div className="bg-white/10 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-white/20 shrink-0 text-center">
               <div className="text-[11px] text-blue-200">Tiến Độ Phần Này</div>
               <div className="text-lg font-black font-mono text-white">
-                {currentLessons.filter((l) => !!student.completedLessons[l.id] || !!student.completedLessons[`${l.id}_easy`]).length}/{currentLessons.length} Bài
+                {currentLessons.filter((l) => !!student.completedLessons[l.id] || !!student.completedLessons[`${l.id}_mixed`]).length}/{currentLessons.length} Bài
               </div>
             </div>
           </div>
@@ -685,11 +670,8 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
           {/* Lesson Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {chapterLessons.map((lesson) => {
-              const recordEasy = student.completedLessons[`${lesson.id}_easy`];
-              const recordMed = student.completedLessons[`${lesson.id}_medium`];
-              const recordHard = student.completedLessons[`${lesson.id}_hard`];
-              const completedTiersCount = (recordEasy ? 1 : 0) + (recordMed ? 1 : 0) + (recordHard ? 1 : 0);
-              const isAnyDone = completedTiersCount > 0 || !!student.completedLessons[lesson.id];
+              const record = student.completedLessons[`${lesson.id}_mixed`];
+              const isAnyDone = !!record || !!student.completedLessons[lesson.id];
 
               return (
                 <div
@@ -706,7 +688,7 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
                       {isAnyDone ? (
                         <div className="flex items-center gap-1.5">
                           <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded">
-                            Đã làm {completedTiersCount}/3 bài
+                            Đã làm
                           </span>
                           <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
                         </div>
@@ -726,20 +708,7 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
 
                     {/* Quick concept tip */}
                     <div className="mt-3 p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl text-[11px] text-slate-600 dark:text-slate-300">
-                      💡 {lesson.conceptSummary[0]}
-                    </div>
-                  </div>
-
-                  {/* 3 mini tier chips */}
-                  <div className="grid grid-cols-3 gap-1.5 mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 text-[10px] font-bold">
-                    <div className={`p-1.5 rounded-lg text-center ${recordEasy ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300' : 'bg-slate-50 text-slate-500 dark:bg-slate-800'}`}>
-                      Bài 1: Dễ {recordEasy ? '✓' : ''}
-                    </div>
-                    <div className={`p-1.5 rounded-lg text-center ${recordMed ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300' : 'bg-slate-50 text-slate-500 dark:bg-slate-800'}`}>
-                      Bài 2: Vừa {recordMed ? '✓' : ''}
-                    </div>
-                    <div className={`p-1.5 rounded-lg text-center ${recordHard ? 'bg-amber-50 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300' : 'bg-slate-50 text-slate-500 dark:bg-slate-800'}`}>
-                      Bài 3: Cao {recordHard ? '✓' : ''}
+                      💡 {lesson.conceptSummary[0] ?? 'Ôn luyện trộn mọi mức độ'}
                     </div>
                   </div>
 
@@ -747,11 +716,11 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
                   <div className="pt-3 flex items-center justify-between">
                     <div className="flex items-center gap-2 text-xs font-bold text-amber-600 dark:text-amber-400">
                       <Coins className="w-3.5 h-3.5" />
-                      <span>15 câu / bài • 60s/câu</span>
+                      <span>15 câu • 60s/câu</span>
                     </div>
 
                     <div className="flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 group-hover:translate-x-1 transition-transform">
-                      <span>Chọn Bài Tập</span>
+                      <span>Làm bài</span>
                       <ChevronRight className="w-4 h-4" />
                     </div>
                   </div>
@@ -762,117 +731,6 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
         </div>
       )}
 
-      {/* EXERCISE TIER PICKER MODAL */}
-      {selectedLessonForTiers && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs animate-fadeIn">
-          <div className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-5">
-            <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
-              <div>
-                <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2.5 py-0.5 rounded-full">
-                  {selectedLessonForTiers.sgkPage.replace(/NXB Giáo Dục Việt Nam/gi, 'SGK')}
-                </span>
-                <h3 className="text-lg font-black text-slate-900 dark:text-white mt-1">
-                  {selectedLessonForTiers.title}
-                </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Chọn 1 trong 3 bài tập dưới đây. Mỗi bài gồm 15 câu hỏi độc lập, 60 giây mỗi câu.
-                </p>
-              </div>
-              <button
-                onClick={() => {
-                  soundManager.play('click');
-                  setSelectedLessonForTiers(null);
-                }}
-                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* 3 Tier Cards */}
-            <div className="space-y-3">
-              {(['easy', 'medium', 'hard'] as LessonDifficultyTier[]).map((tierKey) => {
-                const config = LESSON_TIERS_CONFIG[tierKey];
-                const storageKey = `${selectedLessonForTiers.id}_${tierKey}`;
-                const doneRecord = student.completedLessons[storageKey];
-                const isCompleted = !!doneRecord;
-
-                return (
-                  <div
-                    key={tierKey}
-                    className={`p-4 rounded-2xl border transition-all ${
-                      tierKey === 'easy'
-                        ? 'border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/40 dark:bg-emerald-950/20'
-                        : tierKey === 'medium'
-                        ? 'border-blue-200 dark:border-blue-900/50 bg-blue-50/40 dark:bg-blue-950/20'
-                        : 'border-amber-200 dark:border-amber-900/50 bg-amber-50/40 dark:bg-amber-950/20'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-black text-sm text-slate-900 dark:text-white">
-                            {config.title}
-                          </h4>
-                          {isCompleted && (
-                            <span className="text-[10px] font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-900/50 px-2 py-0.5 rounded-full">
-                              Đã đạt {doneRecord.bestScore}/15
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                          {config.subTitle}
-                        </p>
-                      </div>
-
-                      {/* Rewards tag */}
-                      <div className="text-right shrink-0">
-                        {isCompleted ? (
-                          <div className="text-[11px] font-semibold text-slate-400">
-                            Luyện lại: 0 xu
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-1.5 text-xs font-black text-amber-600 dark:text-amber-400">
-                            <span className="flex items-center gap-0.5">
-                              <Coins className="w-3.5 h-3.5" /> +{config.rewardCoins}
-                            </span>
-                            <span className="flex items-center gap-0.5 text-yellow-500">
-                              <Star className="w-3.5 h-3.5 fill-yellow-400" /> +{config.rewardStars}
-                            </span>
-                          </div>
-                        )}
-                        <div className="text-[10px] text-slate-400 flex items-center gap-1 justify-end mt-0.5">
-                          <Clock className="w-3 h-3" /> 60s/câu
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="mt-3 pt-3 border-t border-slate-200/60 dark:border-slate-800 flex items-center justify-between">
-                      <span className="text-xs text-slate-500 dark:text-slate-400">
-                        15 câu hỏi không trùng lặp
-                      </span>
-
-                      <button
-                        onClick={() => startTierExercise(selectedLessonForTiers, tierKey)}
-                        className={`py-2 px-4 rounded-xl text-xs font-black text-white shadow-sm flex items-center gap-1.5 transition-all cursor-pointer ${
-                          tierKey === 'easy'
-                            ? 'bg-emerald-600 hover:bg-emerald-700'
-                            : tierKey === 'medium'
-                            ? 'bg-blue-600 hover:bg-blue-700'
-                            : 'bg-amber-600 hover:bg-amber-700'
-                        }`}
-                      >
-                        <Play className="w-3.5 h-3.5 fill-current" />
-                        <span>{isCompleted ? 'Luyện Lại Bài Này' : 'Bắt Đầu Làm Bài'}</span>
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
