@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { StudentProfile, MathLesson } from './types';
 import { getActiveStudent, createInitialProfile, setActiveStudentId, scrubLegacyPasswords } from './utils/studentStorage';
-import { supabase } from './lib/supabase';
-import { loadStudentProfile, signOut } from './lib/api';
+import { supabase, isSupabaseConfigured } from './lib/supabase';
+import { loadStudentProfile, signOut, isPlatformAdmin, getVisitStats, type VisitStats } from './lib/api';
+import { useOnlineCount, useRecordVisit } from './lib/presence';
 import { soundManager } from './utils/audio';
 import { Navbar } from './components/Navbar';
 import { AvatarStudio } from './components/AvatarStudio';
@@ -48,6 +49,15 @@ export default function App() {
     return guest;
   });
   const [authReady, setAuthReady] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [visitStats, setVisitStats] = useState<VisitStats | null>(null);
+  const onlineCount = useOnlineCount();
+  useRecordVisit();
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+    const t = setTimeout(() => { getVisitStats().then(setVisitStats).catch(() => undefined); }, 1200);
+    return () => clearTimeout(t);
+  }, []);
   const [currentView, setCurrentView] = useState<'study' | 'shop' | 'blitz' | 'map' | 'leaderboard'>('study');
   const [currentSubjectId, setCurrentSubjectId] = useState<string>('math');
   const [currentGrade, setCurrentGrade] = useState<GradeLevel>('6');
@@ -65,6 +75,7 @@ export default function App() {
     let cancelled = false;
     const hydrate = async (user: { id: string } | null) => {
       if (!user) {
+        setIsAdmin(false);
         const guest = createInitialProfile('Bé Siêu Vui', '6', '', 'boy', true);
         setActiveStudentId(guest.id);
         if (!cancelled) setStudent(guest);
@@ -73,6 +84,8 @@ export default function App() {
       try {
         const p = await loadStudentProfile(user as never);
         if (!cancelled) setStudent(p);
+        const adm = await isPlatformAdmin(user.id);
+        if (!cancelled) setIsAdmin(adm);
       } catch (e) {
         console.error('Không tải được hồ sơ', e);
       }
@@ -122,7 +135,8 @@ export default function App() {
         onOpenProfile={() => setIsLoginModalOpen(true)}
         onOpenCard={() => setIsCardModalOpen(true)}
         onLogout={handleLogout}
-        onOpenAdmin={() => setIsAdminModalOpen(true)}
+        onOpenAdmin={isAdmin ? () => setIsAdminModalOpen(true) : undefined}
+        onlineCount={onlineCount ?? undefined}
         onOpenInstallShare={() => setIsInstallShareOpen(true)}
         isMuted={isMuted}
         onToggleSound={handleToggleSound}
@@ -386,6 +400,12 @@ export default function App() {
             </span>
           </div>
 
+          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px] font-semibold" aria-label="Thống kê truy cập">
+            <span>Lượt truy cập: <b>{visitStats ? visitStats.total_visits.toLocaleString('vi-VN') : '—'}</b></span>
+            <span>Hôm nay: <b>{visitStats ? visitStats.today_visits.toLocaleString('vi-VN') : '—'}</b></span>
+            <span>Đang online: <b>{onlineCount ?? '—'}</b></span>
+          </div>
+
           <div className="flex flex-wrap items-center justify-center gap-4">
             <button
               onClick={() => {
@@ -529,7 +549,6 @@ export default function App() {
       <AdminPanelModal
         isOpen={isAdminModalOpen}
         onClose={() => setIsAdminModalOpen(false)}
-        onStudentModified={() => setStudent(getActiveStudent())}
       />
 
       {/* PWA Install & Social Sharing Modal */}
