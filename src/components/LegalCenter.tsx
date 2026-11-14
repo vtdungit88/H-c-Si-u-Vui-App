@@ -27,7 +27,7 @@ const Contact = () => (
     <a href={`mailto:${EMAIL}`} className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600">
       <Mail className="w-4 h-4" />{EMAIL}
     </a>
-    <span className="text-xs text-slate-500">Học Siêu Vui · ${VERSION}</span>
+    <span className="text-xs text-slate-500">Học Siêu Vui · {VERSION}</span>
   </div>
 );
 
