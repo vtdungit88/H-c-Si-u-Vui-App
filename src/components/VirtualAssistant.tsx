@@ -55,7 +55,7 @@ export const VirtualAssistant: React.FC<VirtualAssistantProps> = ({
 
     saveUserFeedback({
       studentName: student.name || 'Học sinh ẩn danh',
-      grade: student.grade || 'Lớp 6',
+      grade: student.grade || 'Chưa cập nhật',
       school: student.school || 'Chưa cập nhật',
       contact: feedbackContact.trim(),
       category: feedbackCategory,

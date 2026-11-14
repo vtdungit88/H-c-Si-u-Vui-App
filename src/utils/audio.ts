@@ -7,7 +7,7 @@ class SoundManager {
   constructor() {
     // Check localStorage preference
     try {
-      const saved = localStorage.getItem('toan6_sound_muted');
+      const saved = localStorage.getItem('hsv_sound_muted');
       if (saved) {
         this.isMuted = JSON.parse(saved);
       }
@@ -31,7 +31,7 @@ class SoundManager {
   public toggleMute(): boolean {
     this.isMuted = !this.isMuted;
     try {
-      localStorage.setItem('toan6_sound_muted', JSON.stringify(this.isMuted));
+      localStorage.setItem('hsv_sound_muted', JSON.stringify(this.isMuted));
     } catch {
       // Ignore
     }

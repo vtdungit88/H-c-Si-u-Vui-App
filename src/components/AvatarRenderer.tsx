@@ -521,7 +521,7 @@ export const AvatarRenderer: React.FC<AvatarRendererProps> = ({
                 <rect x="0" y="0" width="38" height="48" rx="3" fill="#3B82F6" stroke="#1D4ED8" strokeWidth="1.5" />
                 <rect x="6" y="8" width="26" height="16" rx="2" fill="#FFFFFF" />
                 <text x="19" y="16" fill="#1E293B" fontSize="6" fontWeight="bold" textAnchor="middle">VỞ TOÁN</text>
-                <text x="19" y="22" fill="#2563EB" fontSize="5" textAnchor="middle">Lớp 6</text>
+                <text x="19" y="22" fill="#2563EB" fontSize="5" textAnchor="middle">HSV</text>
                 <line x1="4" y1="30" x2="34" y2="30" stroke="#93C5FD" strokeWidth="1" />
                 <line x1="4" y1="36" x2="34" y2="36" stroke="#93C5FD" strokeWidth="1" />
               </g>

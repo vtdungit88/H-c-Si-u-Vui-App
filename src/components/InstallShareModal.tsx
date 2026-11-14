@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { usePWAInstall } from '../hooks/usePWAInstall';
 import { soundManager } from '../utils/audio';
-import { APP_LOGO_SRC, CURRENT_VERSION } from '../data/versionHistory';
+import { APP_LOGO_SRC } from '../data/versionHistory';
 import { 
   Download, 
   Share2, 
@@ -43,13 +43,13 @@ export const InstallShareModal: React.FC<InstallShareModalProps> = ({ isOpen, on
       case 'facebook':
         return `${currentUrl}?utm_source=facebook&utm_medium=social_post&utm_campaign=hocsieuvui`;
       case 'ads':
-        return `${currentUrl}?utm_source=marketing_ads&utm_medium=cpc&utm_campaign=toan6_sgk`;
+        return `${currentUrl}?utm_source=marketing_ads&utm_medium=cpc&utm_campaign=hocsieuvui`;
       default:
         return currentUrl;
     }
   };
 
-  const shareText = `🎉 Mời bạn cùng chơi Học Siêu Vui - Nền tảng vừa học vừa chơi môn Toán lớp 6 bám sát SGK! Đấu trường tính nhanh 60s, vượt 10 ải hải trình, tạo Avatar 3D cực chất và nhận 120 Xu khởi nghiệp. Tham gia ngay tại: ${getShareUrl()}`;
+  const shareText = `🎉 Mời bạn cùng chơi Học Siêu Vui - Nền tảng vừa học vừa chơi Toán và Khoa học tự nhiên bám sát SGK! Đấu trường tính nhanh 60s, tạo Avatar 3D cực chất và nhận 120 Xu khởi nghiệp. Tham gia ngay tại: ${getShareUrl()}`;
 
   const handleCopyLink = (textToCopy: string, type: string) => {
     soundManager.play('click');
@@ -366,10 +366,10 @@ export const InstallShareModal: React.FC<InstallShareModalProps> = ({ isOpen, on
                     <div className="p-2.5 space-y-1">
                       <div className="text-[10px] text-blue-600 font-bold uppercase">HOCSIEUVUI.VN</div>
                       <div className="text-xs font-bold text-slate-900 dark:text-white line-clamp-1">
-                        Học Siêu Vui – Game Học Toán 6 Bám Sát SGK
+                        Học Siêu Vui – Vừa Học Vừa Chơi Bám Sát SGK
                       </div>
                       <p className="text-[10px] text-slate-500 line-clamp-2">
-                        Vừa học vừa chơi, thi đấu tốc độ 60s, thử thách 10 ải hải trình, gom Sao đổi quà cực ngầu!
+                        Vừa học vừa chơi, thi đấu tốc độ 60s, gom Sao đổi quà cực ngầu!
                       </p>
                     </div>
                   </div>

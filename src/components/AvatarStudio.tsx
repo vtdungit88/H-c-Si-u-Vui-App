@@ -235,7 +235,7 @@ export const AvatarStudio: React.FC<AvatarStudioProps> = ({
                   Muốn sắm iPhone 16 hay Xe cào cào?
                 </div>
                 <div className="text-[11px] text-amber-700 dark:text-amber-300">
-                  Giải bài tập SGK Toán 6 nhận tới 150 xu và 3 sao mỗi bài!
+                  Giải bài tập nhận tới 150 xu và 3 sao mỗi bài!
                 </div>
               </div>
               <button

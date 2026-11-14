@@ -2,7 +2,7 @@ import React from 'react';
 import { StudentProfile } from '../types';
 import { AvatarRenderer } from './AvatarRenderer';
 import { soundManager } from '../utils/audio';
-import { APP_LOGO_SRC, CURRENT_VERSION } from '../data/versionHistory';
+import { APP_LOGO_SRC } from '../data/versionHistory';
 import { X, Award, Printer, Sparkles, School, } from 'lucide-react';
 import { CoinIcon, StarIcon } from './GameIcons';
 
@@ -66,7 +66,7 @@ export const StudentIdCardModal: React.FC<StudentIdCardModalProps> = ({
               />
               <div className="text-right flex-1">
                 <p className="text-[10px] uppercase tracking-wider font-extrabold text-amber-300">
-                  HỌC SIÊU VUI • {CURRENT_VERSION}
+                  HỌC SIÊU VUI
                 </p>
                 <h3 className="font-bold text-xs sm:text-sm tracking-wide truncate mt-0.5 text-white">
                   {student.school.toUpperCase()}

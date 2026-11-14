@@ -1,7 +1,7 @@
 import { StudentProfile, AvatarConfig } from '../types';
 
-const STORAGE_KEY_PROFILES = 'toan6_student_profiles_v1';
-const STORAGE_KEY_ACTIVE_ID = 'toan6_active_student_id_v1';
+const STORAGE_KEY_PROFILES = 'hsv_student_profiles';
+const STORAGE_KEY_ACTIVE_ID = 'hsv_active_student_id';
 const STORAGE_KEY_ANNOUNCEMENT = 'hocsieuvui_admin_announcement_v1';
 
 export const DEFAULT_AVATAR: AvatarConfig = {

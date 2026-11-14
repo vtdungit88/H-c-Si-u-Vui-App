@@ -40,7 +40,7 @@ export const getLeaderboardData = (
     stars: p.stars || 0,
     coins: p.coins || 0,
     level: p.level || 1,
-    title: p.level >= 20 ? 'Bậc Thầy Học Siêu Vui' : p.level >= 10 ? 'Chiến Thần Học Đường' : 'Tân Binh Lớp 6',
+    title: p.level >= 20 ? 'Bậc Thầy Học Siêu Vui' : p.level >= 10 ? 'Chiến Thần Học Đường' : 'Tân Binh Học Siêu Vui',
     motto: p.motto || 'Học hết mình, chơi siêu vui!',
     isCurrentStudent: p.id === activeStudent.id
   }));

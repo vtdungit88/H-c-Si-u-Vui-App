@@ -8,6 +8,7 @@ export const SUBJECTS_CATALOG: SubjectMeta[] = [
     color: 'from-blue-600 to-indigo-600',
     description: 'Toán lớp 1 đến lớp 9 (Kết nối tri thức): mỗi chương một bài ôn luyện 15 câu.',
     status: 'active',
+    tagline: 'Lớp 1 → 9 · 66 chương · 990 câu',
     availableGrades: [
       { grade: '1', term1Available: true, term2Available: true, notes: 'Ngân hàng 5–10 chương, mỗi chương 15 câu trộn mọi mức độ' },
       { grade: '2', term1Available: true, term2Available: true, notes: 'Ngân hàng 5–10 chương, mỗi chương 15 câu trộn mọi mức độ' },
@@ -41,6 +42,7 @@ export const SUBJECTS_CATALOG: SubjectMeta[] = [
     color: 'from-emerald-500 to-teal-600',
     description: 'Khám phá thế giới vật lý, phản ứng hóa học kỳ thú và thế giới sinh học diệu kỳ.',
     status: 'active',
+    tagline: 'Lớp 6 · 10 chương · 150 câu',
     availableGrades: [
       { grade: '6', term1Available: true, term2Available: true, notes: '10 chương, 150 câu (Kết nối tri thức, đã được chủ dự án duyệt) – dùng chung cho cả 2 học kỳ' },
       { grade: '7', term1Available: false, term2Available: false, notes: 'Sắp ra mắt' },

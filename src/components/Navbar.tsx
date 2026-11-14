@@ -2,7 +2,7 @@ import React from 'react';
 import { StudentProfile } from '../types';
 import { soundManager } from '../utils/audio';
 import { AvatarRenderer } from './AvatarRenderer';
-import { APP_LOGO_SRC, CURRENT_VERSION } from '../data/versionHistory';
+import { APP_LOGO_SRC } from '../data/versionHistory';
 import { 
   BookOpen, 
   Sparkles, 

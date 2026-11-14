@@ -73,6 +73,8 @@ export interface SubjectMeta {
   iconName: string;
   color: string;
   description: string;
+  /** Short highlight shown on the subject card, e.g. "Lớp 1–9 · 66 chương". */
+  tagline?: string;
   availableGrades: {
     grade: GradeLevel;
     term1Available: boolean;

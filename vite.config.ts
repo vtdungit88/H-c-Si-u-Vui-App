@@ -23,9 +23,9 @@ export default defineConfig(() => {
         ],
         manifest: {
           id: '/',
-          name: 'Học Siêu Vui - Toán 6',
+          name: 'Học Siêu Vui',
           short_name: 'Học Siêu Vui',
-          description: 'Học Siêu Vui - Nền tảng học Toán 6 vừa học vừa chơi bám sát SGK, tích lũy điểm thưởng và leo bảng vàng!',
+          description: 'Học Siêu Vui - Nền tảng vừa học vừa chơi bám sát SGK, tích lũy điểm thưởng và leo bảng vàng!',
           theme_color: '#2563eb',
           background_color: '#0f172a',
           display: 'standalone',
