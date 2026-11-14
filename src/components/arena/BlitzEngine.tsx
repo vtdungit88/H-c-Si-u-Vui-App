@@ -70,7 +70,7 @@ export const BlitzEngine: React.FC<Props> = ({ grade, seed, duration, onFinish }
   const answer = (optId: string) => {
     if (!q || done.current || flash) return;
     const opt = q.options.find((o) => o.id === optId)!;
-    if (opt.isCorrect) {
+    if (opt.right) {
       soundManager.play('correct');
       const c = combo + 1;
       setCorrect((x) => x + 1); setCombo(c); setMaxCombo((m) => Math.max(m, c));

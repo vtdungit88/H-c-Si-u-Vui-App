@@ -1,6 +1,19 @@
-import { GradeLevel, MathQuestion } from '../types';
+import type { GradeLevel } from '../types';
 
-export interface ArenaQuestion extends MathQuestion {
+/**
+ * Lưu ý: đề tính nhanh được sinh ngay trên trình duyệt nên đáp án không thể bí mật.
+ * Vì vậy thưởng/kỷ lục được giới hạn phía máy chủ; đây KHÔNG phải ngân hàng câu hỏi của hệ thống.
+ */
+export interface ArenaQuestion {
+  id: string;
+  questionText: string;
+  contextHint?: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
+  visualType?: string;
+  visualData?: unknown;
+  options: { id: string; text: string; right: boolean }[];
+  explanation: string;
+  funnyTip: string;
   grade: GradeLevel;
   topicTag: string;
   source: 'generated';
@@ -99,11 +112,11 @@ function buildUniqueOptions(
   }
 
   const rawOptions = [
-    { id: 'opt_correct', text: correctText, isCorrect: true },
+    { id: 'opt_correct', text: correctText, right: true },
     ...distractors.slice(0, 3).map((text, idx) => ({
       id: `opt_wrong_${idx}`,
       text,
-      isCorrect: false
+      right: false
     }))
   ];
 

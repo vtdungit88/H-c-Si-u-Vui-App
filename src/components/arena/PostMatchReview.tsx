@@ -43,7 +43,7 @@ export const PostMatchReview: React.FC<Props> = ({ result, saveError, wrongItems
       ) : (
         <ul className="space-y-3">
           {wrongItems.slice(0, 12).map((w, i) => {
-            const right = w.question.options.find((o) => o.isCorrect)?.text;
+            const right = w.question.options.find((o) => o.right)?.text;
             return (
               <li key={i} className="text-sm rounded-2xl bg-slate-50 dark:bg-slate-800 p-3">
                 <div className="font-bold">{w.question.questionText}</div>
