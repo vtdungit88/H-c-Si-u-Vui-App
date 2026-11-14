@@ -13,6 +13,7 @@ import { travelToDestination, type HubState } from '../lib/api';
 import { isSupabaseConfigured } from '../lib/supabase';
 import { soundManager } from '../utils/audio';
 import { City3DLandmark } from './City3DLandmark';
+import { VietnamAccurateMap } from './VietnamAccurateMap';
 import { StudioItemThumbnail } from './StudioItemThumbnail';
 import { CoinIcon } from './GameIcons';
 import { Compass, Lock, MapPin, Navigation, Sparkles, X, Loader2, ArrowRight } from 'lucide-react';
@@ -157,82 +158,21 @@ export const VietnamTravelModal: React.FC<VietnamTravelModalProps> = ({
 
         {/* Two-column Map + 3D Landmark Preview */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-          {/* Left: Stylized Distance-Ring Vietnam Corridor Map */}
-          <div className="lg:col-span-6 relative rounded-3xl overflow-hidden border border-sky-200 dark:border-slate-700 bg-gradient-to-b from-sky-100 via-cyan-50 to-emerald-50 dark:from-slate-800 dark:via-slate-900 dark:to-slate-950 min-h-[380px] sm:min-h-[430px] p-3">
-            <div className="relative w-full h-full min-h-[360px]">
-              {/* Stylized Vietnam Silhouette & Distance Rings from Hanoi (44.5%, 18%) */}
-              <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full">
-                {/* Sea grid */}
-                <circle cx="44.5" cy="18" r="18" fill="none" stroke="#38bdf8" strokeDasharray="1.5 1.5" strokeWidth="0.35" opacity="0.55" />
-                <circle cx="44.5" cy="18" r="36" fill="none" stroke="#38bdf8" strokeDasharray="1.5 1.5" strokeWidth="0.35" opacity="0.45" />
-                <circle cx="44.5" cy="18" r="56" fill="none" stroke="#38bdf8" strokeDasharray="1.5 1.5" strokeWidth="0.35" opacity="0.35" />
-                <circle cx="44.5" cy="18" r="76" fill="none" stroke="#38bdf8" strokeDasharray="1.5 1.5" strokeWidth="0.35" opacity="0.28" />
-
-                {/* Stylized S-shaped Vietnam Landmass */}
-                <path
-                  d="M28,6 L50,6 L63,16 L54,28 L50,38 L58,48 L67,62 L63,75 L49,85 L37,90 L33,83 L43,75 L49,64 L45,48 L39,34 L31,20 Z"
-                  fill="#86efac"
-                  fillOpacity="0.6"
-                  stroke="#16a34a"
-                  strokeWidth="0.7"
-                />
-                {/* Hoang Sa & Truong Sa archipelagos */}
-                <circle cx="80" cy="46" r="1.4" fill="#16a34a" opacity="0.75" />
-                <circle cx="83" cy="48" r="1.1" fill="#16a34a" opacity="0.75" />
-                <circle cx="82" cy="72" r="1.4" fill="#16a34a" opacity="0.75" />
-                <circle cx="86" cy="75" r="1.1" fill="#16a34a" opacity="0.75" />
-
-                {/* Flight arc from Hanoi (44.5, 18) to selected city */}
-                {selectedCity.destKey !== 'hanoi_school' && (
-                  <path
-                    d={`M 44.5 18 Q ${(44.5 + selectedCity.mapX) / 2 + 8} ${(18 + selectedCity.mapY) / 2 - 4} ${selectedCity.mapX} ${selectedCity.mapY}`}
-                    fill="none"
-                    stroke="#f59e0b"
-                    strokeWidth="1.1"
-                    strokeDasharray="2 1.4"
-                  />
-                )}
-              </svg>
-
-              {/* Clickable City Pins */}
-              {DESTINATIONS.map((city) => {
-                const isSelected = city.destKey === selectedCity.destKey;
-                const isHere = city.destKey === currentDestKey;
-                const lockedLvl = studentLevel < city.requiredLevel;
-                const price = getDiscountedTicketPrice(city.ticketCoins, vehicleId);
-                return (
-                  <button
-                    key={city.destKey}
-                    type="button"
-                    onClick={() => {
-                      soundManager.play('click');
-                      setSelectedKey(city.destKey);
-                      setErrorMsg('');
-                    }}
-                    style={{ left: `${city.mapX}%`, top: `${city.mapY}%` }}
-                    className={`absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-transform ${
-                      isSelected ? 'z-20 scale-110' : 'z-10 hover:scale-105'
-                    }`}
-                  >
-                    <div
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-black shadow-md border flex items-center gap-1 whitespace-nowrap ${
-                        isHere
-                          ? 'bg-emerald-600 text-white border-white'
-                          : isSelected
-                          ? 'bg-amber-500 text-slate-950 border-white'
-                          : lockedLvl
-                          ? 'bg-slate-700 text-slate-200 border-slate-500'
-                          : 'bg-white text-slate-900 border-slate-300'
-                      }`}
-                    >
-                      <span>{city.shortName}</span>
-                      {city.ticketCoins > 0 && (
-                        <span className="opacity-80 tabular-nums">· {price}xu</span>
-                      )}
-                    </div>
-                  </button>
-                );
-              })}
+          {/* Left: Accurate 3D Relief Map of Vietnam + Hoang Sa & Truong Sa */}
+          <div className="lg:col-span-6 flex flex-col gap-2">
+            <VietnamAccurateMap
+              selectedCity={selectedCity}
+              currentDestKey={currentDestKey}
+              studentLevel={studentLevel}
+              vehicleId={vehicleId}
+              onSelectCity={(destKey) => {
+                setSelectedKey(destKey);
+                setErrorMsg('');
+              }}
+            />
+            <div className="flex flex-wrap items-center justify-between gap-2 px-2 text-[11px] text-slate-500 dark:text-slate-400">
+              <span>🔴 Trung tâm Hà Nội Km 0</span>
+              <span>★ Chạm Hoàng Sa / Trường Sa để xem thông tin chủ quyền</span>
             </div>
           </div>
 
