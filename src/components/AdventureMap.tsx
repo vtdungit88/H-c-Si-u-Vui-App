@@ -1,14 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Castle, Crown, Loader2, Lock, Play, Trophy, X } from 'lucide-react';
+import { Loader2, Lock, Play, Trophy, X } from 'lucide-react';
 import type { StudentProfile } from '../types';
 import { SUBJECTS_CATALOG } from '../data/subjectsCatalog';
-import { APP_LOGO_SRC } from '../data/versionHistory';
 import { fetchCurriculum, fetchMapProgress, type Curriculum, type DbLesson, type NodeProgress, type SubjectKey } from '../lib/api';
 import { soundManager } from '../utils/audio';
-import { AvatarRenderer } from './AvatarRenderer';
 import { StarIcon } from './GameIcons';
 import { MapHUD } from './map/MapHUD';
 import { FogOfWar } from './map/FogOfWar';
+import { IslandArt, biomeFor, BIOMES } from './map/IslandArt';
+import { MapScenery } from './map/MapScenery';
 import { AdventureLeaderboardModal } from './map/AdventureLeaderboardModal';
 
 interface Props {
@@ -34,6 +34,7 @@ const TOP = 90;
 const XS = [150, 300, 450, 300];
 const pos = (i: number) => ({ x: XS[i % 4], y: TOP + i * STEP });
 
+const MASCOT_FACE = `${import.meta.env.BASE_URL}assets/icons/mascot-face.webp`;
 const MASCOT_FALLBACK = 'Bấm vào hòn đảo đang sáng để bắt đầu nhé!';
 
 export const AdventureMap: React.FC<Props> = ({ student, initialSubjectId, initialGrade, onStartNode, onRequireLogin }) => {
@@ -143,7 +144,7 @@ export const AdventureMap: React.FC<Props> = ({ student, initialSubjectId, initi
       ) : (
         <>
           <div className="flex items-start gap-3 p-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
-            <img src={APP_LOGO_SRC} alt="Linh vật Bé Siêu Vui" className="w-12 h-12 rounded-2xl object-cover shrink-0 border border-slate-200" />
+            <img src={MASCOT_FACE} alt="Linh vật Bé Siêu Vui" className="w-12 h-12 rounded-2xl object-cover shrink-0 border border-slate-200 bg-sky-200" />
             <div className="relative flex-1 text-sm font-semibold bg-sky-50 dark:bg-slate-800 rounded-2xl px-3 py-2">{mascotText}</div>
             <div className="text-right shrink-0 text-xs font-bold text-slate-500">
               <div className="inline-flex items-center gap-1 text-amber-600 text-sm"><StarIcon className="w-4 h-4" /> {totalStars}/{nodes.length * 3}</div>
@@ -151,30 +152,53 @@ export const AdventureMap: React.FC<Props> = ({ student, initialSubjectId, initi
             </div>
           </div>
 
-          <div className="relative rounded-3xl overflow-hidden bg-gradient-to-b from-sky-200 via-sky-100 to-emerald-100 dark:from-slate-800 dark:via-slate-900 dark:to-slate-900 border border-sky-200 dark:border-slate-800" style={{ aspectRatio: `${W} / ${H}` }}>
+          <div className="relative rounded-3xl overflow-hidden border-4 border-white dark:border-slate-700 shadow-xl" style={{ aspectRatio: `${W} / ${H}` }}>
+            <MapScenery nodeCount={nodes.length} width={W} height={H} top={TOP} step={STEP} />
             <svg viewBox={`0 0 ${W} ${H}`} className="absolute inset-0 w-full h-full" aria-hidden>
-              <path d={pathD} fill="none" stroke="#ffffff" strokeOpacity="0.9" strokeWidth="16" strokeLinecap="round" />
-              <path d={pathD} fill="none" stroke="#0ea5e9" strokeOpacity="0.55" strokeWidth="5" strokeLinecap="round" strokeDasharray="2 12" />
+              <path d={pathD} fill="none" stroke="#fef3c7" strokeWidth="20" strokeLinecap="round" opacity=".95" />
+              <path d={pathD} fill="none" stroke="#f59e0b" strokeWidth="4" strokeLinecap="round" strokeDasharray="1 13" />
             </svg>
+
+            {nodes.map((n) => {
+              if (n.index % 4 !== 0) return null;
+              const { y } = pos(n.index);
+              return (
+                <div key={`b${n.index}`} className="absolute left-2 -translate-y-1/2 px-2.5 py-1 rounded-full bg-white/85 text-[11px] font-black text-slate-700 shadow" style={{ top: `${((y - 58) / H) * 100}%` }}>
+                  {BIOMES[Math.floor(n.index / 4) % BIOMES.length].name}
+                </div>
+              );
+            })}
 
             {nodes.map((n) => {
               const { x, y } = pos(n.index);
               const stars = n.progress?.stars ?? 0;
               const isCurrent = n.index === currentIdx && n.unlocked;
-              const base = n.kind === 'boss' ? 'from-amber-400 to-orange-500' : n.kind === 'mini_boss' ? 'from-fuchsia-400 to-purple-500' : stars >= 1 ? 'from-emerald-400 to-teal-500' : 'from-sky-400 to-blue-500';
+              const big = n.kind === 'boss';
               return (
                 <div key={n.lesson.id} className="absolute -translate-x-1/2 -translate-y-1/2" style={{ left: `${(x / W) * 100}%`, top: `${(y / H) * 100}%` }}>
-                  {isCurrent && !student.isGuest && (
-                    <div className="absolute -top-14 left-1/2 -translate-x-1/2 pointer-events-none" aria-hidden><div className="scale-[0.5] origin-bottom"><AvatarRenderer config={student.avatarConfig} size="sm" showVehicle={false} showTech={false} showPet={false} /></div></div>
+                  {isCurrent && (
+                    <div className="absolute -top-12 left-1/2 -translate-x-1/2 pointer-events-none z-10 flex flex-col items-center" aria-hidden>
+                      <img src={MASCOT_FACE} alt="" className="w-11 h-11 rounded-full border-4 border-white shadow-lg bg-sky-200 object-cover hsv-anim-hop" />
+                      <span className="mt-0.5 text-[10px] font-black bg-amber-300 text-slate-900 rounded-full px-1.5">Bạn ở đây</span>
+                    </div>
                   )}
                   <button
-                    onClick={() => { soundManager.play('click'); setSelected(n.index); }}
+                    onClick={() => { soundManager.play(n.unlocked ? 'click' : 'wrong'); setSelected(n.index); }}
                     aria-label={`Ải ${n.index + 1}: ${n.title}${n.unlocked ? '' : ' (chưa mở)'}`}
-                    className={`relative w-16 h-16 sm:w-[4.5rem] sm:h-[4.5rem] rounded-full flex items-center justify-center text-white font-black text-xl shadow-lg border-4 border-white transition-transform hover:scale-110 cursor-pointer ${n.unlocked ? `bg-gradient-to-br ${base}` : 'bg-slate-400 dark:bg-slate-600'} ${isCurrent ? 'animate-pulse ring-4 ring-amber-300' : ''}`}
+                    className={`relative block transition-transform hover:scale-110 active:scale-95 cursor-pointer ${big ? 'w-28 h-28 sm:w-32 sm:h-32' : 'w-20 h-20 sm:w-24 sm:h-24'} ${isCurrent ? 'drop-shadow-[0_0_12px_rgba(251,191,36,.95)]' : 'drop-shadow-md'}`}
                   >
-                    {!n.unlocked ? <Lock className="w-6 h-6" /> : n.kind === 'boss' ? <Crown className="w-7 h-7" /> : n.kind === 'mini_boss' ? <Castle className="w-7 h-7" /> : n.index + 1}
+                    <IslandArt biome={biomeFor(n.index)} kind={n.kind} locked={!n.unlocked} cleared={stars >= 1} className="w-full h-full" />
+                    <span className={`absolute left-1/2 -translate-x-1/2 top-0 min-w-7 h-7 px-1 rounded-full border-2 border-white text-xs font-black flex items-center justify-center text-white shadow ${n.unlocked ? (n.kind === 'boss' ? 'bg-orange-500' : n.kind === 'mini_boss' ? 'bg-fuchsia-500' : 'bg-sky-600') : 'bg-slate-500'}`}>
+                      {n.unlocked ? (n.kind === 'boss' ? '👑' : n.index + 1) : <Lock className="w-3.5 h-3.5" />}
+                    </span>
                   </button>
-                  {n.unlocked && <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1">{starsRow(stars, 'w-4 h-4')}</div>}
+                  {n.unlocked && (
+                    <div className="absolute left-1/2 -translate-x-1/2 top-full -mt-1 flex gap-0.5">
+                      {[1, 2, 3].map((k) => (
+                        <StarIcon key={k} className={`w-4 h-4 drop-shadow ${k <= stars ? 'hsv-anim-pop' : 'opacity-30 grayscale'}`} />
+                      ))}
+                    </div>
+                  )}
                 </div>
               );
             })}

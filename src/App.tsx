@@ -20,7 +20,7 @@ import { GlobalLeaderboard } from './components/GlobalLeaderboard';
 import { HomeHero } from './components/home/HomeHero';
 import { SubjectGrid } from './components/home/SubjectGrid';
 import { CoursePicker } from './components/home/CoursePicker';
-import { MapTeaser } from './components/home/MapTeaser';
+import { MapPreview } from './components/home/MapPreview';
 import { SubjectIcon } from './components/home/subjectIcons';
 import { SUBJECTS_CATALOG } from './data/subjectsCatalog';
 import type { SubjectMeta } from './types';
@@ -271,7 +271,15 @@ export default function App() {
                 ) : (
                   <SubjectGrid onPick={(subj) => { soundManager.play('click'); if (subj.status === 'active') setPickSubject(subj); }} />
                 )}
-                <MapTeaser />
+                <MapPreview
+                  student={student}
+                  onOpen={() => {
+                    const g = parseInt(String(student.grade).replace(/\D/g, ''), 10);
+                    if (g >= 1 && g <= 9) setCurrentGrade(String(g) as typeof currentGrade);
+                    setCurrentView('map');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                />
               </>
             )}
           </div>
