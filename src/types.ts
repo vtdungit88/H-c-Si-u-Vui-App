@@ -1,12 +1,14 @@
 export type Gender = 'boy' | 'girl' | 'scholar';
 
-export type ItemCategory = 
-  | 'outfit' 
-  | 'handheld' 
-  | 'phone' 
-  | 'vehicle' 
-  | 'tech' 
-  | 'pet';
+export type ItemCategory =
+  | 'outfit'
+  | 'handheld'
+  | 'phone'
+  | 'vehicle'
+  | 'tech'
+  | 'pet'
+  | 'backdrop'
+  | 'aura';
 
 export type ItemRarity = 'base' | 'popular' | 'vip' | 'mythic';
 
@@ -21,6 +23,16 @@ export interface ShopItem {
   iconName: string;
   tagline: string;
   renderType: string;
+  setId?: string;
+}
+
+export interface StudioSet {
+  id: string;
+  name: string;
+  titleReward: string;
+  description: string;
+  accentColor: 'emerald' | 'blue' | 'amber';
+  itemIds: string[];
 }
 
 export interface AvatarConfig {
@@ -35,6 +47,8 @@ export interface AvatarConfig {
   vehicleId: string;
   techId: string;
   petId: string;
+  backdropId?: string;
+  auraId?: string;
 }
 
 export interface StudentProfile {
@@ -56,6 +70,8 @@ export interface StudentProfile {
     vehicle: string;
     tech: string;
     pet: string;
+    backdrop?: string;
+    aura?: string;
   };
   highScoreBlitz: number;
   motto: string;

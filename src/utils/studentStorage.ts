@@ -15,7 +15,9 @@ export const DEFAULT_AVATAR: AvatarConfig = {
   phoneId: 'phone_brick',
   vehicleId: 'veh_honeycomb',
   techId: 'tech_notebook',
-  petId: 'pet_none'
+  petId: 'pet_none',
+  backdropId: 'bg_classroom',
+  auraId: 'aura_none'
 };
 
 export const FUNNY_NICKNAMES: string[] = [
@@ -27,7 +29,7 @@ export const FUNNY_NICKNAMES: string[] = [
   'Dũng Sĩ Sa Pa',
   'Bé Mèo Ham Học',
   'Thám Tử Conan Nhí',
-  'Trùm Cuối Khối 6',
+  'Trùm Cuối Toán Học',
   'Vua Lũy Thừa',
   'Tiểu Tiên Cá Số Học',
   'Hiệp Sĩ Khăn Quàng Đỏ',
@@ -45,7 +47,7 @@ export const getRandomNickname = (): string => {
 
 export const createInitialProfile = (
   name: string = 'Bé Siêu Vui',
-  grade: string = '6A1',
+  grade: string = 'Lớp 6',
   school: string = 'Trường Học Vui Nhộn',
   gender: 'boy' | 'girl' | 'scholar' = 'boy',
   isGuest: boolean = true
@@ -73,7 +75,9 @@ export const createInitialProfile = (
       'phone_brick',
       'veh_honeycomb',
       'tech_notebook',
-      'pet_none'
+      'pet_none',
+      'bg_classroom',
+      'aura_none'
     ],
     equippedItems: {
       outfit: 'outfit_uniform',
@@ -81,7 +85,9 @@ export const createInitialProfile = (
       phone: 'phone_brick',
       vehicle: 'veh_honeycomb',
       tech: 'tech_notebook',
-      pet: 'pet_none'
+      pet: 'pet_none',
+      backdrop: 'bg_classroom',
+      aura: 'aura_none'
     },
     highScoreBlitz: 0,
     motto: 'Học hết mình, chơi siêu vui!',
@@ -96,7 +102,26 @@ export const getStudentProfiles = (): StudentProfile[] => {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
+        return parsed.map((p) => ({
+          ...p,
+          avatarConfig: {
+            ...DEFAULT_AVATAR,
+            ...(p.avatarConfig ?? {}),
+            backdropId: p.avatarConfig?.backdropId || 'bg_classroom',
+            auraId: p.avatarConfig?.auraId || 'aura_none'
+          },
+          unlockedItems: Array.from(new Set([...(p.unlockedItems ?? []), 'bg_classroom', 'aura_none'])),
+          equippedItems: {
+            outfit: p.equippedItems?.outfit || p.avatarConfig?.outfitId || 'outfit_uniform',
+            handheld: p.equippedItems?.handheld || p.avatarConfig?.handheldId || 'hand_pencil',
+            phone: p.equippedItems?.phone || p.avatarConfig?.phoneId || 'phone_brick',
+            vehicle: p.equippedItems?.vehicle || p.avatarConfig?.vehicleId || 'veh_honeycomb',
+            tech: p.equippedItems?.tech || p.avatarConfig?.techId || 'tech_notebook',
+            pet: p.equippedItems?.pet || p.avatarConfig?.petId || 'pet_none',
+            backdrop: p.equippedItems?.backdrop || p.avatarConfig?.backdropId || 'bg_classroom',
+            aura: p.equippedItems?.aura || p.avatarConfig?.auraId || 'aura_none'
+          }
+        }));
       }
     }
   } catch (e) {
@@ -183,11 +208,11 @@ export const upsertAuthProfile = (
     completedLessons: server.completedLessons,
     // Avatar and owned items are owned by the server; the local copy is only a cache.
     avatarConfig: { ...DEFAULT_AVATAR, ...(server.avatarConfig ?? {}) },
-    unlockedItems: server.unlockedItems ?? base.unlockedItems,
+    unlockedItems: Array.from(new Set(['outfit_uniform', 'hand_pencil', 'phone_brick', 'veh_honeycomb', 'tech_notebook', 'pet_none', 'bg_classroom', 'aura_none', ...(server.unlockedItems ?? base.unlockedItems)])),
     level: Math.max(1, Math.floor(server.stars / 5) + 1)
   };
   const cfg = merged.avatarConfig;
-  merged.equippedItems = { outfit: cfg.outfitId, handheld: cfg.handheldId, phone: cfg.phoneId, vehicle: cfg.vehicleId, tech: cfg.techId, pet: cfg.petId };
+  merged.equippedItems = { outfit: cfg.outfitId, handheld: cfg.handheldId, phone: cfg.phoneId, vehicle: cfg.vehicleId, tech: cfg.techId, pet: cfg.petId, backdrop: cfg.backdropId || 'bg_classroom', aura: cfg.auraId || 'aura_none' };
   const next = existing ? profiles.map((p) => (p.id === id ? merged : p)) : [...profiles, merged];
   saveStudentProfiles(next);
   setActiveStudentId(id);
@@ -195,7 +220,7 @@ export const upsertAuthProfile = (
 };
 
 export const logoutStudent = (): StudentProfile => {
-  const guest = createInitialProfile('Bé Siêu Vui', '6A1', 'Trường Học Vui Nhộn', 'boy', true);
+  const guest = createInitialProfile('Bé Siêu Vui', 'Lớp 6', 'Trường Học Vui Nhộn', 'boy', true);
   setActiveStudentId(guest.id);
   return guest;
 };

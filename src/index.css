@@ -45,3 +45,142 @@ h1, h2, h3, h4, .font-display {
   animation-play-state: paused;
 }
 
+/* Studio Character & Pet Game Animations (compositor-only: transform & opacity) */
+@keyframes studioBreathe {
+  0%, 100% {
+    transform: translateY(0px) scaleY(1);
+  }
+  50% {
+    transform: translateY(-2.5px) scaleY(1.012);
+  }
+}
+
+@keyframes studioFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes studioPetBob {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-5px) rotate(2deg);
+  }
+}
+
+@keyframes studioBlink {
+  0%, 92%, 100% {
+    transform: scaleY(1);
+  }
+  96% {
+    transform: scaleY(0.08);
+  }
+}
+
+@keyframes studioAuraSpin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes studioAuraPulse {
+  0%, 100% {
+    opacity: 0.55;
+    transform: scale(0.97);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes studioTapJump {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  30% {
+    transform: translateY(-16px) scale(1.04);
+  }
+  60% {
+    transform: translateY(2px) scale(0.98);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes studioChestReveal {
+  0% {
+    transform: scale(0.8) rotate(-4deg);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1.08) rotate(3deg);
+    opacity: 1;
+  }
+  70% {
+    transform: scale(0.96) rotate(-2deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.studio-breathe {
+  animation: studioBreathe 3.2s ease-in-out infinite;
+  transform-origin: 150px 260px;
+}
+
+.studio-float {
+  animation: studioFloat 2.8s ease-in-out infinite;
+}
+
+.studio-pet-bob {
+  animation: studioPetBob 2.4s ease-in-out infinite;
+  transform-origin: 250px 260px;
+}
+
+.studio-blink {
+  animation: studioBlink 4.2s ease-in-out infinite;
+  transform-origin: center 110px;
+}
+
+.studio-aura-spin {
+  animation: studioAuraSpin 16s linear infinite;
+  transform-origin: 150px 190px;
+}
+
+.studio-aura-pulse {
+  animation: studioAuraPulse 2.6s ease-in-out infinite;
+  transform-origin: 150px 190px;
+}
+
+.studio-tap-jump {
+  animation: studioTapJump 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.studio-chest-reveal {
+  animation: studioChestReveal 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .studio-breathe,
+  .studio-float,
+  .studio-pet-bob,
+  .studio-blink,
+  .studio-aura-spin,
+  .studio-aura-pulse,
+  .studio-tap-jump,
+  .studio-chest-reveal,
+  .animate-marquee {
+    animation: none !important;
+  }
+}
