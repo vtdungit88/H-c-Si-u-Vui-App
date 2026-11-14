@@ -36,6 +36,14 @@ interface NavbarProps {
   onToggleSound: () => void;
 }
 
+const NAV_ITEMS = [
+  { view: 'study', label: 'Bài Học', Icon: BookOpen, color: 'text-blue-500' },
+  { view: 'shop', label: 'Studio', Icon: Sparkles, color: 'text-amber-500' },
+  { view: 'blitz', label: 'Đấu Trường', Icon: Zap, color: 'text-orange-500' },
+  { view: 'map', label: 'Bản Đồ', Icon: Map, color: 'text-emerald-500' },
+  { view: 'leaderboard', label: 'Xếp Hạng', Icon: Trophy, color: 'text-amber-500' }
+] as const;
+
 export const Navbar: React.FC<NavbarProps> = ({
   currentView,
   onSelectView,
@@ -66,91 +74,36 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="w-10 h-10 rounded-2xl object-cover shadow-md group-hover:scale-105 transition-transform shrink-0 border border-blue-200 dark:border-blue-800"
           />
           <div className="flex flex-col min-w-0">
-            <span className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white leading-none">
+            <span className="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-white leading-none">
               Học Siêu Vui
             </span>
-            <span className="text-[10px] font-extrabold text-blue-600 dark:text-blue-400 uppercase tracking-wider mt-0.5">
+            <span className="text-[11px] font-extrabold text-blue-600 dark:text-blue-400 uppercase tracking-wider mt-0.5">
               Vừa Học Vừa Chơi
             </span>
           </div>
         </div>
 
-        {/* Zone 2: Navigation Links (single-line, concise) */}
-        <nav aria-label="Điều hướng chính" className="hidden md:flex items-center gap-3 xl:gap-6 text-sm font-semibold text-slate-600 dark:text-slate-300 min-w-0">
-          <button
-            onClick={() => {
-              soundManager.play('click');
-              onSelectView('study');
-            }}
-            className={`transition-colors whitespace-nowrap shrink-0 hover:text-blue-600 dark:hover:text-blue-400 ${
-              currentView === 'study' ? 'text-blue-600 dark:text-blue-400 font-bold underline underline-offset-8' : ''
-            }`}
-            title="Bài Học SGK"
-            aria-label="Bài Học SGK"
-          >
-            <BookOpen className="w-4 h-4 text-blue-500 xl:hidden" />
-            <span className="hidden xl:inline">Bài Học SGK</span>
-          </button>
-
-          <button
-            onClick={() => {
-              soundManager.play('click');
-              onSelectView('shop');
-            }}
-            className={`transition-colors whitespace-nowrap shrink-0 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-1.5 ${
-              currentView === 'shop' ? 'text-blue-600 dark:text-blue-400 font-bold underline underline-offset-8' : ''
-            }`}
-            title="Studio của tôi"
-            aria-label="Studio của tôi"
-          >
-            <Sparkles className="w-4 h-4 text-amber-500" />
-            <span className="hidden xl:inline">Studio của tôi</span>
-          </button>
-
-          <button
-            onClick={() => {
-              soundManager.play('click');
-              onSelectView('blitz');
-            }}
-            className={`transition-colors whitespace-nowrap shrink-0 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-1.5 ${
-              currentView === 'blitz' ? 'text-blue-600 dark:text-blue-400 font-bold underline underline-offset-8' : ''
-            }`}
-            title="Đấu Trường 60s"
-            aria-label="Đấu Trường 60s"
-          >
-            <Zap className="w-4 h-4 text-orange-500" />
-            <span className="hidden xl:inline">Đấu Trường 60s</span>
-          </button>
-
-          <button
-            onClick={() => {
-              soundManager.play('click');
-              onSelectView('map');
-            }}
-            className={`transition-colors whitespace-nowrap shrink-0 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-1.5 ${
-              currentView === 'map' ? 'text-blue-600 dark:text-blue-400 font-bold underline underline-offset-8' : ''
-            }`}
-            title="Bản Đồ Ải"
-            aria-label="Bản Đồ Ải"
-          >
-            <Map className="w-4 h-4 text-emerald-500" />
-            <span className="hidden xl:inline">Bản Đồ Ải</span>
-          </button>
-
-          <button
-            onClick={() => {
-              soundManager.play('click');
-              onSelectView('leaderboard');
-            }}
-            className={`transition-colors whitespace-nowrap shrink-0 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-1.5 ${
-              currentView === 'leaderboard' ? 'text-blue-600 dark:text-blue-400 font-bold underline underline-offset-8' : ''
-            }`}
-            title="Bảng Xếp Hạng"
-            aria-label="Bảng Xếp Hạng"
-          >
-            <Trophy className="w-4 h-4 text-amber-500" />
-            <span className="hidden xl:inline">Bảng Xếp Hạng</span>
-          </button>
+        {/* Zone 2: Navigation Links – big, always labelled */}
+        <nav aria-label="Điều hướng chính" className="hidden md:flex items-center gap-1 lg:gap-2 min-w-0">
+          {NAV_ITEMS.map(({ view, label, Icon, color }) => {
+            const active = currentView === view;
+            return (
+              <button
+                key={view}
+                onClick={() => { soundManager.play('click'); onSelectView(view); }}
+                aria-current={active ? 'page' : undefined}
+                title={label}
+                className={`flex items-center gap-2 whitespace-nowrap shrink-0 rounded-2xl px-3 lg:px-4 py-2.5 text-[15px] lg:text-base font-extrabold transition-all cursor-pointer active:scale-95 ${
+                  active
+                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
+                    : 'text-slate-700 dark:text-slate-200 hover:bg-white/80 dark:hover:bg-slate-800 hover:shadow'
+                }`}
+              >
+                <Icon className={`w-6 h-6 shrink-0 ${active ? 'text-white' : color}`} />
+                <span className="hidden lg:inline">{label}</span>
+              </button>
+            );
+          })}
         </nav>
 
         {/* Zone 3: Primary Action & Profile Info */}
@@ -274,71 +227,21 @@ export const Navbar: React.FC<NavbarProps> = ({
       </div>
 
       {/* Mobile Bottom Navigation Bar for easy thumb navigation */}
-      <div className="md:hidden flex items-center justify-around border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-2 py-1.5 text-[11px] font-bold">
-        <button
-          onClick={() => {
-            soundManager.play('click');
-            onSelectView('study');
-          }}
-          className={`flex flex-col items-center py-1 px-2 rounded-lg transition-colors ${
-            currentView === 'study' ? 'text-blue-600' : 'text-slate-500'
-          }`}
-        >
-          <BookOpen className="w-4 h-4" />
-          <span>Bài Học</span>
-        </button>
-
-        <button
-          onClick={() => {
-            soundManager.play('click');
-            onSelectView('shop');
-          }}
-          className={`flex flex-col items-center py-1 px-2 rounded-lg transition-colors ${
-            currentView === 'shop' ? 'text-blue-600' : 'text-slate-500'
-          }`}
-        >
-          <Sparkles className="w-4 h-4 text-amber-500" />
-          <span>Studio</span>
-        </button>
-
-        <button
-          onClick={() => {
-            soundManager.play('click');
-            onSelectView('blitz');
-          }}
-          className={`flex flex-col items-center py-1 px-2 rounded-lg transition-colors ${
-            currentView === 'blitz' ? 'text-blue-600' : 'text-slate-500'
-          }`}
-        >
-          <Zap className="w-4 h-4 text-orange-500" />
-          <span>60 Giây</span>
-        </button>
-
-        <button
-          onClick={() => {
-            soundManager.play('click');
-            onSelectView('map');
-          }}
-          className={`flex flex-col items-center py-1 px-2 rounded-lg transition-colors ${
-            currentView === 'map' ? 'text-blue-600' : 'text-slate-500'
-          }`}
-        >
-          <Map className="w-4 h-4 text-emerald-500" />
-          <span>Bản Đồ</span>
-        </button>
-
-        <button
-          onClick={() => {
-            soundManager.play('click');
-            onSelectView('leaderboard');
-          }}
-          className={`flex flex-col items-center py-1 px-2 rounded-lg transition-colors ${
-            currentView === 'leaderboard' ? 'text-blue-600' : 'text-slate-500'
-          }`}
-        >
-          <Trophy className="w-4 h-4 text-amber-500" />
-          <span>Xếp Hạng</span>
-        </button>
+      <div className="md:hidden flex items-stretch justify-around border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur px-1 py-1.5">
+        {NAV_ITEMS.map(({ view, label, Icon, color }) => {
+          const active = currentView === view;
+          return (
+            <button
+              key={view}
+              onClick={() => { soundManager.play('click'); onSelectView(view); }}
+              aria-current={active ? 'page' : undefined}
+              className={`flex-1 flex flex-col items-center gap-0.5 py-1.5 mx-0.5 rounded-2xl text-xs font-extrabold transition-colors ${active ? 'bg-blue-600 text-white shadow' : 'text-slate-600 dark:text-slate-300'}`}
+            >
+              <Icon className={`w-6 h-6 ${active ? 'text-white' : color}`} />
+              <span>{label}</span>
+            </button>
+          );
+        })}
       </div>
     </header>
   );

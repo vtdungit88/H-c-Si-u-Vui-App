@@ -3,11 +3,48 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  /* Be Vietnam Pro / Baloo 2 are designed with full Vietnamese diacritics */
+  font-family: 'Be Vietnam Pro', 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
 }
 
+html { font-size: 17px; -webkit-text-size-adjust: 100%; }
+body { line-height: 1.6; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
+
 h1, h2, h3, h4, .font-display {
-  font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Baloo 2', 'Be Vietnam Pro', 'Segoe UI', sans-serif;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+/* Shared scene animations (backdrop + adventure map) */
+@keyframes hsv-wave{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes hsv-drift{0%{transform:translateX(-30%)}100%{transform:translateX(130%)}}
+@keyframes hsv-hop{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes hsv-twinkle{0%,100%{opacity:.2;transform:scale(.7)}50%{opacity:1;transform:scale(1.1)}}
+@keyframes hsv-pop{0%{transform:scale(0) rotate(-40deg)}70%{transform:scale(1.35) rotate(8deg)}100%{transform:scale(1) rotate(0)}}
+@keyframes hsv-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(4px)}}
+@keyframes hsv-float{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-16px) rotate(4deg)}}
+@keyframes hsv-fall{0%{transform:translateY(-10%) translateX(0);opacity:0}10%{opacity:.9}100%{transform:translateY(110%) translateX(18px);opacity:0}}
+@keyframes hsv-rise{0%{transform:translateY(0) scale(1);opacity:0}15%{opacity:.9}100%{transform:translateY(-90px) scale(.3);opacity:0}}
+@keyframes hsv-flap{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.35)}}
+@keyframes hsv-jump{0%{transform:translate(0,0) rotate(-50deg);opacity:0}10%{opacity:1}50%{transform:translate(30px,-34px) rotate(0)}90%{opacity:1}100%{transform:translate(60px,0) rotate(50deg);opacity:0}}
+@keyframes hsv-spout{0%,60%,100%{transform:scaleY(0);opacity:0}70%{opacity:.9}80%{transform:scaleY(1);opacity:.9}}
+@keyframes hsv-beam{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+.hsv-anim-wave{animation:hsv-wave 14s linear infinite}
+.hsv-anim-drift{animation:hsv-drift var(--d,50s) linear infinite}
+.hsv-anim-hop{animation:hsv-hop 1s ease-in-out infinite}
+.hsv-anim-twinkle{animation:hsv-twinkle 2.4s ease-in-out infinite}
+.hsv-anim-pop{animation:hsv-pop .6s cubic-bezier(.2,1.4,.4,1) both}
+.hsv-anim-bob{animation:hsv-bob 3s ease-in-out infinite}
+.hsv-anim-float{animation:hsv-float var(--d,7s) ease-in-out infinite}
+.hsv-anim-fall{animation:hsv-fall var(--d,8s) linear infinite}
+.hsv-anim-rise{animation:hsv-rise var(--d,3s) ease-out infinite}
+.hsv-anim-flap{animation:hsv-flap .5s ease-in-out infinite}
+.hsv-anim-jump{animation:hsv-jump 6s ease-in-out infinite}
+.hsv-anim-spout{animation:hsv-spout 6s ease-in-out infinite;transform-origin:bottom}
+.hsv-anim-beam{animation:hsv-beam 5s linear infinite;transform-origin:0 50%}
+@media (prefers-reduced-motion: reduce){
+  [class*="hsv-anim-"]{animation:none !important}
 }
 
 .font-math {

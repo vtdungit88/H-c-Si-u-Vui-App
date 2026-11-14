@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Loader2, Lock, Play, Trophy, X } from 'lucide-react';
+import { Loader2, Lock, Music, Play, Trophy, VolumeX, X } from 'lucide-react';
 import type { StudentProfile } from '../types';
 import { SUBJECTS_CATALOG } from '../data/subjectsCatalog';
 import { fetchCurriculum, fetchMapProgress, type Curriculum, type DbLesson, type NodeProgress, type SubjectKey } from '../lib/api';
@@ -9,6 +9,8 @@ import { MapHUD } from './map/MapHUD';
 import { FogOfWar } from './map/FogOfWar';
 import { IslandArt, biomeFor, BIOMES } from './map/IslandArt';
 import { MapScenery } from './map/MapScenery';
+import { MapCritters } from './map/MapCritters';
+import { mapAudio } from '../utils/mapAudio';
 import { AdventureLeaderboardModal } from './map/AdventureLeaderboardModal';
 
 interface Props {
@@ -45,6 +47,15 @@ export const AdventureMap: React.FC<Props> = ({ student, initialSubjectId, initi
   const [progress, setProgress] = useState<Record<string, NodeProgress>>({});
   const [selected, setSelected] = useState<number | null>(null);
   const [showBoard, setShowBoard] = useState(false);
+  const [music, setMusic] = useState(() => mapAudio.isEnabled());
+
+  // ambience: starts with the map (opened by a click) and stops when leaving; also retries on first touch if autoplay was blocked
+  useEffect(() => {
+    if (music) mapAudio.start();
+    const retry = () => { if (mapAudio.isEnabled()) mapAudio.start(); };
+    window.addEventListener('pointerdown', retry, { once: true });
+    return () => { window.removeEventListener('pointerdown', retry); mapAudio.stop(); };
+  }, [music]);
 
   const subject = SUBJECTS_CATALOG.find((s) => s.id === subjectId);
   const gradeOpen = !!subject && subject.status === 'active' && subject.availableGrades.some((x) => x.grade === String(grade) && (x.term1Available || x.term2Available));
@@ -126,11 +137,18 @@ export const AdventureMap: React.FC<Props> = ({ student, initialSubjectId, initi
             <h1 className="text-2xl sm:text-3xl font-black">Bản Đồ Thám Hiểm</h1>
             <p className="text-sm text-white/85">Vượt từng hòn đảo kiến thức, gom sao và leo bảng vàng!</p>
           </div>
+          <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={() => { const next = !music; setMusic(next); mapAudio.setEnabled(next); soundManager.play('click'); }}
+            aria-pressed={music} aria-label={music ? 'Tắt nhạc bản đồ' : 'Bật nhạc bản đồ'}
+            className="p-2.5 rounded-xl bg-white/20 hover:bg-white/30 text-white cursor-pointer"
+          >{music ? <Music className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}</button>
           {subjectKey && gradeOpen && (
             <button onClick={() => { soundManager.play('click'); setShowBoard(true); }} className="shrink-0 px-3 py-2 rounded-xl bg-amber-300 text-slate-900 font-black text-sm inline-flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer">
               <Trophy className="w-4 h-4" /> Top 10
             </button>
           )}
+          </div>
         </div>
         <MapHUD subjectId={subjectId} grade={grade} onChange={(s, g) => { soundManager.play('click'); setSubjectId(s); setGrade(g); }} />
       </header>
@@ -154,6 +172,7 @@ export const AdventureMap: React.FC<Props> = ({ student, initialSubjectId, initi
 
           <div className="relative rounded-3xl overflow-hidden border-4 border-white dark:border-slate-700 shadow-xl" style={{ aspectRatio: `${W} / ${H}` }}>
             <MapScenery nodeCount={nodes.length} width={W} height={H} top={TOP} step={STEP} />
+            <MapCritters nodeCount={nodes.length} width={W} height={H} top={TOP} step={STEP} />
             <svg viewBox={`0 0 ${W} ${H}`} className="absolute inset-0 w-full h-full" aria-hidden>
               <path d={pathD} fill="none" stroke="#fef3c7" strokeWidth="20" strokeLinecap="round" opacity=".95" />
               <path d={pathD} fill="none" stroke="#f59e0b" strokeWidth="4" strokeLinecap="round" strokeDasharray="1 13" />

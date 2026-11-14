@@ -20,21 +20,6 @@ export const MapScenery: React.FC<Props> = ({ nodeCount, width, height, top, ste
   }));
   return (
     <div className="absolute inset-0 overflow-hidden" aria-hidden>
-      <style>{`
-        @keyframes hsv-wave{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-        @keyframes hsv-drift{0%{transform:translateX(-30%)}100%{transform:translateX(130%)}}
-        @keyframes hsv-hop{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-        @keyframes hsv-twinkle{0%,100%{opacity:.2;transform:scale(.7)}50%{opacity:1;transform:scale(1.1)}}
-        @keyframes hsv-pop{0%{transform:scale(0) rotate(-40deg)}70%{transform:scale(1.35) rotate(8deg)}100%{transform:scale(1) rotate(0)}}
-        @keyframes hsv-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
-        .hsv-anim-wave{animation:hsv-wave 14s linear infinite}
-        .hsv-anim-drift{animation:hsv-drift var(--d,50s) linear infinite}
-        .hsv-anim-hop{animation:hsv-hop 1s ease-in-out infinite}
-        .hsv-anim-twinkle{animation:hsv-twinkle 2.4s ease-in-out infinite}
-        .hsv-anim-pop{animation:hsv-pop .6s cubic-bezier(.2,1.4,.4,1) both}
-        .hsv-anim-bob{animation:hsv-bob 3s ease-in-out infinite}
-        @media (prefers-reduced-motion: reduce){.hsv-anim-wave,.hsv-anim-drift,.hsv-anim-hop,.hsv-anim-twinkle,.hsv-anim-pop,.hsv-anim-bob{animation:none}}
-      `}</style>
       <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, ${stops.join(', ')})` }} />
       {Array.from({ length: rows }, (_, r) => (
         <svg key={r} className="absolute left-0 w-[200%] hsv-anim-wave" style={{ top: `${(r / rows) * 100 + 3}%`, animationDuration: `${12 + (r % 3) * 4}s`, animationDirection: r % 2 ? 'reverse' : 'normal' }} viewBox="0 0 1200 24" height="24" preserveAspectRatio="none">
