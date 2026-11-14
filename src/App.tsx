@@ -25,6 +25,7 @@ import { SubjectIcon } from './components/home/subjectIcons';
 import { SUBJECTS_CATALOG } from './data/subjectsCatalog';
 import type { SubjectMeta } from './types';
 import { VirtualAssistant } from './components/VirtualAssistant';
+import { MascotReaction } from './components/MascotReaction';
 import { APP_LOGO_SRC } from './data/versionHistory';
 import { GradeLevel } from './types';
 import { 
@@ -487,6 +488,7 @@ export default function App() {
         onClose={() => setIsInstallShareOpen(false)}
       />
 
+      <MascotReaction />
       {/* Trợ Lý Ảo Học Siêu Vui & Hộp Thư Góp Ý */}
       <VirtualAssistant
         student={student}

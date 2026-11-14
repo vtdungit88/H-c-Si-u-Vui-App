@@ -20,7 +20,11 @@ import {
   HeartHandshake
 } from 'lucide-react';
 import { StarIcon } from './GameIcons';
-import { APP_LOGO_SRC } from '../data/versionHistory';
+import { answerQuestion, QUICK_QUESTIONS, type BrainAnswer } from '../lib/assistantBrain';
+
+const MASCOT_FACE = `${import.meta.env.BASE_URL}assets/icons/mascot-face.webp`;
+const MASCOT_FULL = `${import.meta.env.BASE_URL}assets/icons/mascot-full.webp`;
+
 
 interface VirtualAssistantProps {
   student: StudentProfile;
@@ -32,8 +36,24 @@ export const VirtualAssistant: React.FC<VirtualAssistantProps> = ({
   onNavigateToView
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'guide' | 'feedback'>('guide');
+  const [activeTab, setActiveTab] = useState<'chat' | 'guide' | 'feedback'>('chat');
   const [showBubble, setShowBubble] = useState(true);
+
+  // Chat state (rule-based helper; no external AI service)
+  type ChatMsg = { from: 'bot' | 'me'; text: string; actions?: BrainAnswer['actions'] };
+  const [chat, setChat] = useState<ChatMsg[]>([{ from: 'bot', text: 'Xin chào! Mình là Bé Siêu Vui 💡 – người bạn đồng hành của bạn. Hỏi mình cách làm bài, kiếm xu, mua đồ… hoặc bấm một gợi ý bên dưới nhé!' }]);
+  const [chatInput, setChatInput] = useState('');
+  const chatEndRef = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => { chatEndRef.current?.scrollIntoView({ block: 'end' }); }, [chat]);
+
+  const ask = (q: string) => {
+    const text = q.trim();
+    if (!text) return;
+    soundManager.play('click');
+    const a = answerQuestion(text, { name: student.name, isGuest: !!student.isGuest, coins: student.coins, stars: student.stars });
+    setChat((c) => [...c, { from: 'me', text }, { from: 'bot', text: a.text, actions: a.actions }]);
+    setChatInput('');
+  };
 
   // Feedback form state
   const [feedbackCategory, setFeedbackCategory] = useState<'suggestion' | 'bug' | 'compliment' | 'question'>('suggestion');
@@ -112,9 +132,9 @@ export const VirtualAssistant: React.FC<VirtualAssistantProps> = ({
         >
           <div className="w-full h-full rounded-2xl bg-white dark:bg-slate-900 overflow-hidden flex items-center justify-center p-1 border-2 border-white/60">
             <img
-              src={APP_LOGO_SRC}
-              alt="Trợ lý Học Siêu Vui"
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform"
+              src={MASCOT_FACE}
+              alt="Bé Siêu Vui – trợ lý ảo"
+              className="w-full h-full object-cover rounded-xl group-hover:scale-110 transition-transform"
             />
           </div>
           <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-900 animate-ping" />
@@ -130,9 +150,9 @@ export const VirtualAssistant: React.FC<VirtualAssistantProps> = ({
             <div className="p-4 sm:p-5 bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 text-white flex items-center justify-between gap-3 shrink-0">
               <div className="flex items-center gap-3">
                 <img
-                  src={APP_LOGO_SRC}
-                  alt="Trợ lý ảo"
-                  className="w-10 h-10 rounded-xl object-cover border-2 border-white/40 shadow-sm"
+                  src={MASCOT_FACE}
+                  alt="Bé Siêu Vui"
+                  className="w-10 h-10 rounded-xl object-cover border-2 border-white/40 shadow-sm bg-sky-200"
                 />
                 <div>
                   <div className="flex items-center gap-2">
@@ -165,6 +185,21 @@ export const VirtualAssistant: React.FC<VirtualAssistantProps> = ({
               <button
                 onClick={() => {
                   soundManager.play('click');
+                  setActiveTab('chat');
+                }}
+                className={`py-2.5 px-4 font-bold text-xs rounded-t-xl transition-all flex items-center gap-2 cursor-pointer ${
+                  activeTab === 'chat'
+                    ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 border-t-2 border-blue-600 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'
+                }`}
+              >
+                <Lightbulb className="w-4 h-4" />
+                <span>Hỏi Bé Siêu Vui</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  soundManager.play('click');
                   setActiveTab('guide');
                 }}
                 className={`py-2.5 px-4 font-bold text-xs rounded-t-xl transition-all flex items-center gap-2 cursor-pointer ${
@@ -174,7 +209,7 @@ export const VirtualAssistant: React.FC<VirtualAssistantProps> = ({
                 }`}
               >
                 <Compass className="w-4 h-4" />
-                <span>Chỉ Dẫn & Chức Năng</span>
+                <span>Chỉ Dẫn</span>
               </button>
 
               <button
@@ -189,13 +224,46 @@ export const VirtualAssistant: React.FC<VirtualAssistantProps> = ({
                 }`}
               >
                 <MessageSquareHeart className="w-4 h-4" />
-                <span>Gửi Phản Hồi Cho Quản Trị</span>
+                <span>Góp Ý</span>
               </button>
             </div>
 
             {/* Content Body */}
             <div className="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1">
-              {activeTab === 'guide' ? (
+              {activeTab === 'chat' ? (
+                <div className="flex flex-col gap-3">
+                  <img src={MASCOT_FULL} alt="" className="mx-auto h-24 w-auto rounded-2xl" />
+                  <div className="space-y-2.5" aria-live="polite">
+                    {chat.map((m, i) => (
+                      <div key={i} className={`flex ${m.from === 'me' ? 'justify-end' : 'justify-start'}`}>
+                        <div className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm leading-relaxed ${m.from === 'me' ? 'bg-blue-600 text-white rounded-br-sm' : 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-bl-sm'}`}>
+                          {m.text}
+                          {m.actions && (
+                            <div className="flex flex-wrap gap-1.5 mt-2">
+                              {m.actions.map((a) => (
+                                <button key={a.label} onClick={() => { soundManager.play('click'); onNavigateToView(a.view); setIsOpen(false); }}
+                                  className="px-2.5 py-1 rounded-full bg-white dark:bg-slate-700 text-blue-700 dark:text-blue-300 text-xs font-bold border border-blue-200 dark:border-slate-600 cursor-pointer">{a.label} →</button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                    <div ref={chatEndRef} />
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {QUICK_QUESTIONS.map((q) => (
+                      <button key={q} onClick={() => ask(q)} className="px-2.5 py-1 rounded-full bg-amber-50 dark:bg-slate-800 text-amber-800 dark:text-amber-300 text-xs font-bold border border-amber-200 dark:border-slate-700 cursor-pointer">{q}</button>
+                    ))}
+                  </div>
+                  <form onSubmit={(e) => { e.preventDefault(); ask(chatInput); }} className="flex gap-2">
+                    <input value={chatInput} onChange={(e) => setChatInput(e.target.value)} maxLength={200} placeholder="Gõ câu hỏi của bạn…"
+                      className="flex-1 min-w-0 px-3 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm" />
+                    <button type="submit" aria-label="Gửi" className="px-3 rounded-2xl bg-blue-600 text-white cursor-pointer"><Send className="w-4 h-4" /></button>
+                  </form>
+                  <p className="text-[11px] text-slate-400">Bé Siêu Vui là trợ lý hướng dẫn của Học Siêu Vui, chưa giải được bài tập cụ thể.</p>
+                </div>
+              ) : activeTab === 'guide' ? (
                 /* TAB 1: SYSTEM INTRO & FEATURE GUIDE */
                 <div className="space-y-4">
                   {/* Brief Intro */}

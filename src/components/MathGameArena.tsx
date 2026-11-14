@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
+import { emitMascot } from '../lib/mascotBus';
 import { StudentProfile, MathLesson, MathQuestion, GradeLevel } from '../types';
 import { 
   LESSON_TIERS_CONFIG, 
@@ -269,10 +270,12 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
         setScore((prev) => prev + 1);
         setStreak((prev) => prev + 1);
         confetti({ particleCount: 25, spread: 45, origin: { y: 0.6 } });
+        emitMascot(streak + 1 >= 5 && (streak + 1) % 5 === 0 ? { type: 'streak', count: streak + 1 } : { type: 'correct' });
       } else {
         soundManager.play('wrong');
         setLastAnswerResult('wrong');
         setStreak(0);
+        emitMascot({ type: 'wrong' });
       }
     } catch (e) {
       console.error(e);
