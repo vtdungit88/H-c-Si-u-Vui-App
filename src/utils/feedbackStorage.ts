@@ -17,14 +17,14 @@ export function getUserFeedbacks(): UserFeedback[] {
   try {
     const raw = localStorage.getItem(FEEDBACKS_STORAGE_KEY);
     if (!raw) {
-      // Seed with 2 sample realistic feedbacks
+      // Seed with 2 clearly-labelled DEMO feedbacks (no real people)
       const sampleFeedbacks: UserFeedback[] = [
         {
           id: 'fb_1',
-          studentName: 'Bảo Nam',
+          studentName: '[DEMO] Học sinh mẫu 1',
           grade: 'Lớp 6A2',
-          school: 'THCS Lê Quý Đôn',
-          contact: 'baonam.lequy@gmail.com',
+          school: '[DEMO] Trường mẫu',
+          contact: '',
           category: 'suggestion',
           message: 'Ứng dụng rất vui, em thích nhất Studio đổi quần áo xe đạp thể thao! Thầy cô cho thêm nhiều bài toán hình học nữa nhé ạ!',
           rating: 5,
@@ -33,9 +33,9 @@ export function getUserFeedbacks(): UserFeedback[] {
         },
         {
           id: 'fb_2',
-          studentName: 'Khánh Linh',
+          studentName: '[DEMO] Học sinh mẫu 2',
           grade: 'Lớp 6B',
-          school: 'THCS Trưng Vương',
+          school: '[DEMO] Trường mẫu',
           contact: '',
           category: 'compliment',
           message: 'Em vừa làm xong bài phân số được 3 xu và 1 sao! Mẹo vui bên dưới rất dễ nhớ công thức ạ!',
