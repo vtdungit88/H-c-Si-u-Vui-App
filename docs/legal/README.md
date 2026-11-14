@@ -98,3 +98,8 @@ Không tự suy ra tư cách pháp nhân, đăng ký kinh doanh, địa chỉ ho
 **Lưu ý diễn giải:** Điều 24 Luật 91/2025/QH15 quy định người đại diện theo pháp luật thay mặt thực hiện quyền của chủ thể dữ liệu là trẻ em, trừ trường hợp luật quy định khác; riêng việc xử lý nhằm công bố/tiết lộ thông tin về đời sống riêng tư, bí mật cá nhân của trẻ từ đủ 07 tuổi trở lên phải có đồng ý của cả trẻ và người đại diện theo pháp luật. Không diễn giải thành yêu cầu mọi hoạt động xử lý dữ liệu trẻ đều có cùng một cơ chế đồng ý kép; cần phân tích từng mục đích và căn cứ xử lý.
 
 Nghị định 356/2025/NĐ-CP Điều 17–19 quy định về chuyển dữ liệu cá nhân xuyên biên giới và hồ sơ đánh giá tác động. Điều 17 bao gồm lưu trữ dữ liệu thu thập tại Việt Nam trên máy chủ ngoài Việt Nam hoặc dịch vụ điện toán đám mây của nhà cung cấp nước ngoài; Điều 18 quy định hồ sơ đánh giá tác động chuyển dữ liệu và mốc nộp theo quy định. Do đó, nếu xác minh Supabase Seoul thực sự xử lý dữ liệu người dùng Việt Nam, phải có đánh giá pháp lý và hồ sơ tương ứng; việc chỉ nêu trong chính sách là chưa đủ.
+
+
+## Trạng thái thông tin chủ thể vận hành
+
+Chủ dự án đã xác nhận mô hình cá nhân, vận hành độc lập, không phải sản phẩm chính thức của VNPT; email liên hệ là dungvt.hbh@gmail.com. Họ tên đầy đủ và địa chỉ liên hệ vẫn cần bổ sung. Vì vậy, không được thay placeholder bằng tên/email/địa chỉ suy đoán và không công bố bản chính sách hiện tại.
