@@ -2,7 +2,7 @@
 **BẢN NHÁP NỘI BỘ – CHƯA CÔNG BỐ**
 
 Phiên bản: 0.1 | Ngày dự thảo: 14/11/2026  
-Đơn vị cung cấp dịch vụ: [TÊN PHÁP LÝ – BẮT BUỘC XÁC NHẬN]  
+Đơn vị cung cấp dịch vụ dự kiến: Cá nhân vận hành độc lập Học Siêu Vui – [HỌ TÊN ĐẦY ĐỦ CẦN BỔ SUNG]. Dự án độc lập, không phải sản phẩm chính thức hoặc đại diện VNPT.  
 Website: https://vnptluongson.cloud/
 
 ## 1. Phạm vi
