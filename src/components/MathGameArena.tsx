@@ -348,7 +348,7 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
       )}
       {/* If currently in an active lesson */}
       {activeLesson ? (
-        <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-xl space-y-6">
+        <div className="hsv-question-card bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-xl space-y-4 sm:space-y-6">
           {/* Header Bar */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
             <div>
@@ -446,7 +446,7 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
               </div>
 
               {/* Options */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 min-[420px]:grid-cols-2 gap-2.5 sm:gap-3">
                 {activeQuestions[currentQuestionIndex]?.options.map((opt) => {
                   const isSelected = selectedOptionId === opt.id;
                   let optionClass = 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-blue-400 cursor-pointer';
