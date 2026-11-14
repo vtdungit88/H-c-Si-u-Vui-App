@@ -368,7 +368,7 @@ export const AvatarStudio: React.FC<AvatarStudioProps> = ({
     'Lớp Học Nắng Mai';
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+    <div className="hsv-studio-page max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
       {notice && (
         <div
           role="alert"
@@ -427,9 +427,9 @@ export const AvatarStudio: React.FC<AvatarStudioProps> = ({
       </div>
 
       {/* Main Two-Column Dressing Room */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="hsv-studio-layout grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-start">
         {/* Left Column: Live Interactive Game Stage */}
-        <div className="lg:col-span-5 lg:sticky lg:top-24 space-y-4">
+        <div className="hsv-studio-preview lg:col-span-5 lg:sticky lg:top-24 space-y-3 sm:space-y-4">
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
             {/* Stage Header */}
             <div className="flex items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
@@ -455,7 +455,7 @@ export const AvatarStudio: React.FC<AvatarStudioProps> = ({
             </div>
 
             {/* Illustrated Game Stage */}
-            <div className="relative mt-3 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 min-h-[340px] flex flex-col items-center justify-center">
+            <div className="hsv-studio-stage relative mt-3 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 min-h-[340px] flex flex-col items-center justify-center">
               <StudioStageBackdrop backdropId={effectiveConfig.backdropId} />
 
               {/* Speech bubble on character tap */}
@@ -568,7 +568,7 @@ export const AvatarStudio: React.FC<AvatarStudioProps> = ({
         {/* Right Column: Category Navigation + Shop Grid */}
         <div className="lg:col-span-7 space-y-4">
           {/* Category Tabs */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl p-2 border border-slate-200 dark:border-slate-800 shadow-xs flex flex-wrap gap-1.5">
+          <div className="hsv-studio-categories bg-white dark:bg-slate-900 rounded-2xl p-2 border border-slate-200 dark:border-slate-800 shadow-xs gap-1.5">
             {CATEGORY_TABS.map((tab) => {
               const isActive = activeTab === tab.id;
               return (
@@ -905,7 +905,7 @@ export const AvatarStudio: React.FC<AvatarStudioProps> = ({
                   Chưa có vật phẩm nào ở bộ lọc này. Hãy chọn "Tất cả" để xem toàn bộ danh mục.
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                <div className="hsv-studio-items grid grid-cols-2 md:grid-cols-2 gap-3.5">
                   {currentCategoryItems.map((item) => {
                     const isUnlocked = student.unlockedItems.includes(item.id);
                     const equippedKey = `${item.category}Id` as keyof AvatarConfig;
