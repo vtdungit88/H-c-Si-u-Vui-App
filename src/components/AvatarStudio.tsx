@@ -137,7 +137,7 @@ export const AvatarStudio: React.FC<AvatarStudioProps> = ({
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
+    <div className="hsv-studio-page max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
       {/* Top Banner Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-6 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-3xl text-white shadow-xl mb-6">
         <div>
@@ -184,9 +184,9 @@ export const AvatarStudio: React.FC<AvatarStudioProps> = ({
       </div>
 
       {/* Main Studio Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="hsv-studio-layout grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-start">
         {/* Left Column: Avatar Live Preview (Sticky on desktop) */}
-        <div className="lg:col-span-5 lg:sticky lg:top-24 space-y-4">
+        <div className="hsv-studio-preview lg:col-span-5 lg:sticky lg:top-24 space-y-3 sm:space-y-4">
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-md text-center">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
@@ -198,7 +198,7 @@ export const AvatarStudio: React.FC<AvatarStudioProps> = ({
             </div>
 
             {/* Avatar Display Box */}
-            <div className="relative py-6 flex items-center justify-center min-h-[300px] overflow-hidden rounded-2xl bg-gradient-to-b from-blue-50/50 via-indigo-50/20 to-slate-50/80 dark:from-slate-800/50 dark:via-slate-850 dark:to-slate-900 my-3 border border-slate-100 dark:border-slate-800">
+            <div className="hsv-studio-stage relative py-6 flex items-center justify-center min-h-[300px] overflow-hidden rounded-2xl bg-gradient-to-b from-blue-50/50 via-indigo-50/20 to-slate-50/80 dark:from-slate-800/50 dark:via-slate-850 dark:to-slate-900 my-3 border border-slate-100 dark:border-slate-800">
               <AvatarRenderer config={student.avatarConfig} size="lg" />
             </div>
 
@@ -256,7 +256,7 @@ export const AvatarStudio: React.FC<AvatarStudioProps> = ({
         {/* Right Column: Wardrobe Tabs & Shop Catalog */}
         <div className="lg:col-span-7 space-y-4">
           {/* Category Tabs Bar */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl p-2 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-wrap gap-1.5">
+          <div className="hsv-studio-categories bg-white dark:bg-slate-900 rounded-2xl p-2 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-wrap gap-1.5">
             <button
               onClick={() => {
                 soundManager.play('click');
@@ -577,7 +577,7 @@ export const AvatarStudio: React.FC<AvatarStudioProps> = ({
                 <span>Giá từ 0 xu → Hàng nghìn xu</span>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+              <div className="hsv-studio-items grid grid-cols-2 md:grid-cols-2 gap-3.5">
                 {currentCategoryItems.map((item) => {
                   const isUnlocked = student.unlockedItems.includes(item.id);
                   const isEquipped = student.avatarConfig[`${item.category}Id`] === item.id;
