@@ -42,12 +42,12 @@ export const SUBJECTS_CATALOG: SubjectMeta[] = [
     color: 'from-emerald-500 to-teal-600',
     description: 'Khám phá thế giới vật lý, phản ứng hóa học kỳ thú và thế giới sinh học diệu kỳ.',
     status: 'active',
-    tagline: 'Lớp 6 · 10 chương · 150 câu',
+    tagline: 'Lớp 6 → 9 · 45 chương · 675 câu',
     availableGrades: [
       { grade: '6', term1Available: true, term2Available: true, notes: '10 chương, 150 câu (Kết nối tri thức, đã được chủ dự án duyệt) – dùng chung cho cả 2 học kỳ' },
-      { grade: '7', term1Available: false, term2Available: false, notes: 'Sắp ra mắt' },
-      { grade: '8', term1Available: false, term2Available: false, notes: 'Sắp ra mắt' },
-      { grade: '9', term1Available: false, term2Available: false, notes: 'Sắp ra mắt' }
+      { grade: '7', term1Available: true, term2Available: true, notes: '11 chương, 165 câu (Kết nối tri thức) – dùng chung cho cả 2 học kỳ' },
+      { grade: '8', term1Available: true, term2Available: true, notes: '9 chương, 135 câu (Kết nối tri thức) – dùng chung cho cả 2 học kỳ' },
+      { grade: '9', term1Available: true, term2Available: true, notes: '15 chương, 225 câu (Kết nối tri thức) – dùng chung cho cả 2 học kỳ' }
     ]
   },
   {
