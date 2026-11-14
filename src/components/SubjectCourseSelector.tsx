@@ -59,8 +59,11 @@ export const SubjectCourseSelector: React.FC<SubjectCourseSelectorProps> = ({
 
   const handleSubjectClick = (subj: SubjectMeta) => {
     soundManager.play('click');
-    if (subj.id === 'math') {
-      onSelectCourse('math', '6', 1);
+    if (subj.status === 'active') {
+      const ok = (g: string) => subj.availableGrades.some((x) => x.grade === g && (x.term1Available || x.term2Available));
+      const grade = (ok(currentGrade) ? currentGrade : (subj.availableGrades.find((x) => x.term1Available)?.grade ?? '6')) as GradeLevel;
+      onSelectCourse(subj.id, grade, currentTerm);
+      setSchoolLevel(['1', '2', '3', '4', '5'].includes(grade) ? 'primary' : 'secondary');
       setIsOpenSubjectDrawer(false);
     } else {
       setComingSoonNotice({
@@ -79,9 +82,16 @@ export const SubjectCourseSelector: React.FC<SubjectCourseSelectorProps> = ({
   const primaryGrades: GradeLevel[] = ['1', '2', '3', '4', '5'];
   const secondaryGrades: GradeLevel[] = ['6', '7', '8', '9'];
 
+  const gradeAvailable = (grade: string) =>
+    activeSubject.availableGrades.some((x) => x.grade === grade && (x.term1Available || x.term2Available));
+
   const handleGradeClick = (grade: GradeLevel) => {
     soundManager.play('click');
-    onSelectCourse('math', grade, currentTerm);
+    if (!gradeAvailable(grade)) {
+      setComingSoonNotice({ subjectName: activeSubject.name, grade: `Lớp ${grade}`, term: currentTerm, notes: activeSubject.description });
+      return;
+    }
+    onSelectCourse(currentSubjectId, grade, currentTerm);
   };
 
   const handleTermClick = (term: 1 | 2) => {
@@ -132,8 +142,8 @@ export const SubjectCourseSelector: React.FC<SubjectCourseSelectorProps> = ({
               onClick={() => {
                 soundManager.play('click');
                 setSchoolLevel('primary');
-                if (!primaryGrades.includes(currentGrade)) {
-                  onSelectCourse('math', '1', 1);
+                if (!primaryGrades.includes(currentGrade) && primaryGrades.some(gradeAvailable)) {
+                  onSelectCourse(currentSubjectId, primaryGrades.find(gradeAvailable) as GradeLevel, currentTerm);
                 }
               }}
               className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 ${
@@ -150,7 +160,7 @@ export const SubjectCourseSelector: React.FC<SubjectCourseSelectorProps> = ({
                 soundManager.play('click');
                 setSchoolLevel('secondary');
                 if (!secondaryGrades.includes(currentGrade)) {
-                  onSelectCourse('math', '6', 1);
+                  onSelectCourse(currentSubjectId, (secondaryGrades.find(gradeAvailable) ?? '6') as GradeLevel, currentTerm);
                 }
               }}
               className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 ${
@@ -179,7 +189,7 @@ export const SubjectCourseSelector: React.FC<SubjectCourseSelectorProps> = ({
                   }`}
                 >
                   <span>Lớp {g}</span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" title="Đã có bài học SGK" />
+                  <span className={`w-1.5 h-1.5 rounded-full ${gradeAvailable(g) ? 'bg-emerald-500' : 'bg-slate-300'}`} title={gradeAvailable(g) ? 'Đã có bài học' : 'Sắp ra mắt'} />
                 </button>
               );
             })}
@@ -224,7 +234,7 @@ export const SubjectCourseSelector: React.FC<SubjectCourseSelectorProps> = ({
                 <span>Danh Mục Toàn Bộ Môn Học SGK</span>
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Môn Toán Học đang mở sẵn sàng với 15 câu/bài cho các khối lớp. Các môn học khác sẽ mở rộng tiếp nối!
+                Toán lớp 1–9 và Khoa học tự nhiên 6 đã mở, mỗi chương 15 câu. Các môn khác sẽ mở rộng tiếp nối!
               </p>
             </div>
             <button
@@ -301,7 +311,7 @@ export const SubjectCourseSelector: React.FC<SubjectCourseSelectorProps> = ({
                 Thầy cô đang tăng tốc chấm bút chuẩn bị ngân hàng câu đố siêu vui nhộn cho môn học này! Mục tiêu của nền tảng là mở rộng đầy đủ các môn THCS.
               </p>
               <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-950/40 rounded-xl text-xs text-blue-700 dark:text-blue-300 font-semibold">
-                💡 Hiện tại môn <strong>Toán 6 Tập 1</strong> đã sẵn sàng 100%. Bạn hãy tiếp tục vượt ải kiếm thật nhiều Xu và Sao nhé!
+                💡 Hiện đã có <strong>Toán lớp 1–9</strong> và <strong>Khoa học tự nhiên 6</strong>. Bạn hãy tiếp tục vượt ải kiếm thật nhiều Xu và Sao nhé!
               </div>
             </div>
 
@@ -310,11 +320,11 @@ export const SubjectCourseSelector: React.FC<SubjectCourseSelectorProps> = ({
                 onClick={() => {
                   soundManager.play('click');
                   setComingSoonNotice(null);
-                  onSelectCourse('math', '6', 1);
+                  onSelectCourse('math', currentSubjectId === 'math' && gradeAvailable(currentGrade) ? currentGrade : '6', currentTerm);
                 }}
                 className="flex-1 py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md transition-colors"
               >
-                Vào Học Toán 6 Tập 1 Ngay
+                Vào Học Toán Ngay
               </button>
               <button
                 onClick={() => {
