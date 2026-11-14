@@ -179,7 +179,7 @@ export default function App() {
 
           <div className="flex-1 overflow-hidden whitespace-nowrap text-[11px] sm:text-xs">
             <div className="inline-block animate-marquee hover:pause">
-              🎉 <strong>Học Siêu Vui by dungvt.hbh VNPT:</strong> Ứng dụng vừa học vừa chơi bám sát chương trình SGK • Đăng ký tài khoản để làm bài & lưu thành tích • Studio của tôi • Liên hệ: <span className="underline">dungvt.hbh@gmail.com</span>
+              🎉 <strong>Học Siêu Vui – Dự án độc lập:</strong> Ứng dụng vừa học vừa chơi bám sát chương trình SGK • Đăng ký tài khoản để làm bài & lưu thành tích • Studio của tôi • Liên hệ: <span className="underline">dungvt.hbh@gmail.com</span>
             </div>
           </div>
 
