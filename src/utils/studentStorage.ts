@@ -3,7 +3,6 @@ import { StudentProfile, AvatarConfig } from '../types';
 const STORAGE_KEY_PROFILES = 'toan6_student_profiles_v1';
 const STORAGE_KEY_ACTIVE_ID = 'toan6_active_student_id_v1';
 const STORAGE_KEY_ANNOUNCEMENT = 'hocsieuvui_admin_announcement_v1';
-export const DEFAULT_PASSWORD = 'hocvui123';
 
 export const DEFAULT_AVATAR: AvatarConfig = {
   gender: 'boy',
@@ -49,8 +48,7 @@ export const createInitialProfile = (
   grade: string = '6A1',
   school: string = 'Trường Học Vui Nhộn',
   gender: 'boy' | 'girl' | 'scholar' = 'boy',
-  isGuest: boolean = true,
-  password: string = DEFAULT_PASSWORD
+  isGuest: boolean = true
 ): StudentProfile => {
   const avatar: AvatarConfig = {
     ...DEFAULT_AVATAR,
@@ -88,8 +86,7 @@ export const createInitialProfile = (
     highScoreBlitz: 0,
     motto: 'Học hết mình, chơi siêu vui!',
     createdAt: new Date().toISOString(),
-    isGuest,
-    password: password || DEFAULT_PASSWORD
+    isGuest
   };
 };
 
@@ -161,64 +158,34 @@ export const updateActiveStudent = (
   return updated;
 };
 
-// Check if a nickname is already taken by a registered student
-export const isNicknameTaken = (name: string, excludeId?: string): boolean => {
+/**
+ * Cosmetic-only local cache for a signed-in user (avatar, equipped items, motto).
+ * Identity, wallet and learning progress come from Supabase; nothing sensitive is stored here.
+ */
+export const upsertAuthProfile = (
+  id: string,
+  server: Pick<StudentProfile, 'name' | 'coins' | 'stars' | 'exp' | 'completedLessons'>
+): StudentProfile => {
   const profiles = getStudentProfiles();
-  return profiles.some(
-    (p) => !p.isGuest && p.name.trim().toLowerCase() === name.trim().toLowerCase() && p.id !== excludeId
-  );
-};
-
-// Find registered account by nickname
-export const findStudentByNickname = (name: string): StudentProfile | undefined => {
-  const profiles = getStudentProfiles();
-  return profiles.find(
-    (p) => !p.isGuest && p.name.trim().toLowerCase() === name.trim().toLowerCase()
-  );
-};
-
-// Log in with nickname & password
-export const loginStudent = (
-  nickname: string,
-  passwordInput: string
-): { success: boolean; student?: StudentProfile; message: string } => {
-  const student = findStudentByNickname(nickname);
-  if (!student) {
-    return { success: false, message: 'Không tìm thấy tài khoản với biệt danh này. Bạn có thể đăng ký mới!' };
-  }
-
-  const expectedPass = student.password || DEFAULT_PASSWORD;
-  if (passwordInput.trim() !== expectedPass.trim()) {
-    return { 
-      success: false, 
-      message: 'Mật khẩu chưa chính xác! Nếu quên, bạn có thể bấm nút "Quên Mật Khẩu" để đặt lại về ' + DEFAULT_PASSWORD 
-    };
-  }
-
-  setActiveStudentId(student.id);
-  return { success: true, student, message: 'Đăng nhập thành công!' };
-};
-
-// Reset password to default 'hocvui123'
-export const resetStudentPassword = (nickname: string): { success: boolean; message: string } => {
-  const profiles = getStudentProfiles();
-  const targetIndex = profiles.findIndex(
-    (p) => !p.isGuest && p.name.trim().toLowerCase() === nickname.trim().toLowerCase()
-  );
-
-  if (targetIndex === -1) {
-    return { success: false, message: 'Không tìm thấy tài khoản để khôi phục mật khẩu!' };
-  }
-
-  profiles[targetIndex].password = DEFAULT_PASSWORD;
-  saveStudentProfiles(profiles);
-  return { 
-    success: true, 
-    message: `Đã khôi phục mật khẩu của "${profiles[targetIndex].name}" về mặc định: ${DEFAULT_PASSWORD}` 
+  const existing = profiles.find((p) => p.id === id);
+  const base = existing ?? { ...createInitialProfile(server.name, '6', '', 'boy', false), id };
+  const merged: StudentProfile = {
+    ...base,
+    id,
+    isGuest: false,
+    name: server.name,
+    coins: server.coins,
+    stars: server.stars,
+    exp: server.exp,
+    completedLessons: server.completedLessons,
+    level: Math.max(1, Math.floor(server.stars / 5) + 1)
   };
+  const next = existing ? profiles.map((p) => (p.id === id ? merged : p)) : [...profiles, merged];
+  saveStudentProfiles(next);
+  setActiveStudentId(id);
+  return merged;
 };
 
-// Logout: return to guest student
 export const logoutStudent = (): StudentProfile => {
   const guest = createInitialProfile('Bé Siêu Vui', '6A1', 'Trường Học Vui Nhộn', 'boy', true);
   setActiveStudentId(guest.id);
@@ -278,4 +245,19 @@ export const getAppStatistics = (): AppStatistics => {
     totalItemsUnlocked: totalItems,
     activeAccountsList: profiles
   };
+};
+
+/** Remove any plaintext passwords left by the legacy LocalStorage login. */
+export const scrubLegacyPasswords = (): void => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_PROFILES);
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return;
+    // Legacy accounts carry a `password` field: drop them entirely (identity is now Supabase Auth).
+    const cleaned = parsed.filter((p: Record<string, unknown>) => p && !('password' in p));
+    localStorage.setItem(STORAGE_KEY_PROFILES, JSON.stringify(cleaned));
+  } catch {
+    localStorage.removeItem(STORAGE_KEY_PROFILES);
+  }
 };

@@ -46,7 +46,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onLogout,
   onOpenAdmin,
   onOpenInstallShare,
-  onlineCount = 18,
+  onlineCount,
   isMuted,
   onToggleSound
 }) => {
@@ -146,6 +146,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Zone 3: Primary Action & Profile Info */}
         <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
           {/* Live Online Presence Indicator */}
+          {onlineCount !== undefined && (
           <div 
             className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/80 text-emerald-700 dark:text-emerald-300 text-xs font-semibold shadow-xs select-none"
             title="Số học sinh đang trực tuyến học & chơi"
@@ -156,6 +157,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </span>
             <span>{onlineCount} bạn online</span>
           </div>
+          )}
 
           {/* Sound Toggle */}
           <button

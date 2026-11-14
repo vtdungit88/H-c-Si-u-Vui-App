@@ -61,7 +61,6 @@ export interface StudentProfile {
   motto: string;
   createdAt: string;
   isGuest?: boolean;
-  password?: string;
 }
 
 export type SchoolLevel = 'primary' | 'secondary';

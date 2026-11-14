@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
 import { StudentProfile, MathLesson, MathQuestion, GradeLevel } from '../types';
-import { MATH_LESSONS } from '../data/math6Lessons';
-import { MATH_6_TERM_2_LESSONS } from '../data/math6Term2Lessons';
-import { OTHER_GRADES_MATH_LESSONS } from '../data/mathOtherGrades';
 import { 
   LESSON_TIERS_CONFIG, 
   LessonDifficultyTier 
 } from '../data/expandedQuestionBank';
-import { prepareTieredQuestions } from '../utils/questionHelper';
 import { soundManager } from '../utils/audio';
-import { updateActiveStudent } from '../utils/studentStorage';
+import { supabase } from '../lib/supabase';
+import {
+  fetchCurriculum, startQuiz, answerQuestion, submitQuiz, loadStudentProfile,
+  type Curriculum, type QuizQuestion
+} from '../lib/api';
 import { 
   BookOpen, 
   CheckCircle2, 
@@ -48,14 +48,51 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
   onNavigateToShop,
   onRequireLogin
 }) => {
-  // Determine available lessons based on grade and term
+  // Curriculum comes from Supabase (published content only). No answers are bundled in the client.
+  const [curriculum, setCurriculum] = useState<Curriculum | null>(null);
+  const [curriculumError, setCurriculumError] = useState('');
+  const [isStarting, setIsStarting] = useState(false);
+  const [quizError, setQuizError] = useState('');
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const questionStartRef = useRef<number>(Date.now());
+
+  useEffect(() => {
+    let alive = true;
+    fetchCurriculum().then((c) => alive && setCurriculum(c)).catch((e) => alive && setCurriculumError(String(e.message || e)));
+    return () => { alive = false; };
+  }, []);
+
+  const dbLessonIdByCode = React.useMemo(
+    () => new Map((curriculum?.lessons ?? []).map((l) => [l.code, l.id] as const)),
+    [curriculum]
+  );
+
   const currentLessons: MathLesson[] = React.useMemo(() => {
-    if (currentGrade === '6') {
-      return currentTerm === 1 ? MATH_LESSONS : MATH_6_TERM_2_LESSONS;
-    }
-    const otherLessons = OTHER_GRADES_MATH_LESSONS[currentGrade] || [];
-    return otherLessons.length > 0 ? otherLessons : MATH_LESSONS;
-  }, [currentGrade, currentTerm]);
+    if (currentGrade !== '6' || !curriculum) return [];
+    const chapterById = new Map(curriculum.chapters.map((c) => [c.id, c] as const));
+    return curriculum.lessons
+      .map((l) => {
+        const ch = chapterById.get(l.chapter_id);
+        if (!ch) return null;
+        const lm = l.learning_material ?? {};
+        return {
+          id: l.code,
+          chapter: ch.sequence_no,
+          chapterTitle: ch.title,
+          lessonNumber: l.sequence_no,
+          title: l.title,
+          subTitle: lm.subtitle ?? '',
+          sgkPage: lm.sgk_page ?? '',
+          conceptSummary: lm.concepts ?? [],
+          questions: [],
+          rewardCoins: lm.reward_coins ?? 0,
+          rewardStars: lm.reward_stars ?? 0
+        } as MathLesson;
+      })
+      .filter((x): x is MathLesson => x !== null)
+      .filter((l) => (currentTerm === 1 ? l.chapter <= 5 : l.chapter >= 6))
+      .sort((x, y) => x.chapter - y.chapter || x.lessonNumber - y.lessonNumber);
+  }, [currentGrade, currentTerm, curriculum]);
 
   // Extract unique chapters
   const availableChapters = React.useMemo(() => {
@@ -121,29 +158,62 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
     setSelectedLessonForTiers(lesson);
   };
 
-  // Start a specific tier exercise (15 unique questions)
-  const startTierExercise = (lesson: MathLesson, tier: LessonDifficultyTier) => {
+  const mapQuestion = (q: QuizQuestion): MathQuestion => ({
+    id: q.quiz_question_id,
+    questionText: q.prompt.text,
+    contextHint: q.prompt.hint,
+    visualType: (q.prompt.visualType as MathQuestion['visualType']) ?? 'none',
+    visualData: q.prompt.visualData,
+    // isCorrect stays false until the server reveals the answer after the student commits.
+    options: q.options.map((o) => ({ id: o.key, text: o.content.text, isCorrect: false })),
+    explanation: '',
+    funnyTip: ''
+  });
+
+  // Start a specific tier exercise: the server picks and returns the questions (without answers).
+  const startTierExercise = async (lesson: MathLesson, tier: LessonDifficultyTier) => {
     soundManager.play('click');
+    const dbId = dbLessonIdByCode.get(lesson.id);
+    if (!dbId) { setQuizError('Không tìm thấy bài học trên máy chủ.'); return; }
     const tierKey = `${lesson.id}_${tier}`;
     const wasCompleted = !!student.completedLessons[tierKey];
-    setIsReplayLesson(wasCompleted);
+    setIsStarting(true);
+    setQuizError('');
+    try {
+      const quiz = await startQuiz(dbId, tier, 15);
+      setSessionId(quiz.session_id);
+      setIsReplayLesson(wasCompleted);
+      setActiveLesson(lesson);
+      setSelectedTier(tier);
+      setActiveQuestions(quiz.questions.map(mapQuestion));
+      setCurrentQuestionIndex(0);
+      setSelectedOptionId(null);
+      setIsAnswerSubmitted(false);
+      setIsTimeOut(false);
+      setLastAnswerResult(null);
+      setScore(0);
+      setStreak(0);
+      setIsLessonFinished(false);
+      setTimeLeft(60);
+      setSelectedLessonForTiers(null);
+      questionStartRef.current = Date.now();
+    } catch (e) {
+      soundManager.play('wrong');
+      setQuizError(e instanceof Error && /not authenticated/.test(e.message)
+        ? 'Hãy đăng nhập để làm bài.' : 'Chưa bắt đầu được bài. Hãy thử lại sau.');
+    } finally {
+      setIsStarting(false);
+    }
+  };
 
-    // Chuẩn bị 15 câu hỏi độc lập của tier này, shuffle options
-    const prepared = prepareTieredQuestions(lesson.id, tier);
-
-    setActiveLesson(lesson);
-    setSelectedTier(tier);
-    setActiveQuestions(prepared);
-    setCurrentQuestionIndex(0);
-    setSelectedOptionId(null);
-    setIsAnswerSubmitted(false);
-    setIsTimeOut(false);
-    setLastAnswerResult(null);
-    setScore(0);
-    setStreak(0);
-    setIsLessonFinished(false);
-    setTimeLeft(60);
-    setSelectedLessonForTiers(null);
+  // Reveal the server's verdict for the current question (marks the correct option, adds explanation).
+  const applyReveal = (index: number, r: { correct_key: string; explanation: { text?: string; tip?: string } }) => {
+    setActiveQuestions((prev) => prev.map((q, i) => i !== index ? q : {
+      ...q,
+      options: q.options.map((o) => ({ ...o, isCorrect: o.id === r.correct_key })),
+      explanation: r.explanation?.text ?? '',
+      funnyTip: r.explanation?.tip ?? ''
+    }));
   };
 
   // Countdown timer logic: 60s per question
@@ -172,13 +242,16 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
     };
   }, [currentQuestionIndex, activeLesson, isAnswerSubmitted, isLessonFinished]);
 
-  // Handle when 60s expires
+  // Handle when 60s expires: lock the question as unanswered on the server and reveal the answer.
   const handleTimeOut = () => {
     soundManager.play('wrong');
     setIsTimeOut(true);
     setIsAnswerSubmitted(true);
     setLastAnswerResult('wrong');
     setStreak(0);
+    const q = activeQuestions[currentQuestionIndex];
+    const idx = currentQuestionIndex;
+    if (q) answerQuestion(q.id, null, 60000).then((r) => applyReveal(idx, r)).catch((e) => console.error(e));
   };
 
   const handleSelectOption = (optionId: string) => {
@@ -187,32 +260,33 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
     setSelectedOptionId(optionId);
   };
 
-  const handleSubmitAnswer = () => {
+  const handleSubmitAnswer = async () => {
     if (!activeLesson || !selectedOptionId || isAnswerSubmitted) return;
     if (timerRef.current) clearInterval(timerRef.current);
 
     const currentQ = activeQuestions[currentQuestionIndex];
-    const chosenOption = currentQ?.options.find((o) => o.id === selectedOptionId);
-    const isCorrect = !!chosenOption?.isCorrect;
-
+    const idx = currentQuestionIndex;
     setIsAnswerSubmitted(true);
     setIsTimeOut(false);
-
-    if (isCorrect) {
-      soundManager.play('correct');
-      setLastAnswerResult('correct');
-      setScore((prev) => prev + 1);
-      setStreak((prev) => prev + 1);
-      // Hiệu ứng pháo hoa nhỏ khi trả lời đúng
-      confetti({
-        particleCount: 25,
-        spread: 45,
-        origin: { y: 0.6 }
-      });
-    } else {
-      soundManager.play('wrong');
-      setLastAnswerResult('wrong');
-      setStreak(0);
+    setQuizError('');
+    try {
+      const r = await answerQuestion(currentQ.id, selectedOptionId, Date.now() - questionStartRef.current);
+      applyReveal(idx, r);
+      if (r.is_correct) {
+        soundManager.play('correct');
+        setLastAnswerResult('correct');
+        setScore((prev) => prev + 1);
+        setStreak((prev) => prev + 1);
+        confetti({ particleCount: 25, spread: 45, origin: { y: 0.6 } });
+      } else {
+        soundManager.play('wrong');
+        setLastAnswerResult('wrong');
+        setStreak(0);
+      }
+    } catch (e) {
+      console.error(e);
+      setIsAnswerSubmitted(false);
+      setQuizError('Mất kết nối máy chủ. Hãy thử gửi lại câu trả lời.');
     }
   };
 
@@ -232,92 +306,51 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
     }
   };
 
-  const finishLesson = () => {
-    if (!activeLesson) return;
+  const finishLesson = async () => {
+    if (!activeLesson || !sessionId) return;
     if (timerRef.current) clearInterval(timerRef.current);
     setIsLessonFinished(true);
-
-    const totalQ = activeQuestions.length || 15;
-    const currentQ = activeQuestions[currentQuestionIndex];
-    const lastCorrect = selectedOptionId && currentQ?.options.find((o) => o.id === selectedOptionId)?.isCorrect;
-    const finalScore = score + (lastCorrect ? 1 : 0);
-    const ratio = finalScore / totalQ;
-
-    const tierConfig = LESSON_TIERS_CONFIG[selectedTier];
-    const tierKey = `${activeLesson.id}_${selectedTier}`;
-    const alreadyCompleted = !!student.completedLessons[tierKey];
-
-    let earnedStars = 0;
-    let earnedCoins = 0;
-
-    // QUY TẮC: Luyện lại bài đã hoàn thành thì KHÔNG nhận thêm Xu hay Quà nữa
-    if (alreadyCompleted) {
-      earnedStars = 0;
-      earnedCoins = 0;
-    } else {
-      // Làm lần đầu: phân bổ Xu & Sao tương ứng theo cấp độ bài tập
-      if (ratio >= 0.8) {
-        // Đạt chuẩn giỏi (từ 12/15 câu trở lên)
-        earnedCoins = tierConfig.rewardCoins;
-        earnedStars = tierConfig.rewardStars;
-      } else if (ratio >= 0.5) {
-        // Đạt mức khá (từ 8/15 câu trở lên)
-        earnedCoins = Math.max(1, tierConfig.rewardCoins - 1);
-        earnedStars = 0;
-      } else {
-        earnedCoins = 0;
-        earnedStars = 0;
-      }
+    try {
+      // The server grades from the recorded attempts, awards XP/coins idempotently and saves progress.
+      const result = await submitQuiz(sessionId);
+      const ratio = result.total_count ? result.correct_count / result.total_count : 0;
+      const tierConfig = LESSON_TIERS_CONFIG[selectedTier];
+      setScore(result.correct_count);
+      setEarnedCoinsState(result.coins_awarded);
+      setEarnedStarsState(ratio >= 0.8 && result.coins_awarded > 0 ? tierConfig.rewardStars : 0);
+      soundManager.play('fanfare');
+      if (result.coins_awarded > 0) confetti({ particleCount: 80, spread: 70, origin: { y: 0.5 } });
+      const { data } = await supabase.auth.getUser();
+      if (data.user) onUpdateStudent(await loadStudentProfile(data.user, curriculum ?? undefined));
+    } catch (e) {
+      console.error(e);
+      setQuizError('Chưa lưu được kết quả lên máy chủ. Hãy kiểm tra mạng và thử lại.');
     }
-
-    setEarnedCoinsState(earnedCoins);
-    setEarnedStarsState(earnedStars);
-
-    soundManager.play('fanfare');
-    if (!alreadyCompleted && earnedCoins > 0) {
-      confetti({
-        particleCount: 80,
-        spread: 70,
-        origin: { y: 0.5 }
-      });
-    }
-
-    const updated = updateActiveStudent((prev) => {
-      const prevRecord = prev.completedLessons[tierKey];
-      const bestScore = Math.max(prevRecord?.bestScore || 0, finalScore);
-      const bestStars = Math.max(prevRecord?.stars || 0, earnedStars);
-
-      const newCoins = alreadyCompleted ? prev.coins : prev.coins + earnedCoins;
-      const newStars = alreadyCompleted ? prev.stars : prev.stars + earnedStars;
-
-      return {
-        ...prev,
-        coins: newCoins,
-        stars: newStars,
-        completedLessons: {
-          ...prev.completedLessons,
-          [tierKey]: {
-            stars: bestStars,
-            bestScore: bestScore,
-            completedAt: new Date().toISOString()
-          },
-          // Ghi nhận bài chính đã học
-          [activeLesson.id]: {
-            stars: Math.max(prev.completedLessons[activeLesson.id]?.stars || 0, bestStars),
-            bestScore: Math.max(prev.completedLessons[activeLesson.id]?.bestScore || 0, bestScore),
-            completedAt: new Date().toISOString()
-          }
-        }
-      };
-    });
-
-    onUpdateStudent(updated);
   };
 
   const activeTierConfig = LESSON_TIERS_CONFIG[selectedTier];
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
+      {quizError && (
+        <div role="alert" className="mb-4 p-3 rounded-2xl bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 text-sm font-semibold">{quizError}</div>
+      )}
+      {!activeLesson && curriculumError && (
+        <div role="alert" className="mb-4 p-3 rounded-2xl bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 text-sm">
+          Không tải được danh sách bài học: {curriculumError}
+        </div>
+      )}
+      {!activeLesson && !curriculum && !curriculumError && (
+        <div className="mb-4 p-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-sm">Đang tải bài học…</div>
+      )}
+      {!activeLesson && curriculum && currentGrade !== '6' && (
+        <div className="mb-4 p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-200 text-sm font-semibold">
+          Phần này đang được xây dựng. Bản dùng thử hiện chỉ có Toán lớp 6.
+        </div>
+      )}
+      {isStarting && (
+        <div className="mb-4 p-3 rounded-2xl bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 text-sm">Đang chuẩn bị câu hỏi…</div>
+      )}
       {/* If currently in an active lesson */}
       {activeLesson ? (
         <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-xl space-y-6">
@@ -536,7 +569,7 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
                     : `Bạn đã hoàn thành: ${activeTierConfig.title} - ${activeLesson.title}`}
                 </p>
                 <div className="mt-2 text-xs font-bold text-blue-600 dark:text-blue-400">
-                  Điểm số đạt được: {score + (selectedOptionId && activeQuestions[currentQuestionIndex]?.options.find(o => o.id === selectedOptionId)?.isCorrect ? 1 : 0)} / {activeQuestions.length || 15} câu
+                  Điểm số đạt được: {score} / {activeQuestions.length || 15} câu
                 </div>
               </div>
 
