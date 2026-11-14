@@ -489,7 +489,7 @@ export default function App() {
               alt="Học Siêu Vui Logo"
               className="w-7 h-7 rounded-xl object-cover shadow-sm border border-slate-200 dark:border-slate-800"
             />
-            <span className="font-bold text-slate-800 dark:text-slate-200">Học Siêu Vui – Dự án độc lập</span>
+            <span className="font-bold text-slate-800 dark:text-slate-200">Học Siêu Vui</span>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px] font-semibold" aria-label="Thống kê truy cập">
             <span>
