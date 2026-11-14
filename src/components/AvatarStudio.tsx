@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { StudentProfile, AvatarConfig, ShopItem, ItemCategory, ItemRarity } from '../types';
 import {
@@ -114,6 +114,16 @@ export const AvatarStudio: React.FC<AvatarStudioProps> = ({
 
   // Unboxing reveal modal after unlocking a new item
   const [unlockedRevealItem, setUnlockedRevealItem] = useState<ShopItem | null>(null);
+  const [unboxPhase, setUnboxPhase] = useState<'shaking' | 'revealed'>('revealed');
+  const unboxTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (unboxTimerRef.current !== null) {
+        window.clearTimeout(unboxTimerRef.current);
+      }
+    };
+  }, []);
 
   // Server sync feedback & lock
   const [notice, setNotice] = useState('');
@@ -154,12 +164,37 @@ export const AvatarStudio: React.FC<AvatarStudioProps> = ({
     };
   }, []);
 
-  const fireConfetti = () => {
+  const fireConfetti = (rarity: ItemRarity = 'popular') => {
+    const colors =
+      rarity === 'mythic'
+        ? ['#a855f7', '#ec4899', '#f59e0b', '#38bdf8']
+        : rarity === 'vip'
+        ? ['#f59e0b', '#fde047', '#fb923c', '#ffffff']
+        : ['#3b82f6', '#10b981', '#fbbf24', '#38bdf8'];
     confetti({
-      particleCount: 85,
-      spread: 75,
-      origin: { y: 0.58 }
+      particleCount: rarity === 'mythic' ? 110 : 85,
+      spread: 82,
+      origin: { y: 0.56 },
+      colors
     });
+  };
+
+  const completeUnboxReveal = (rarity: ItemRarity) => {
+    if (unboxTimerRef.current !== null) {
+      window.clearTimeout(unboxTimerRef.current);
+      unboxTimerRef.current = null;
+    }
+    setUnboxPhase('revealed');
+    soundManager.play('fanfare');
+    fireConfetti(rarity);
+  };
+
+  const closeRevealModal = () => {
+    if (unboxTimerRef.current !== null) {
+      window.clearTimeout(unboxTimerRef.current);
+      unboxTimerRef.current = null;
+    }
+    setUnlockedRevealItem(null);
   };
 
   const triggerCharacterReaction = () => {
@@ -253,10 +288,29 @@ export const AvatarStudio: React.FC<AvatarStudioProps> = ({
         nextCoins = Number(res.coins);
       }
 
-      soundManager.play('unlock');
-      fireConfetti();
       setPreviewItem(null);
       setUnlockedRevealItem(item);
+
+      const prefersReduced =
+        typeof window !== 'undefined' &&
+        window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
+      if (unboxTimerRef.current !== null) {
+        window.clearTimeout(unboxTimerRef.current);
+        unboxTimerRef.current = null;
+      }
+
+      if (prefersReduced) {
+        setUnboxPhase('revealed');
+        soundManager.play('unlock');
+        fireConfetti(item.rarity);
+      } else {
+        setUnboxPhase('shaking');
+        soundManager.play('countdown');
+        unboxTimerRef.current = window.setTimeout(() => {
+          completeUnboxReveal(item.rarity);
+        }, 620);
+      }
 
       await commitLook(
         {
@@ -1001,50 +1055,225 @@ export const AvatarStudio: React.FC<AvatarStudioProps> = ({
         </div>
       </div>
 
-      {/* UNBOXING REVEAL MODAL */}
+      {/* UNBOXING REVEAL MODAL (SHAKE -> SPARKLE BURST) */}
       {unlockedRevealItem && (
         <div
-          className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-4"
-          onClick={() => setUnlockedRevealItem(null)}
+          className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-4"
+          onClick={closeRevealModal}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-700 shadow-2xl text-center relative studio-chest-reveal"
+            className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-700 shadow-2xl text-center relative overflow-hidden"
           >
             <button
-              onClick={() => setUnlockedRevealItem(null)}
-              className="absolute top-4 right-4 p-2 rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer"
+              onClick={closeRevealModal}
+              className="absolute top-4 right-4 z-20 p-2 rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer"
               aria-label="Đóng"
             >
               <X className="w-5 h-5" />
             </button>
 
-            <div className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 mb-2">
-              Mở Khóa Thành Công · {RARITY_LABEL[unlockedRevealItem.rarity].text}
-            </div>
+            {unboxPhase === 'shaking' ? (
+              <div className="py-6 flex flex-col items-center">
+                <div className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 mb-3">
+                  Đang Mở Hộp Quà · {RARITY_LABEL[unlockedRevealItem.rarity].text}
+                </div>
 
-            <div className="my-5 flex justify-center">
-              <StudioItemThumbnail
-                renderType={unlockedRevealItem.renderType}
-                category={unlockedRevealItem.category}
-                rarity={unlockedRevealItem.rarity}
-                size="lg"
-              />
-            </div>
+                <button
+                  type="button"
+                  onClick={() => completeUnboxReveal(unlockedRevealItem.rarity)}
+                  className="relative my-4 p-4 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded-2xl"
+                  aria-label="Mở hộp quà ngay"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="w-5 h-5 text-amber-400 absolute -top-1 left-2 studio-sparkle-twinkle"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 0L14.8 9.2L24 12L14.8 14.8L12 24L9.2 14.8L0 12L9.2 9.2Z" />
+                  </svg>
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="w-4 h-4 text-yellow-300 absolute top-3 -right-1 studio-sparkle-twinkle"
+                    style={{ animationDelay: '0.35s' }}
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 0L14.8 9.2L24 12L14.8 14.8L12 24L9.2 14.8L0 12L9.2 9.2Z" />
+                  </svg>
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="w-4 h-4 text-sky-400 absolute bottom-2 -left-1 studio-sparkle-twinkle"
+                    style={{ animationDelay: '0.6s' }}
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 0L14.8 9.2L24 12L14.8 14.8L12 24L9.2 14.8L0 12L9.2 9.2Z" />
+                  </svg>
 
-            <h3 className="text-xl font-black text-slate-900 dark:text-white">
-              {unlockedRevealItem.name}
-            </h3>
-            <p className="text-sm text-slate-600 dark:text-slate-300 mt-1.5">
-              {unlockedRevealItem.description}
-            </p>
+                  <svg
+                    viewBox="0 0 120 120"
+                    className="w-32 h-32 studio-chest-shake drop-shadow-xl"
+                    aria-hidden="true"
+                  >
+                    <defs>
+                      <linearGradient id="unboxBoxBody" x1="0" y1="0" x2="1" y2="1">
+                        <stop
+                          offset="0%"
+                          stopColor={
+                            unlockedRevealItem.rarity === 'mythic'
+                              ? '#8b5cf6'
+                              : unlockedRevealItem.rarity === 'vip'
+                              ? '#f59e0b'
+                              : '#2563eb'
+                          }
+                        />
+                        <stop
+                          offset="100%"
+                          stopColor={
+                            unlockedRevealItem.rarity === 'mythic'
+                              ? '#db2777'
+                              : unlockedRevealItem.rarity === 'vip'
+                              ? '#d97706'
+                              : '#1d4ed8'
+                          }
+                        />
+                      </linearGradient>
+                    </defs>
+                    <ellipse cx="60" cy="104" rx="38" ry="8" fill="#0f172a" opacity="0.22" />
+                    <rect x="22" y="48" width="76" height="52" rx="10" fill="url(#unboxBoxBody)" stroke="#1e293b" strokeWidth="3" />
+                    <rect x="53" y="48" width="14" height="52" fill="#fde047" stroke="#1e293b" strokeWidth="2.5" />
+                    <line x1="22" y1="50" x2="98" y2="50" stroke="#fef08a" strokeWidth="3" opacity="0.9" />
+                    <rect x="17" y="34" width="86" height="18" rx="6" fill="url(#unboxBoxBody)" stroke="#1e293b" strokeWidth="3" />
+                    <rect x="53" y="34" width="14" height="18" fill="#facc15" stroke="#1e293b" strokeWidth="2.5" />
+                    <path d="M60 34 C45 14, 30 24, 44 34 Z" fill="#fde047" stroke="#1e293b" strokeWidth="2.5" />
+                    <path d="M60 34 C75 14, 90 24, 76 34 Z" fill="#facc15" stroke="#1e293b" strokeWidth="2.5" />
+                    <circle cx="60" cy="34" r="5.5" fill="#fef08a" stroke="#1e293b" strokeWidth="2.5" />
+                  </svg>
+                </button>
 
-            <button
-              onClick={() => setUnlockedRevealItem(null)}
-              className="mt-6 w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-2xl shadow-md transition-colors cursor-pointer"
-            >
-              Tuyệt Vời · Đang Trang Bị
-            </button>
+                <div className="text-sm font-bold text-slate-800 dark:text-slate-100 mt-1">
+                  Đang mở rương trang bị mới...
+                </div>
+                <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                  Bấm vào hộp quà để mở ngay!
+                </div>
+              </div>
+            ) : (
+              <div className="studio-chest-reveal">
+                <div className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 mb-2">
+                  Mở Khóa Thành Công · {RARITY_LABEL[unlockedRevealItem.rarity].text}
+                </div>
+
+                <div className="my-5 relative flex items-center justify-center h-40">
+                  <svg
+                    viewBox="0 0 180 180"
+                    className="w-44 h-44 absolute pointer-events-none studio-unbox-rays"
+                    aria-hidden="true"
+                  >
+                    <g transform="translate(90 90)">
+                      {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((deg) => (
+                        <polygon
+                          key={deg}
+                          points="0,0 -9,-86 9,-86"
+                          transform={`rotate(${deg})`}
+                          fill={
+                            unlockedRevealItem.rarity === 'mythic'
+                              ? '#c084fc'
+                              : unlockedRevealItem.rarity === 'vip'
+                              ? '#fbbf24'
+                              : '#60a5fa'
+                          }
+                          opacity="0.22"
+                        />
+                      ))}
+                    </g>
+                  </svg>
+
+                  {[
+                    { tx: '-74px', ty: '-52px', delay: '0s', size: 'w-5 h-5', color: 'text-amber-400' },
+                    { tx: '76px', ty: '-48px', delay: '0.04s', size: 'w-5 h-5', color: 'text-yellow-300' },
+                    { tx: '-82px', ty: '18px', delay: '0.07s', size: 'w-4 h-4', color: 'text-sky-400' },
+                    { tx: '82px', ty: '22px', delay: '0.05s', size: 'w-4 h-4', color: 'text-pink-400' },
+                    { tx: '-54px', ty: '66px', delay: '0.09s', size: 'w-5 h-5', color: 'text-emerald-400' },
+                    { tx: '58px', ty: '64px', delay: '0.06s', size: 'w-5 h-5', color: 'text-amber-300' },
+                    { tx: '0px', ty: '-78px', delay: '0.02s', size: 'w-6 h-6', color: 'text-yellow-400' },
+                    { tx: '0px', ty: '78px', delay: '0.08s', size: 'w-4 h-4', color: 'text-violet-400' }
+                  ].map((sp, idx) => (
+                    <svg
+                      key={idx}
+                      viewBox="0 0 24 24"
+                      className={`absolute pointer-events-none studio-sparkle-burst ${sp.size} ${sp.color}`}
+                      style={
+                        {
+                          '--tx': sp.tx,
+                          '--ty': sp.ty,
+                          animationDelay: sp.delay
+                        } as React.CSSProperties
+                      }
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path d="M12 0L14.8 9.2L24 12L14.8 14.8L12 24L9.2 14.8L0 12L9.2 9.2Z" />
+                    </svg>
+                  ))}
+
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="w-5 h-5 text-amber-400 absolute top-2 left-16 pointer-events-none studio-sparkle-twinkle"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 0L14.8 9.2L24 12L14.8 14.8L12 24L9.2 14.8L0 12L9.2 9.2Z" />
+                  </svg>
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="w-4 h-4 text-yellow-300 absolute bottom-3 right-16 pointer-events-none studio-sparkle-twinkle"
+                    style={{ animationDelay: '0.5s' }}
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 0L14.8 9.2L24 12L14.8 14.8L12 24L9.2 14.8L0 12L9.2 9.2Z" />
+                  </svg>
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="w-3.5 h-3.5 text-cyan-400 absolute top-8 right-12 pointer-events-none studio-sparkle-twinkle"
+                    style={{ animationDelay: '0.9s' }}
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 0L14.8 9.2L24 12L14.8 14.8L12 24L9.2 14.8L0 12L9.2 9.2Z" />
+                  </svg>
+
+                  <div className="relative z-10 studio-reveal-pop">
+                    <StudioItemThumbnail
+                      renderType={unlockedRevealItem.renderType}
+                      category={unlockedRevealItem.category}
+                      rarity={unlockedRevealItem.rarity}
+                      size="lg"
+                    />
+                  </div>
+                </div>
+
+                <h3 className="text-xl font-black text-slate-900 dark:text-white">
+                  {unlockedRevealItem.name}
+                </h3>
+                <p className="text-sm text-slate-600 dark:text-slate-300 mt-1.5">
+                  {unlockedRevealItem.description}
+                </p>
+
+                <button
+                  onClick={() => {
+                    soundManager.play('click');
+                    closeRevealModal();
+                  }}
+                  className="mt-6 w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-2xl shadow-md transition-colors cursor-pointer"
+                >
+                  Tuyệt Vời · Đang Trang Bị
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
