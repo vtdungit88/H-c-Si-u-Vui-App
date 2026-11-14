@@ -9,6 +9,7 @@ import {
 import { soundManager } from '../utils/audio';
 import { supabase } from '../lib/supabase';
 import { toMathLessons } from '../lib/curriculum';
+import { SUBJECTS_CATALOG } from '../data/subjectsCatalog';
 import {
   fetchCurriculum, startQuiz, answerQuestion, submitQuiz, loadStudentProfile,
   type Curriculum, type QuizQuestion
@@ -69,7 +70,8 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
     let alive = true;
     setCurriculum(null);
     setCurriculumError('');
-    if (subjectId !== 'math' && subjectId !== 'science') return () => { alive = false; };
+    const subjMeta = SUBJECTS_CATALOG.find((x) => x.id === subjectId);
+    if (!subjMeta || subjMeta.status !== 'active') return () => { alive = false; };
     fetchCurriculum(subjectId, Number(currentGrade)).then((c) => alive && setCurriculum(c)).catch((e) => alive && setCurriculumError(String(e.message || e)));
     return () => { alive = false; };
   }, [subjectId, currentGrade]);
@@ -335,7 +337,7 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
           Không tải được danh sách bài học: {curriculumError}
         </div>
       )}
-      {!activeLesson && !curriculum && !curriculumError && (subjectId === 'math' || subjectId === 'science') && currentGrade === '6' && (
+      {!activeLesson && !curriculum && !curriculumError && SUBJECTS_CATALOG.some((x) => x.id === subjectId && x.status === 'active') && (
         <div className="mb-4 p-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-sm">Đang tải bài học…</div>
       )}
       {!activeLesson && curriculum && currentLessons.length === 0 && (
@@ -644,7 +646,7 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
                 <span>Chương Trình Bài Học Chuẩn SGK Hiện Hành</span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-black mt-1">
-                {subjectId === 'science' ? `Khoa Học Tự Nhiên ${currentGrade}` : `Chinh Phục Môn Toán Lớp ${currentGrade}`}
+                {`${SUBJECTS_CATALOG.find((x) => x.id === subjectId)?.name ?? 'Môn Toán'} Lớp ${currentGrade}`}
               </h1>
               <p className="text-xs sm:text-sm text-blue-100 mt-1 max-w-xl">
                 Mỗi chương là một bài ôn luyện 15 câu trộn đủ mức độ, 60s/câu. Tích lũy Xu & Sao đổi quà tại Studio!

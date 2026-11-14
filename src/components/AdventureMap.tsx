@@ -59,7 +59,7 @@ export const AdventureMap: React.FC<Props> = ({ student, initialSubjectId, initi
 
   const subject = SUBJECTS_CATALOG.find((s) => s.id === subjectId);
   const gradeOpen = !!subject && subject.status === 'active' && subject.availableGrades.some((x) => x.grade === String(grade) && (x.term1Available || x.term2Available));
-  const subjectKey: SubjectKey | null = subjectId === 'math' ? 'math' : subjectId === 'science' ? 'science' : null;
+  const subjectKey: SubjectKey | null = gradeOpen ? subjectId : null;
 
   useEffect(() => {
     let alive = true;

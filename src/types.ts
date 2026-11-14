@@ -83,14 +83,24 @@ export type SchoolLevel = 'primary' | 'secondary';
 
 export type GradeLevel = '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9';
 
+export interface SubjectLevelMeta {
+  tagline?: string;
+  description?: string;
+  gradeRangeLabel?: string;
+}
+
 export interface SubjectMeta {
   id: string;
+  /** Database subject code in public.subjects (e.g. 'toan', 'tiengviet', 'khoahoc'). */
+  dbCode: string;
   name: string;
   iconName: string;
   color: string;
   description: string;
   /** Short highlight shown on the subject card, e.g. "Lớp 1–9 · 66 chương". */
   tagline?: string;
+  schoolLevels: SchoolLevel[];
+  levelMeta?: Partial<Record<SchoolLevel, SubjectLevelMeta>>;
   availableGrades: {
     grade: GradeLevel;
     term1Available: boolean;

@@ -3,6 +3,7 @@ import { supabase } from './supabase';
 import { emailForNickname } from './nickname';
 import { upsertAuthProfile } from '../utils/studentStorage';
 import type { StudentProfile, AvatarConfig } from '../types';
+import { SUBJECT_DB_CODES } from '../data/subjectsCatalog';
 
 /**
  * Typed data-access layer. UI components must not talk to Supabase directly.
@@ -15,8 +16,8 @@ export type UiTier = 'easy' | 'medium' | 'hard' | 'mixed';
 export const UI_TO_DB_TIER: Record<UiTier, DbTier> = { easy: 'basic', medium: 'application', hard: 'advanced', mixed: 'mixed' };
 export const DB_TO_UI_TIER: Record<DbTier, UiTier> = { basic: 'easy', application: 'medium', advanced: 'hard', mixed: 'mixed' };
 
-export type SubjectKey = 'math' | 'science' | 'all';
-const CHAPTER_PREFIX: Record<Exclude<SubjectKey, 'all'>, string> = { math: 'toan', science: 'khtn' };
+export type SubjectKey = string;
+const CHAPTER_PREFIX: Record<string, string> = SUBJECT_DB_CODES;
 
 export interface DbChapter { id: string; code: string; title: string; sequence_no: number }
 export interface DbLesson {
@@ -119,8 +120,8 @@ export function fetchCurriculum(subject: SubjectKey = 'math', grade?: number): P
     ]);
     if (ch.error) fail('chapters', ch.error);
     if (ls.error) fail('lessons', ls.error);
-    const wanted = (Object.keys(CHAPTER_PREFIX) as (keyof typeof CHAPTER_PREFIX)[]).filter((k) => subject === 'all' || subject === k);
-    const chapters = (ch.data as DbChapter[]).filter((c) => wanted.some((k) => /^(toan|khtn)\d+-c/.test(c.code) && c.code.startsWith(CHAPTER_PREFIX[k])));
+    const wanted = Object.keys(CHAPTER_PREFIX).filter((k) => subject === 'all' || subject === k);
+    const chapters = (ch.data as DbChapter[]).filter((c) => wanted.some((k) => new RegExp(`^${CHAPTER_PREFIX[k]}\\d+-c`).test(c.code)));
     const ids = new Set(chapters.map((c) => c.id));
     return { chapters, lessons: (ls.data as DbLesson[]).filter((l) => ids.has(l.chapter_id)) };
   })();
@@ -321,7 +322,7 @@ export async function fetchMapProgress(userId: string): Promise<Record<string, N
 
 export interface MapLeaderRow { rank: number; alias: string; stars: number; cleared: number }
 export async function fetchAdventureLeaderboard(subject: SubjectKey, grade: number): Promise<MapLeaderRow[]> {
-  const code = subject === 'math' ? 'toan' : subject === 'science' ? 'khtn' : null;
+  const code = SUBJECT_DB_CODES[subject] ?? null;
   const { data, error } = await supabase.rpc('adventure_leaderboard', { p_subject: code, p_grade: grade });
   if (error) fail('adventure_leaderboard', error);
   return (data ?? []) as MapLeaderRow[];
