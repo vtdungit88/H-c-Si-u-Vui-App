@@ -245,7 +245,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       </div>
 
       {/* Mobile Bottom Navigation Bar for easy thumb navigation */}
-      <div className="md:hidden flex items-stretch justify-around border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur px-1 py-1.5">
+      <nav aria-label="Điều hướng nhanh" className="hsv-mobile-nav md:hidden flex items-stretch justify-around border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur px-1 py-1.5">
         {NAV_ITEMS.map(({ view, short, Icon, color }) => {
           const active = currentView === view;
           return (
@@ -261,6 +261,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           );
         })}
       </div>
+    </nav>
     </header>
   );
 };
