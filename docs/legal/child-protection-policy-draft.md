@@ -45,7 +45,7 @@ Người dùng có thể báo cáo:
 - Tài khoản có dấu hiệu xâm hại hoặc lừa đảo.
 - Lỗ hổng làm lộ dữ liệu học sinh.
 
-Kênh báo cáo: [EMAIL/FORM/ĐẦU MỐI BẮT BUỘC BỔ SUNG].
+Kênh báo cáo: dungvt.hbh@gmail.com. Địa chỉ liên hệ và quy trình tiếp nhận chính thức cần được bổ sung trước khi công bố.
 
 HSV cần có quy trình tiếp nhận, phân loại, lưu bằng chứng tối thiểu, ẩn/gỡ nội dung khi cần, khóa tính năng/tài khoản nguy cơ và chuyển cơ quan có thẩm quyền khi pháp luật yêu cầu.
 
