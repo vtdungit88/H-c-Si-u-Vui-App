@@ -92,11 +92,11 @@ export const ArenaHub: React.FC<Props> = ({ student, onUpdateStudent, onRequireL
   }, [start, student, onUpdateStudent]);
 
   if (phase === 'playing' && start) {
-    return <div className="py-4"><BlitzEngine grade={grade} seed={start.seed} duration={start.duration} onFinish={onFinish} /></div>;
+    return <div className="hsv-game-stage py-2 sm:py-4"><BlitzEngine grade={grade} seed={start.seed} duration={start.duration} onFinish={onFinish} /></div>;
   }
   if (phase === 'room') return <ClassRoom student={student} defaultGrade={grade} onBack={() => setPhase('hub')} />;
   if (phase === 'duel' && duelStart) {
-    return <div className="py-4"><DuelEngine grade={grade} seed={duelStart.seed} limitMs={duelStart.limit_ms} plan={duelStart.plan} studentName={student.name || 'Bạn'} onFinish={onDuelFinish} /></div>;
+    return <div className="hsv-game-stage py-2 sm:py-4"><DuelEngine grade={grade} seed={duelStart.seed} limitMs={duelStart.limit_ms} plan={duelStart.plan} studentName={student.name || 'Bạn'} onFinish={onDuelFinish} /></div>;
   }
   if (phase === 'result') {
     return <div className="py-4"><PostMatchReview result={result} duel={duelRes} saveError={saveError} wrongItems={wrongItems} onAgain={() => { setPhase('hub'); void (duelStart && duelRes ? beginDuel() : begin()); }} onBack={() => setPhase('hub')} /></div>;
@@ -104,7 +104,7 @@ export const ArenaHub: React.FC<Props> = ({ student, onUpdateStudent, onRequireL
 
   const dur = Number(grade) <= 2 ? 90 : 60;
   return (
-    <div className="max-w-3xl mx-auto py-4 space-y-5">
+    <div className="hsv-arena-page mx-auto py-3 sm:py-4 space-y-4 sm:space-y-5">
       <div className="rounded-3xl bg-gradient-to-br from-indigo-600 via-sky-600 to-cyan-500 text-white p-5 shadow-xl">
         <h2 className="text-2xl font-black flex items-center gap-2"><Swords className="w-7 h-7" /> Đấu Trường Tri Thức</h2>
         <p className="text-sm opacity-90 mt-1">Rèn phản xạ tính nhanh chuẩn sách giáo khoa. Chọn đúng khối lớp của bạn!</p>
