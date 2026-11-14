@@ -1,11 +1,13 @@
 import React from 'react';
 import { BookOpen, RotateCcw, Trophy } from 'lucide-react';
 import { CoinIcon } from '../GameIcons';
-import type { ArenaResult } from '../../lib/api';
+import type { ArenaResult, DuelResult } from '../../lib/api';
+import { rankOf } from '../../utils/arenaRank';
 import type { WrongItem } from './BlitzEngine';
 
 interface Props {
   result: ArenaResult | null;
+  duel?: DuelResult | null;
   saveError: string;
   wrongItems: WrongItem[];
   onAgain: () => void;
@@ -13,11 +15,21 @@ interface Props {
 }
 
 /** Result summary plus the "Sổ tay sửa sai" review of every mistake. */
-export const PostMatchReview: React.FC<Props> = ({ result, saveError, wrongItems, onAgain, onBack }) => (
+export const PostMatchReview: React.FC<Props> = ({ result, duel, saveError, wrongItems, onAgain, onBack }) => (
   <div className="max-w-xl mx-auto space-y-4">
     <div className="rounded-3xl bg-gradient-to-br from-sky-500 to-indigo-600 text-white p-6 text-center shadow-xl">
       <Trophy className="w-10 h-10 mx-auto mb-1 text-amber-300" />
-      {result ? (
+      {duel ? (
+        <>
+          <div className="text-2xl font-black">{duel.outcome === 'win' ? '🏆 Bạn thắng!' : duel.outcome === 'draw' ? '🤝 Hòa nhau!' : '💪 Chưa thắng, cố lên!'}</div>
+          <div className="text-sm opacity-90 mt-1">Bạn {duel.my_score} – {duel.bot_score} VNPT Vui-Bot [AI]</div>
+          <div className="mt-2 text-sm font-bold">Elo {duel.elo_before} → {duel.elo_after} ({duel.elo_delta >= 0 ? '+' : ''}{duel.elo_delta}) • {rankOf(duel.elo_after).icon} {rankOf(duel.elo_after).name}</div>
+          <div className="mt-2 flex items-center justify-center gap-1 font-bold">
+            {duel.coins > 0 ? <>+{duel.coins} <CoinIcon className="w-5 h-5" /> xu</> : <span className="text-sm opacity-90">Lần này chưa có xu thưởng</span>}
+          </div>
+          {typeof duel.rewards_left_today === 'number' && <div className="text-xs opacity-80 mt-1">Còn {duel.rewards_left_today}/5 lượt nhận thưởng hôm nay</div>}
+        </>
+      ) : result ? (
         <>
           <div className="text-4xl font-black">{result.score} điểm</div>
           <div className="text-sm opacity-90 mt-1">Đúng {result.correct} câu{result.max_combo ? ` • Chuỗi dài nhất ${result.max_combo}` : ''}</div>

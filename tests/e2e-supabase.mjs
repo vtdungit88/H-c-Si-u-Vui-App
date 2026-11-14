@@ -174,6 +174,15 @@ if (signedUp) {
     assert((await a.rpc('submit_feedback', { p_category: 'bad', p_rating: 5, p_message: 'x' })).error, 'bad category accepted');
     assert((await a.rpc('admin_feedback')).error, 'normal user read feedback');
   });
+  await check('arena duel: start returns bot plan, instant submit rejected, anon blocked, Elo board public', async () => {
+    const d = await a.rpc('arena_start_duel', { p_grade: 6 });
+    assert(!d.error && d.data.plan.length === 10 && d.data.elo === 1000, d.error?.message);
+    const ok = Array(10).fill(true), ms = Array(10).fill(1000);
+    assert((await a.rpc('arena_submit_duel', { p_match: d.data.match_id, p_ok: ok, p_ms: ms })).error, 'instant duel submit accepted');
+    assert((await b.rpc('arena_submit_duel', { p_match: d.data.match_id, p_ok: ok, p_ms: ms })).error, 'B submitted A duel');
+    assert((await anon.rpc('arena_start_duel', { p_grade: 6 })).error, 'anon started duel');
+    assert(!(await anon.rpc('arena_elo_leaderboard', { p_grade: 6 })).error);
+  });
 }
 
 const failed = results.filter((r) => r[0] === 'FAIL');

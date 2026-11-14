@@ -316,7 +316,7 @@ export interface ArenaResult {
   score: number; correct: number; wrong?: number; max_combo?: number; coins: number;
   previous_best?: number; is_record?: boolean; rewards_left_today?: number; already?: boolean;
 }
-export interface ArenaStatus { best: number; rewards_left_today: number }
+export interface ArenaStatus { best: number; rewards_left_today: number; elo?: number; wins?: number; losses?: number }
 export interface ArenaLeaderRow { rank: number; alias: string; score: number; correct: number }
 
 export async function arenaStartBlitz(grade: number): Promise<ArenaStart> {
@@ -338,4 +338,28 @@ export async function arenaLeaderboard(grade: number): Promise<ArenaLeaderRow[]>
   const { data, error } = await supabase.rpc('arena_leaderboard', { p_grade: grade });
   if (error) fail('arena_leaderboard', error);
   return (data ?? []) as ArenaLeaderRow[];
+}
+
+// ---------- Arena (1v1 vs Vui-Bot, Elo) ----------
+export interface DuelStart { match_id: string; seed: number; limit_ms: number; plan: { ok: boolean; ms: number }[]; elo: number; questions: number }
+export interface DuelResult {
+  outcome: 'win' | 'lose' | 'draw'; my_score: number; bot_score: number; correct?: number;
+  elo_before: number; elo_after: number; elo_delta: number; coins: number; rewards_left_today?: number; already?: boolean;
+}
+export interface EloLeaderRow { rank: number; alias: string; elo: number; wins: number; losses: number }
+
+export async function arenaStartDuel(grade: number): Promise<DuelStart> {
+  const { data, error } = await supabase.rpc('arena_start_duel', { p_grade: grade });
+  if (error) fail('arena_start_duel', error);
+  return data as DuelStart;
+}
+export async function arenaSubmitDuel(matchId: string, ok: boolean[], ms: number[]): Promise<DuelResult> {
+  const { data, error } = await supabase.rpc('arena_submit_duel', { p_match: matchId, p_ok: ok, p_ms: ms });
+  if (error) fail('arena_submit_duel', error);
+  return data as DuelResult;
+}
+export async function arenaEloLeaderboard(grade: number): Promise<EloLeaderRow[]> {
+  const { data, error } = await supabase.rpc('arena_elo_leaderboard', { p_grade: grade });
+  if (error) fail('arena_elo_leaderboard', error);
+  return (data ?? []) as EloLeaderRow[];
 }
