@@ -6,16 +6,18 @@ import { soundManager } from '../utils/audio';
 import { FUNNY_NICKNAMES } from '../utils/studentStorage';
 import { signInWithNickname, signUpWithNickname } from '../lib/api';
 import { isSupabaseConfigured } from '../lib/supabase';
+import type { LegalPageKey } from './LegalCenter';
 
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
   activeStudent: StudentProfile;
   onLogout: () => void;
+  onOpenLegal?: (page: LegalPageKey) => void;
 }
 
 /** Sign in / sign up with nickname + password (Supabase Auth). No passwords are stored or compared in the browser. */
-export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, activeStudent, onLogout }) => {
+export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, activeStudent, onLogout, onOpenLegal }) => {
   const [tab, setTab] = useState<'login' | 'register'>('login');
   const [nickname, setNickname] = useState('');
   const [password, setPassword] = useState('');
@@ -104,6 +106,16 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, activeS
               {busy && <Loader2 className="w-4 h-4 animate-spin" />}{tab === 'login' ? 'Đăng nhập' : 'Tạo tài khoản'}
             </button>
             <p className="text-xs text-slate-500 text-center">Kết quả học được lưu trên máy chủ, xem lại được trên thiết bị khác. Quên mật khẩu: nhờ quản trị viên đặt lại.</p>
+            <div className="border-t border-slate-200 dark:border-slate-700 pt-3 space-y-2">
+              <p className="text-xs text-slate-600 dark:text-slate-300 text-center">Trước khi tạo tài khoản, vui lòng cùng cha mẹ/người đại diện đọc các thông tin sau:</p>
+              <div className="flex flex-wrap justify-center gap-x-3 gap-y-2 text-xs font-semibold">
+                <button type="button" onClick={() => onOpenLegal && onOpenLegal("privacy")} className="text-blue-600 underline">Quyền riêng tư</button>
+                <button type="button" onClick={() => onOpenLegal && onOpenLegal("terms")} className="text-blue-600 underline">Điều khoản</button>
+                <button type="button" onClick={() => onOpenLegal && onOpenLegal("children")} className="text-blue-600 underline">Bảo vệ trẻ em</button>
+                <button type="button" onClick={() => onOpenLegal && onOpenLegal("cookies")} className="text-blue-600 underline">Cookie</button>
+              </div>
+              <p className="text-[11px] leading-5 text-amber-700 dark:text-amber-300 text-center">Việc mở hoặc đọc các trang này không thay thế việc cha mẹ/người đại diện xác nhận đồng ý khi quy định pháp luật yêu cầu.</p>
+            </div>
           </form>
         )}
       </div>

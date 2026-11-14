@@ -12,6 +12,7 @@ import { MathGameArena } from './components/MathGameArena';
 import { ArenaHub } from './components/arena/ArenaHub';
 import { AdventureMap } from './components/AdventureMap';
 import { LoginModal } from './components/LoginModal';
+import { LegalCenter, type LegalPageKey } from './components/LegalCenter';
 import { StudentIdCardModal } from './components/StudentIdCardModal';
 import { AdminPanelModal } from './components/AdminPanelModal';
 import { InstallShareModal } from './components/InstallShareModal';
@@ -75,6 +76,7 @@ export default function App() {
   const [currentGrade, setCurrentGrade] = useState<GradeLevel>('6');
   const [currentTerm, setCurrentTerm] = useState<1 | 2>(1);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [legalPage, setLegalPage] = useState<LegalPageKey | null>(null);
   const [isCardModalOpen, setIsCardModalOpen] = useState(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [isInstallShareOpen, setIsInstallShareOpen] = useState(false);
@@ -179,7 +181,7 @@ export default function App() {
 
           <div className="flex-1 overflow-hidden whitespace-nowrap text-[11px] sm:text-xs">
             <div className="inline-block animate-marquee hover:pause">
-              🎉 <strong>Học Siêu Vui by dungvt.hbh VNPT:</strong> Ứng dụng vừa học vừa chơi bám sát chương trình SGK • Đăng ký tài khoản để làm bài & lưu thành tích • Studio của tôi • Liên hệ: <span className="underline">dungvt.hbh@gmail.com</span>
+              🎉 <strong>Học Siêu Vui – Dự án độc lập:</strong> Ứng dụng vừa học vừa chơi bám sát chương trình SGK • Đăng ký tài khoản để làm bài & lưu thành tích • Studio của tôi • Liên hệ: <span className="underline">dungvt.hbh@gmail.com</span>
             </div>
           </div>
 
@@ -337,7 +339,7 @@ export default function App() {
               className="w-7 h-7 rounded-xl object-cover shadow-sm border border-slate-200 dark:border-slate-800" 
             />
             <span className="font-bold text-slate-800 dark:text-slate-200">
-              Học Siêu Vui by dungvt.hbh VNPT
+              Học Siêu Vui – Dự án độc lập
             </span>
           </div>
 
@@ -406,6 +408,13 @@ export default function App() {
             </button>
           </div>
         </div>
+          <nav className="max-w-6xl mx-auto mt-5 pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-wrap justify-center gap-x-5 gap-y-2 text-[11px] font-semibold" aria-label="Chính sách và pháp lý">
+            <button onClick={() => setLegalPage("privacy")} className="hover:text-blue-600">Quyền riêng tư</button>
+            <button onClick={() => setLegalPage("terms")} className="hover:text-blue-600">Điều khoản sử dụng</button>
+            <button onClick={() => setLegalPage("children")} className="hover:text-blue-600">Bảo vệ trẻ em</button>
+            <button onClick={() => setLegalPage("cookies")} className="hover:text-blue-600">Cookie</button>
+            <a href="mailto:dungvt.hbh@gmail.com" className="hover:text-blue-600">Liên hệ quyền riêng tư</a>
+          </nav>
       </footer>
 
       {/* Version & Update Announcement Modal */}
@@ -427,7 +436,7 @@ export default function App() {
               />
               <div>
                 <h3 className="text-base font-black text-slate-900 dark:text-white">
-                  Học Siêu Vui by dungvt.hbh VNPT
+                  Học Siêu Vui – Dự án độc lập
                 </h3>
               </div>
             </div>
@@ -474,6 +483,7 @@ export default function App() {
         onClose={() => setIsLoginModalOpen(false)}
         activeStudent={student}
         onLogout={handleLogout}
+        onOpenLegal={(page) => { setIsLoginModalOpen(false); setLegalPage(page); }}
       />
 
       {/* Student ID Card Modal */}
@@ -494,6 +504,10 @@ export default function App() {
         isOpen={isInstallShareOpen}
         onClose={() => setIsInstallShareOpen(false)}
       />
+
+      {legalPage && (
+        <LegalCenter page={legalPage} onClose={() => setLegalPage(null)} onNavigate={setLegalPage} />
+      )}
 
       <MascotReaction />
       {/* Trợ Lý Ảo Học Siêu Vui & Hộp Thư Góp Ý */}
