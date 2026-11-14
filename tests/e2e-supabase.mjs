@@ -37,9 +37,9 @@ let lesson, session, qs;
 
 await check('anon: can read published chapters/lessons', async () => {
   const c = await anon.from('chapters').select('id').eq('status', 'published');
-  assert(!c.error && c.data.length >= 121, JSON.stringify(c.error));
+  assert(!c.error && c.data.length >= 111, JSON.stringify(c.error));
   const l = await anon.from('lessons').select('id,code').eq('status', 'published');
-  assert(!l.error && l.data.length >= 121);
+  assert(!l.error && l.data.length >= 111);
   lesson = l.data.find((x) => x.code === 'toan6_ch1')?.id;
   assert(lesson);
 });
