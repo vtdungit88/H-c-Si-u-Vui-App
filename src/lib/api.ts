@@ -165,6 +165,23 @@ export async function buyItem(itemKey: string): Promise<{ item_key: string; alre
   if (error) throw new Error(/not enough coins/i.test(error.message) ? 'Bạn chưa đủ xu để mở khóa món này.' : /not enough stars/i.test(error.message) ? 'Bạn chưa đủ sao để mở khóa món này.' : error.message);
   return data as { item_key: string; already_owned: boolean; coins: number };
 }
+export interface ServerShopItem {
+  item_key: string;
+  name: string;
+  description: string;
+  item_type: string;
+  price_coins: number;
+  required_stars: number;
+  is_active: boolean;
+}
+export async function fetchShopCatalog(): Promise<ServerShopItem[]> {
+  const { data, error } = await supabase
+    .from('shop_items')
+    .select('item_key,name,description,item_type,price_coins,required_stars,is_active')
+    .eq('is_active', true);
+  if (error) fail('shop_items', error);
+  return (data ?? []) as ServerShopItem[];
+}
 export async function saveAvatar(config: AvatarConfig): Promise<void> {
   const { error } = await supabase.rpc('save_avatar', { p_config: config });
   if (error) fail('save_avatar', error);
