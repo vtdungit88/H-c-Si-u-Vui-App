@@ -1,3 +1,4 @@
+import { levelFromXp } from '../data/levels';
 import { StudentProfile, AvatarConfig } from '../types';
 
 const STORAGE_KEY_PROFILES = 'hsv_student_profiles';
@@ -173,9 +174,7 @@ export const updateActiveStudent = (
   const updated = updater(current);
 
   // Recalculate level based on stars and lessons
-  const totalStars = updated.stars;
-  const newLevel = Math.max(1, Math.floor(totalStars / 5) + 1);
-  updated.level = newLevel;
+  updated.level = levelFromXp(updated.exp);
 
   const profiles = getStudentProfiles();
   const newProfiles = profiles.map((p) => (p.id === updated.id ? updated : p));
@@ -209,7 +208,7 @@ export const upsertAuthProfile = (
     // Avatar and owned items are owned by the server; the local copy is only a cache.
     avatarConfig: { ...DEFAULT_AVATAR, ...(server.avatarConfig ?? {}) },
     unlockedItems: Array.from(new Set(['outfit_uniform', 'hand_pencil', 'phone_brick', 'veh_honeycomb', 'tech_notebook', 'pet_none', 'bg_classroom', 'aura_none', ...(server.unlockedItems ?? base.unlockedItems)])),
-    level: Math.max(1, Math.floor(server.stars / 5) + 1)
+    level: levelFromXp(server.exp)
   };
   const cfg = merged.avatarConfig;
   merged.equippedItems = { outfit: cfg.outfitId, handheld: cfg.handheldId, phone: cfg.phoneId, vehicle: cfg.vehicleId, tech: cfg.techId, pet: cfg.petId, backdrop: cfg.backdropId || 'bg_classroom', aura: cfg.auraId || 'aura_none' };

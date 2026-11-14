@@ -380,3 +380,134 @@ export async function arenaEloLeaderboard(grade: number): Promise<EloLeaderRow[]
   if (error) fail('arena_elo_leaderboard', error);
   return (data ?? []) as EloLeaderRow[];
 }
+
+// ---------- Phase 3: Level Progression, Vietnam Travel & Safe Social Lobby ----------
+
+export interface HubState {
+  xp: number;
+  coins: number;
+  level: number;
+  next_level_xp: number;
+  current_level_xp: number;
+  claimed_levels: number[];
+  current_dest: string;
+  stamps: Record<string, number>;
+  total_km: number;
+  trivia_claimed_today: boolean;
+}
+
+export async function fetchHubState(): Promise<HubState> {
+  const { data, error } = await supabase.rpc('get_my_hub_state');
+  if (error) fail('get_my_hub_state', error);
+  return data as HubState;
+}
+
+export async function claimLevelMilestone(level: number): Promise<{ already_claimed: boolean; level: number; reward_coins?: number; coins: number }> {
+  const { data, error } = await supabase.rpc('claim_level_milestone', { p_level: level });
+  if (error) fail('claim_level_milestone', error);
+  return data as { already_claimed: boolean; level: number; reward_coins?: number; coins: number };
+}
+
+export interface TravelResult {
+  current_dest: string;
+  final_cost: number;
+  discount_pct: number;
+  xp_bonus: number;
+  coins: number;
+  xp: number;
+  level: number;
+  stamps: Record<string, number>;
+  total_km: number;
+}
+
+export async function travelToDestination(destKey: string): Promise<TravelResult> {
+  const nonce = (crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`).slice(0, 48);
+  const { data, error } = await supabase.rpc('travel_to_destination', { p_dest_key: destKey, p_trip_nonce: nonce });
+  if (error) {
+    if (/not enough coins/i.test(error.message)) throw new Error('Bạn chưa đủ Xu cho chuyến đi khứ hồi này.');
+    if (/requires level/i.test(error.message)) throw new Error('Bạn chưa đạt Cấp độ yêu cầu để tới địa danh này.');
+    fail('travel_to_destination', error);
+  }
+  return data as TravelResult;
+}
+
+export async function claimCityTriviaBonus(destKey: string): Promise<{
+  already_claimed_today: boolean;
+  coins_added?: number;
+  xp_added?: number;
+  coins: number;
+  xp: number;
+  level: number;
+}> {
+  const { data, error } = await supabase.rpc('claim_city_trivia_bonus', { p_dest_key: destKey });
+  if (error) fail('claim_city_trivia_bonus', error);
+  return data as {
+    already_claimed_today: boolean;
+    coins_added?: number;
+    xp_added?: number;
+    coins: number;
+    xp: number;
+    level: number;
+  };
+}
+
+export interface LobbyMessage {
+  id: string;
+  room_key: string;
+  student_id: string;
+  sender_alias: string;
+  sender_level: number;
+  kind: 'quick' | 'text' | 'emote';
+  body: string;
+  created_at: string;
+}
+
+export async function fetchLobbyMessages(roomKey: string): Promise<LobbyMessage[]> {
+  const { data, error } = await supabase
+    .from('lobby_messages')
+    .select('id,room_key,student_id,sender_alias,sender_level,kind,body,created_at')
+    .eq('room_key', roomKey)
+    .order('created_at', { ascending: false })
+    .limit(30);
+  if (error) fail('lobby_messages', error);
+  return ((data ?? []) as LobbyMessage[]).reverse();
+}
+
+export async function sendLobbyMessage(roomKey: string, kind: 'quick' | 'text' | 'emote', body: string): Promise<LobbyMessage> {
+  const { data, error } = await supabase.rpc('send_lobby_message', {
+    p_room_key: roomKey,
+    p_kind: kind,
+    p_body: body
+  });
+  if (error) throw new Error(error.message);
+  return data as LobbyMessage;
+}
+
+export async function reportLobbyMessage(messageId: string, reason = 'Nội dung không phù hợp'): Promise<{ reported: boolean; auto_hidden: boolean }> {
+  const { data, error } = await supabase.rpc('report_lobby_message', { p_message_id: messageId, p_reason: reason });
+  if (error) fail('report_lobby_message', error);
+  return data as { reported: boolean; auto_hidden: boolean };
+}
+
+export interface LobbyReportRow {
+  id: string;
+  message_id: string;
+  room_key: string;
+  reason: string;
+  excerpt: string;
+  status: string;
+  target_alias: string;
+  target_student_id: string;
+  created_at: string;
+}
+
+export async function adminLobbyReports(): Promise<LobbyReportRow[]> {
+  const { data, error } = await supabase.rpc('admin_lobby_reports');
+  if (error) fail('admin_lobby_reports', error);
+  return (data ?? []) as LobbyReportRow[];
+}
+
+export async function adminModerateLobby(reportId: string, action: 'hide_msg' | 'mute_1h' | 'dismiss'): Promise<void> {
+  const { error } = await supabase.rpc('admin_moderate_lobby', { p_report_id: reportId, p_action: action });
+  if (error) fail('admin_moderate_lobby', error);
+}
