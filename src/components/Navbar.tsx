@@ -251,7 +251,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div className="text-left hidden lg:block min-w-0">
               <div className="text-xs font-bold leading-none truncate max-w-[110px] xl:max-w-[160px]">{student.name}</div>
               <div className="text-[10px] text-blue-600 dark:text-blue-400 leading-none mt-0.5">
-                {student.isGuest ? 'Khách ghé thăm' : student.grade}
+                {student.isGuest ? 'Khách ghé thăm' : `Cấp ${student.level}`}
               </div>
             </div>
           </button>

@@ -59,7 +59,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, activeS
 
         {!activeStudent.isGuest ? (
           <div className="p-5 space-y-4 text-center">
-            <div className="mx-auto w-24 h-24"><AvatarRenderer config={activeStudent.avatarConfig} /></div>
+            <div className="mx-auto w-44 rounded-3xl bg-gradient-to-b from-indigo-50 to-sky-50 dark:from-slate-800 dark:to-slate-800/60 border border-slate-200 dark:border-slate-700 flex justify-center py-3"><AvatarRenderer config={activeStudent.avatarConfig} size="md" /></div>
             <div>
               <div className="font-extrabold text-xl">{activeStudent.name}</div>
               <div className="text-sm text-slate-500">{activeStudent.coins} xu · {activeStudent.exp} XP · {Object.keys(activeStudent.completedLessons).filter((k) => !k.includes('_easy') && !k.includes('_medium') && !k.includes('_hard')).length} bài đã học</div>

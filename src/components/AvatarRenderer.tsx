@@ -177,7 +177,7 @@ export const AvatarRenderer: React.FC<AvatarRendererProps> = ({
               <path d="M136 168 Q150 178 164 168 L155 210 L150 190 L145 210 Z" fill="#DC2626" stroke="#991B1B" strokeWidth="1" />
               {/* School badge */}
               <rect x="120" y="185" width="14" height="10" rx="2" fill="#2563EB" />
-              <text x="127" y="193" fill="#FFFFFF" fontSize="6" fontWeight="bold" textAnchor="middle">T6</text>
+              <text x="127" y="193" fill="#FFFFFF" fontSize="5" fontWeight="bold" textAnchor="middle">HSV</text>
             </g>
           )}
 
