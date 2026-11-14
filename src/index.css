@@ -31,6 +31,7 @@ img, svg, video, canvas { max-width: 100%; }
 .hsv-studio-categories { display: flex; flex-wrap: nowrap; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; }
 .hsv-studio-categories button { flex: 0 0 auto; }
 .hsv-studio-items { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.hsv-subject-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .hsv-question-card { min-width: 0; }
 .hsv-arena-page { width: min(100%, 64rem); padding-inline: var(--hsv-page-gutter); }
 
@@ -39,12 +40,14 @@ img, svg, video, canvas { max-width: 100%; }
 }
 @media (max-width: 767px) {
   html { font-size: 16px; }
-  .hsv-studio-preview { position: sticky; top: 4.1rem; z-index: 25; }
+  .hsv-studio-preview { position: sticky; top: 6.25rem; z-index: 25; }
   .hsv-studio-preview > section,
   .hsv-studio-preview > div { box-shadow: 0 8px 20px rgba(15,23,42,.08); }
   .hsv-studio-stage { min-height: clamp(12rem, 27svh, 18rem); max-height: 31svh; }
   .hsv-studio-stage svg { max-height: 28svh; }
   .hsv-studio-items { gap: .625rem; }
+  .hsv-subject-grid > button { min-height: 9rem; padding: .875rem; }
+  .hsv-subject-grid > button h4 { font-size: 1rem; }
   .hsv-studio-items > * { min-width: 0; }
   .hsv-map-scroll { max-height: 64svh; }
   .hsv-question-card { padding: 1rem; gap: 1rem; }
@@ -54,6 +57,7 @@ img, svg, video, canvas { max-width: 100%; }
 }
 @media (max-width: 380px) {
   .hsv-studio-items { grid-template-columns: minmax(0, 1fr); }
+  .hsv-subject-grid { grid-template-columns: minmax(0, 1fr); }
   .hsv-mobile-nav button { font-size: 10px; }
 }
 
