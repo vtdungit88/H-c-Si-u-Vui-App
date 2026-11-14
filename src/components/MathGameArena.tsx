@@ -339,11 +339,6 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
           Phần này đang được xây dựng. Bản dùng thử hiện có Toán 6 và Khoa học tự nhiên 6.
         </div>
       )}
-      {!activeLesson && subjectId === 'science' && currentGrade === '6' && (
-        <div className="mb-4 p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-200 text-sm font-semibold">
-          Bộ đề Khoa học tự nhiên 6 (Kết nối tri thức) là bản nháp v0.2.0, đang chờ giáo viên thẩm định.
-        </div>
-      )}
       {isStarting && (
         <div className="mb-4 p-3 rounded-2xl bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 text-sm">Đang chuẩn bị câu hỏi…</div>
       )}

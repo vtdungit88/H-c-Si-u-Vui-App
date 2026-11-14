@@ -14,8 +14,23 @@ const check = async (name, fn) => {
 };
 
 const run = Date.now();
-const emailA = `ci-test-a-${run}@gmail.com`;
-const emailB = `ci-test-b-${run}@gmail.com`;
+const nickA = `CI Test A ${run}`;
+const nickB = `CI Test B ${run}`;
+const normalize = (n) => n.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'd').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+const emailFor = (n) => `${normalize(n)}@hsv.vnptluongson.cloud`;
+const emailA = emailFor(nickA), emailB = emailFor(nickB);
+async function register(client, nickname, password) {
+  const res = await fetch(`${URL}/functions/v1/account`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', apikey: KEY, Authorization: `Bearer ${KEY}` },
+    body: JSON.stringify({ action: 'register', nickname, password })
+  });
+  const body = await res.json().catch(() => ({}));
+  assert(res.ok, `register failed ${res.status}: ${JSON.stringify(body)}`);
+  const r = await client.auth.signInWithPassword({ email: emailFor(nickname), password });
+  assert(!r.error && r.data.session, r.error?.message);
+  return r;
+}
 const pw = `Tt-${run}-${Math.random().toString(36).slice(2)}`;
 const anon = mk(), a = mk(), b = mk();
 let lesson, session, qs;
@@ -43,18 +58,28 @@ await check('anon: cannot start quiz or read profiles/attempts/roles', async () 
   }
 });
 
+await check('nickname: duplicate and reserved names are rejected', async () => {
+  const post = (nickname) => fetch(`${URL}/functions/v1/account`, { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: KEY, Authorization: `Bearer ${KEY}` }, body: JSON.stringify({ action: 'register', nickname, password: pw }) });
+  assert(!(await post('Admin')).ok, 'reserved accepted');
+});
+await check('visits: record_visit + get_visit_stats work for anon; admin_overview denied', async () => {
+  const v = await anon.rpc('record_visit', { p_visitor: `ci-${run}-visitor` });
+  assert(!v.error, v.error?.message);
+  const st = await anon.rpc('get_visit_stats');
+  assert(!st.error && st.data.total_visits >= 1, JSON.stringify(st.error));
+  assert((await anon.rpc('admin_overview')).error, 'anon admin_overview');
+});
+
 let signedUp = false;
-await check('auth: sign up + session (needs "Confirm email" OFF)', async () => {
-  const r = await a.auth.signUp({ email: emailA, password: pw });
-  assert(!r.error, r.error?.message);
-  assert(r.data.session, 'no session returned: email confirmation is still enabled in Supabase Auth settings');
+await check('auth: nickname register (Edge Function) + session', async () => {
+  await register(a, nickA, pw);
   signedUp = true;
 });
 if (signedUp) {
   await check('auth: profile + wallet bootstrapped, alias update allowed', async () => {
     const u = (await a.auth.getUser()).data.user;
     const p = await a.from('profiles').select('display_alias').eq('id', u.id).single();
-    assert(!p.error && p.data.display_alias.startsWith('HocSinh-'));
+    assert(!p.error && p.data.display_alias === nickA, p.data?.display_alias);
     const up = await a.from('profiles').update({ display_alias: 'CI Test Alias' }).eq('id', u.id);
     assert(!up.error, up.error?.message);
     const w = await a.from('student_wallets').select('coin_balance,xp_balance').eq('student_id', u.id).single();
@@ -123,8 +148,7 @@ if (signedUp) {
     assert.equal(sess.data.status, 'graded');
   });
   await check('isolation: user B cannot see or submit user A data', async () => {
-    const r = await b.auth.signUp({ email: emailB, password: pw });
-    assert(!r.error && r.data.session);
+    await register(b, nickB, pw);
     assert((await b.rpc('submit_quiz', { p_session: session, p_answers: [] })).error, 'B submitted A session');
     assert((await b.rpc('answer_question', { p_quiz_question: qs[1].quiz_question_id, p_option_key: 'A' })).error, 'B answered A question');
     for (const t of ['quiz_sessions', 'learning_progress', 'question_attempts']) {

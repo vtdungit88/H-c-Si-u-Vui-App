@@ -1,5 +1,6 @@
 import type { User } from '@supabase/supabase-js';
 import { supabase } from './supabase';
+import { emailForNickname } from './nickname';
 import { upsertAuthProfile } from '../utils/studentStorage';
 import type { StudentProfile } from '../types';
 
@@ -64,18 +65,32 @@ function fail(prefix: string, error: { message: string } | null): never {
   throw new Error(`${prefix}: ${error?.message ?? 'unknown error'}`);
 }
 
-// ---------- Auth ----------
-export async function signUpWithEmail(email: string, password: string, alias: string) {
-  const { data, error } = await supabase.auth.signUp({ email, password });
-  if (error) throw new Error(error.message);
-  // With "Confirm email" ON there is no session yet; the alias is applied on first sign-in.
-  if (data.session) await setAlias(alias);
-  return { needsEmailConfirmation: !data.session };
+// ---------- Auth (nickname + password; no e-mail) ----------
+const FN_URL = `${import.meta.env.VITE_SUPABASE_URL as string}/functions/v1/account`;
+
+async function callAccountFn(body: Record<string, unknown>, accessToken?: string) {
+  const res = await fetch(FN_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string,
+      Authorization: `Bearer ${accessToken ?? (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string)}`
+    },
+    body: JSON.stringify(body)
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as { message?: string }).message ?? 'Có lỗi xảy ra, hãy thử lại.');
+  return data;
 }
 
-export async function signInWithEmail(email: string, password: string) {
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) throw new Error(error.message);
+export async function signUpWithNickname(nickname: string, password: string) {
+  await callAccountFn({ action: 'register', nickname, password });
+  await signInWithNickname(nickname, password);
+}
+
+export async function signInWithNickname(nickname: string, password: string) {
+  const { error } = await supabase.auth.signInWithPassword({ email: emailForNickname(nickname), password });
+  if (error) throw new Error(/invalid login/i.test(error.message) ? 'Biệt danh hoặc mật khẩu chưa đúng.' : error.message);
 }
 
 export async function signOut() {
@@ -86,15 +101,6 @@ export async function signOut() {
 export async function getCurrentUser(): Promise<User | null> {
   const { data } = await supabase.auth.getSession();
   return data.session?.user ?? null;
-}
-
-export async function setAlias(alias: string) {
-  const clean = alias.trim();
-  if (!clean) return;
-  const { data: u } = await supabase.auth.getUser();
-  if (!u.user) return;
-  const { error } = await supabase.from('profiles').update({ display_alias: clean }).eq('id', u.user.id);
-  if (error) throw new Error(error.message);
 }
 
 // ---------- Curriculum (public read of published content) ----------
@@ -195,4 +201,34 @@ export async function loadStudentProfile(user: User): Promise<StudentProfile> {
     exp: Number(wallet.data?.xp_balance ?? 0),
     completedLessons: completed
   });
+}
+
+// ---------- Visits & admin ----------
+export interface VisitStats { total_visits: number; today_visits: number; unique_visitors: number }
+
+export async function recordVisit(visitorId: string): Promise<void> {
+  await supabase.rpc('record_visit', { p_visitor: visitorId });
+}
+export async function getVisitStats(): Promise<VisitStats | null> {
+  const { data, error } = await supabase.rpc('get_visit_stats');
+  return error ? null : (data as VisitStats);
+}
+
+export interface AdminOverview {
+  users: number; users_today: number; graded_sessions: number; avg_score: number | null; questions_published: number;
+  visits: VisitStats;
+  recent_users: { alias: string; created_at: string; xp: number; coins: number; quizzes: number; id: string }[];
+}
+export async function isPlatformAdmin(userId: string): Promise<boolean> {
+  const { data } = await supabase.from('platform_roles').select('role').eq('user_id', userId).eq('role', 'platform_admin');
+  return (data?.length ?? 0) > 0;
+}
+export async function adminOverview(): Promise<AdminOverview> {
+  const { data, error } = await supabase.rpc('admin_overview');
+  if (error) fail('admin_overview', error);
+  return data as AdminOverview;
+}
+export async function adminResetPassword(alias: string, password: string) {
+  const { data } = await supabase.auth.getSession();
+  await callAccountFn({ action: 'admin_reset_password', alias, password }, data.session?.access_token);
 }

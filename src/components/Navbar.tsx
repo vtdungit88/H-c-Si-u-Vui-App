@@ -204,7 +204,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onOpenAdmin();
               }}
               className="hidden xl:inline-flex p-2 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded-xl transition-colors cursor-pointer"
-              title="Quản trị viên (dungvt.hbh@gmail.com)"
+              title="Quản trị viên"
               aria-label="Quản trị viên"
             >
               <ShieldCheck className="w-5 h-5" />

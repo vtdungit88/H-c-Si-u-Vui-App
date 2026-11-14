@@ -42,7 +42,7 @@ export const SUBJECTS_CATALOG: SubjectMeta[] = [
     description: 'Khám phá thế giới vật lý, phản ứng hóa học kỳ thú và thế giới sinh học diệu kỳ.',
     status: 'coming_soon',
     availableGrades: [
-      { grade: '6', term1Available: true, term2Available: true, notes: '10 chương, 150 câu (bản nháp v0.2.0, chờ giáo viên thẩm định)' },
+      { grade: '6', term1Available: true, term2Available: true, notes: '10 chương, 150 câu (Kết nối tri thức, đã được chủ dự án duyệt) – dùng chung cho cả 2 học kỳ' },
       { grade: '7', term1Available: false, term2Available: false, notes: 'Sắp ra mắt' },
       { grade: '8', term1Available: false, term2Available: false, notes: 'Sắp ra mắt' },
       { grade: '9', term1Available: false, term2Available: false, notes: 'Sắp ra mắt' }
