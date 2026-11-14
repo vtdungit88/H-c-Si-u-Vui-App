@@ -164,7 +164,10 @@ export const updateActiveStudent = (
  */
 export const upsertAuthProfile = (
   id: string,
-  server: Pick<StudentProfile, 'name' | 'coins' | 'stars' | 'exp' | 'completedLessons'>
+  server: Pick<StudentProfile, 'name' | 'coins' | 'stars' | 'exp' | 'completedLessons'> & {
+    avatarConfig?: Partial<AvatarConfig>;
+    unlockedItems?: string[];
+  }
 ): StudentProfile => {
   const profiles = getStudentProfiles();
   const existing = profiles.find((p) => p.id === id);
@@ -178,8 +181,13 @@ export const upsertAuthProfile = (
     stars: server.stars,
     exp: server.exp,
     completedLessons: server.completedLessons,
+    // Avatar and owned items are owned by the server; the local copy is only a cache.
+    avatarConfig: { ...DEFAULT_AVATAR, ...(server.avatarConfig ?? {}) },
+    unlockedItems: server.unlockedItems ?? base.unlockedItems,
     level: Math.max(1, Math.floor(server.stars / 5) + 1)
   };
+  const cfg = merged.avatarConfig;
+  merged.equippedItems = { outfit: cfg.outfitId, handheld: cfg.handheldId, phone: cfg.phoneId, vehicle: cfg.vehicleId, tech: cfg.techId, pet: cfg.petId };
   const next = existing ? profiles.map((p) => (p.id === id ? merged : p)) : [...profiles, merged];
   saveStudentProfiles(next);
   setActiveStudentId(id);

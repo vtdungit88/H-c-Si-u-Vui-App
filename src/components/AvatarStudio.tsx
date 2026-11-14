@@ -5,6 +5,7 @@ import { SHOP_ITEMS, HAIR_STYLES, HAIR_COLORS, SKIN_TONES, EYE_EXPRESSIONS } fro
 import { AvatarRenderer } from './AvatarRenderer';
 import { soundManager } from '../utils/audio';
 import { updateActiveStudent } from '../utils/studentStorage';
+import { buyItem, saveAvatar } from '../lib/api';
 import { 
   Sparkles, 
   Check, 
@@ -47,76 +48,72 @@ export const AvatarStudio: React.FC<AvatarStudioProps> = ({
     });
   };
 
+  const [notice, setNotice] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  const flash = (msg: string) => {
+    setNotice(msg);
+    window.setTimeout(() => setNotice(''), 3500);
+  };
+
+  /** Apply a new look locally (instant), then persist it on the server; roll back if the server refuses. */
+  const commitLook = async (next: AvatarConfig, extra?: Partial<StudentProfile>) => {
+    const previous = student;
+    const optimistic = updateActiveStudent((prev) => ({
+      ...prev,
+      ...extra,
+      avatarConfig: next,
+      equippedItems: { outfit: next.outfitId, handheld: next.handheldId, phone: next.phoneId, vehicle: next.vehicleId, tech: next.techId, pet: next.petId }
+    }));
+    onUpdateStudent(optimistic);
+    try {
+      await saveAvatar(next);
+    } catch (e) {
+      const reverted = updateActiveStudent(() => previous);
+      onUpdateStudent(reverted);
+      flash('Chưa lưu được lên máy chủ, hãy thử lại nhé.');
+      console.error(e);
+    }
+  };
+
+  const requireLogin = () => {
+    soundManager.play('wrong');
+    onRequireLogin?.();
+  };
+
   // Update appearance (skin, hair, eye expression, gender)
   const handleUpdateAppearance = (partial: Partial<AvatarConfig>) => {
-    if (student.isGuest) {
-      soundManager.play('wrong');
-      onRequireLogin?.();
-      return;
-    }
+    if (student.isGuest) return requireLogin();
     soundManager.play('click');
-    const updated = updateActiveStudent((prev) => ({
-      ...prev,
-      avatarConfig: {
-        ...prev.avatarConfig,
-        ...partial
-      }
-    }));
-    onUpdateStudent(updated);
+    void commitLook({ ...student.avatarConfig, ...partial });
   };
 
   // Equip already owned item
   const handleEquipItem = (item: ShopItem) => {
-    if (student.isGuest) {
-      soundManager.play('wrong');
-      onRequireLogin?.();
-      return;
-    }
+    if (student.isGuest) return requireLogin();
     soundManager.play('equip');
-    const updated = updateActiveStudent((prev) => ({
-      ...prev,
-      avatarConfig: {
-        ...prev.avatarConfig,
-        [`${item.category}Id`]: item.id
-      },
-      equippedItems: {
-        ...prev.equippedItems,
-        [item.category]: item.id
-      }
-    }));
-    onUpdateStudent(updated);
+    void commitLook({ ...student.avatarConfig, [`${item.category}Id`]: item.id } as AvatarConfig);
   };
 
-  // Buy and equip new item
-  const handleBuyItem = (item: ShopItem) => {
-    if (student.isGuest) {
+  // Buy (server deducts coins) and equip
+  const handleBuyItem = async (item: ShopItem) => {
+    if (student.isGuest) return requireLogin();
+    if (busy) return;
+    setBusy(true);
+    try {
+      const res = await buyItem(item.id);
+      soundManager.play('unlock');
+      fireConfetti();
+      await commitLook(
+        { ...student.avatarConfig, [`${item.category}Id`]: item.id } as AvatarConfig,
+        { coins: Number(res.coins), unlockedItems: Array.from(new Set([...student.unlockedItems, item.id])) }
+      );
+    } catch (e) {
       soundManager.play('wrong');
-      onRequireLogin?.();
-      return;
+      flash(e instanceof Error ? e.message : 'Không mua được món này.');
+    } finally {
+      setBusy(false);
     }
-    if (student.coins < item.costCoins || student.stars < item.costStars) {
-      soundManager.play('wrong');
-      return;
-    }
-
-    soundManager.play('unlock');
-    fireConfetti();
-
-    const updated = updateActiveStudent((prev) => ({
-      ...prev,
-      coins: prev.coins - item.costCoins,
-      stars: prev.stars - item.costStars,
-      unlockedItems: [...prev.unlockedItems, item.id],
-      avatarConfig: {
-        ...prev.avatarConfig,
-        [`${item.category}Id`]: item.id
-      },
-      equippedItems: {
-        ...prev.equippedItems,
-        [item.category]: item.id
-      }
-    }));
-    onUpdateStudent(updated);
   };
 
   // Filter items by category
@@ -137,6 +134,9 @@ export const AvatarStudio: React.FC<AvatarStudioProps> = ({
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
+      {notice && (
+        <div role="alert" className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-2xl bg-rose-600 text-white text-sm font-bold shadow-xl">{notice}</div>
+      )}
       {/* Top Banner Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-6 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-3xl text-white shadow-xl mb-6">
         <div>
@@ -580,7 +580,7 @@ export const AvatarStudio: React.FC<AvatarStudioProps> = ({
                 {currentCategoryItems.map((item) => {
                   const isUnlocked = student.unlockedItems.includes(item.id);
                   const isEquipped = student.avatarConfig[`${item.category}Id`] === item.id;
-                  const canAfford = student.coins >= item.costCoins && student.stars >= item.costStars;
+                  const canAfford = student.coins >= item.costCoins && student.stars >= item.costStars; // stars are a requirement, not spent
 
                   return (
                     <div
@@ -632,7 +632,7 @@ export const AvatarStudio: React.FC<AvatarStudioProps> = ({
                               )}
                               {item.costStars > 0 && (
                                 <span className="flex items-center gap-1 text-yellow-500 dark:text-yellow-400">
-                                  <StarIcon className="w-3.5 h-3.5 fill-yellow-400" /> {item.costStars} sao
+                                  <StarIcon className="w-3.5 h-3.5 fill-yellow-400" /> cần {item.costStars} sao
                                 </span>
                               )}
                             </div>

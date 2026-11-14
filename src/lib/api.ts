@@ -2,7 +2,7 @@ import type { User } from '@supabase/supabase-js';
 import { supabase } from './supabase';
 import { emailForNickname } from './nickname';
 import { upsertAuthProfile } from '../utils/studentStorage';
-import type { StudentProfile } from '../types';
+import type { StudentProfile, AvatarConfig } from '../types';
 
 /**
  * Typed data-access layer. UI components must not talk to Supabase directly.
@@ -152,9 +152,27 @@ export async function submitQuiz(sessionId: string): Promise<QuizResult> {
   return data as QuizResult;
 }
 
+// ---------- Avatar & shop (server-side; the browser keeps no authority over purchases) ----------
+export interface AvatarState { config: Partial<AvatarConfig>; owned: string[]; stars: number }
+
+export async function loadMyAvatar(): Promise<AvatarState> {
+  const { data, error } = await supabase.rpc('get_my_avatar');
+  if (error) fail('get_my_avatar', error);
+  return data as AvatarState;
+}
+export async function buyItem(itemKey: string): Promise<{ item_key: string; already_owned: boolean; coins: number }> {
+  const { data, error } = await supabase.rpc('buy_item', { p_item_key: itemKey });
+  if (error) throw new Error(/not enough coins/i.test(error.message) ? 'Bạn chưa đủ xu để mở khóa món này.' : /not enough stars/i.test(error.message) ? 'Bạn chưa đủ sao để mở khóa món này.' : error.message);
+  return data as { item_key: string; already_owned: boolean; coins: number };
+}
+export async function saveAvatar(config: AvatarConfig): Promise<void> {
+  const { error } = await supabase.rpc('save_avatar', { p_config: config });
+  if (error) fail('save_avatar', error);
+}
+
 // ---------- Student profile bundle (own data only; enforced by RLS) ----------
 export async function loadStudentProfile(user: User): Promise<StudentProfile> {
-  const [prof, wallet, progress, sessions, cur] = await Promise.all([
+  const [prof, wallet, progress, sessions, cur, avatar] = await Promise.all([
     supabase.from('profiles').select('display_alias').eq('id', user.id).maybeSingle(),
     supabase.from('student_wallets').select('xp_balance,coin_balance').eq('student_id', user.id).maybeSingle(),
     supabase.from('learning_progress').select('lesson_id,status,mastery,last_activity_at').eq('student_id', user.id),
@@ -163,7 +181,8 @@ export async function loadStudentProfile(user: User): Promise<StudentProfile> {
       .select('correct_count,total_count,submitted_at,tier:server_result->>tier,lesson_id:server_result->>lesson_id')
       .eq('student_id', user.id)
       .eq('status', 'graded'),
-    fetchCurriculum('all')
+    fetchCurriculum('all'),
+    loadMyAvatar().catch(() => null)
   ]);
   if (prof.error) fail('profile', prof.error);
   if (wallet.error) fail('wallet', wallet.error);
@@ -202,7 +221,9 @@ export async function loadStudentProfile(user: User): Promise<StudentProfile> {
     coins: Number(wallet.data?.coin_balance ?? 0),
     stars,
     exp: Number(wallet.data?.xp_balance ?? 0),
-    completedLessons: completed
+    completedLessons: completed,
+    avatarConfig: avatar?.config,
+    unlockedItems: avatar?.owned
   });
 }
 
