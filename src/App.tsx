@@ -68,6 +68,7 @@ export default function App() {
   const [currentView, setCurrentView] = useState<'study' | 'shop' | 'blitz' | 'map' | 'leaderboard'>('study');
   const [currentSubjectId, setCurrentSubjectId] = useState<string>('math');
   const [learning, setLearning] = useState(false);
+  const [pendingLesson, setPendingLesson] = useState<string | null>(null);
   const [pickSubject, setPickSubject] = useState<SubjectMeta | null>(null);
   const activeSubjectMeta = SUBJECTS_CATALOG.find((x) => x.id === currentSubjectId) ?? SUBJECTS_CATALOG[0];
   const [currentGrade, setCurrentGrade] = useState<GradeLevel>('6');
@@ -121,7 +122,13 @@ export default function App() {
     setStudent(updated);
   };
 
-  const handleLessonSelectedFromMap = (lesson: MathLesson) => {
+  const handleStartNode = (subjectId: string, grade: number, lessonCode: string) => {
+    setCurrentSubjectId(subjectId);
+    setCurrentGrade(String(grade) as GradeLevel);
+    setCurrentTerm(1);
+    setPickSubject(null);
+    setPendingLesson(lessonCode);
+    setLearning(true);
     setCurrentView('study');
   };
 
@@ -234,6 +241,8 @@ export default function App() {
                   onUpdateStudent={handleUpdateStudent}
                   onNavigateToShop={() => setCurrentView('shop')}
                   onRequireLogin={handleRequireLogin}
+                  autoStartLessonCode={pendingLesson}
+                  onAutoStartConsumed={() => setPendingLesson(null)}
                 />
               </>
             ) : (
@@ -291,7 +300,9 @@ export default function App() {
         {currentView === 'map' && (
           <AdventureMap
             student={student}
-            onSelectLesson={handleLessonSelectedFromMap}
+            initialSubjectId={currentSubjectId}
+            initialGrade={Number(currentGrade)}
+            onStartNode={handleStartNode}
             onRequireLogin={handleRequireLogin}
           />
         )}

@@ -39,6 +39,9 @@ interface MathGameArenaProps {
   onUpdateStudent: (updated: StudentProfile) => void;
   onNavigateToShop: () => void;
   onRequireLogin?: () => void;
+  /** Lesson code to start immediately (used by the adventure map). */
+  autoStartLessonCode?: string | null;
+  onAutoStartConsumed?: () => void;
 }
 
 export const MathGameArena: React.FC<MathGameArenaProps> = ({
@@ -48,7 +51,9 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
   currentTerm,
   onUpdateStudent,
   onNavigateToShop,
-  onRequireLogin
+  onRequireLogin,
+  autoStartLessonCode,
+  onAutoStartConsumed
 }) => {
   // Curriculum comes from Supabase (published content only). No answers are bundled in the client.
   const [curriculum, setCurriculum] = useState<Curriculum | null>(null);
@@ -136,6 +141,14 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
     soundManager.play('click');
     void startTierExercise(lesson, 'mixed');
   };
+
+  useEffect(() => {
+    if (!autoStartLessonCode || !curriculum) return;
+    const lesson = currentLessons.find((l) => l.id === autoStartLessonCode);
+    onAutoStartConsumed?.();
+    if (lesson) handleOpenLessonTiers(lesson);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoStartLessonCode, curriculum]);
 
   const mapQuestion = (q: QuizQuestion): MathQuestion => ({
     id: q.quiz_question_id,

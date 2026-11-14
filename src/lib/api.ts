@@ -256,3 +256,41 @@ export async function adminResetPassword(alias: string, password: string) {
   const { data } = await supabase.auth.getSession();
   await callAccountFn({ action: 'admin_reset_password', alias, password }, data.session?.access_token);
 }
+
+// ---------- Adventure map ----------
+export interface NodeProgress { bestCorrect: number; total: number; attempts: number; stars: number }
+
+/** Stars for one node from the best graded result: 100% = 3, 80% = 2, 60% = 1. */
+export function starsFor(correct: number, total: number): number {
+  if (!total) return 0;
+  const r = correct / total;
+  return r >= 1 ? 3 : r >= 0.8 ? 2 : r >= 0.6 ? 1 : 0;
+}
+
+/** Own best result per lesson (key: DB lesson id). RLS limits this to the signed-in student. */
+export async function fetchMapProgress(userId: string): Promise<Record<string, NodeProgress>> {
+  const { data, error } = await supabase
+    .from('quiz_sessions')
+    .select('correct_count,total_count,lesson_id:server_result->>lesson_id')
+    .eq('student_id', userId)
+    .eq('status', 'graded');
+  if (error) fail('map progress', error);
+  const out: Record<string, NodeProgress> = {};
+  for (const r of (data ?? []) as unknown as { correct_count: number; total_count: number; lesson_id: string | null }[]) {
+    if (!r.lesson_id) continue;
+    const cur = out[r.lesson_id] ?? { bestCorrect: 0, total: r.total_count, attempts: 0, stars: 0 };
+    cur.attempts += 1;
+    if (r.correct_count >= cur.bestCorrect) { cur.bestCorrect = r.correct_count; cur.total = r.total_count; }
+    cur.stars = starsFor(cur.bestCorrect, cur.total);
+    out[r.lesson_id] = cur;
+  }
+  return out;
+}
+
+export interface MapLeaderRow { rank: number; alias: string; stars: number; cleared: number }
+export async function fetchAdventureLeaderboard(subject: SubjectKey, grade: number): Promise<MapLeaderRow[]> {
+  const code = subject === 'math' ? 'toan' : subject === 'science' ? 'khtn' : null;
+  const { data, error } = await supabase.rpc('adventure_leaderboard', { p_subject: code, p_grade: grade });
+  if (error) fail('adventure_leaderboard', error);
+  return (data ?? []) as MapLeaderRow[];
+}
