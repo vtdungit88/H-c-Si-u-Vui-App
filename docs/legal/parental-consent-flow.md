@@ -87,3 +87,11 @@ Quy trình backend cần xác minh người yêu cầu, phân loại, xác đị
 - Leaderboard không hiển thị thông tin nhận dạng.
 - Teacher/school_admin chỉ xem dữ liệu trong phạm vi được giao.
 - Yêu cầu xóa có quy trình và bằng chứng xử lý.
+
+
+## 9. Thông tin đầu mối tiếp nhận
+
+- Chủ thể vận hành đã được chủ dự án xác nhận: cá nhân vận hành độc lập, không phải sản phẩm chính thức của VNPT.
+- Email liên hệ hiện có: dungvt.hbh@gmail.com.
+- Họ tên đầy đủ và địa chỉ liên hệ: chưa được cung cấp; phải bổ sung trước khi đưa luồng này vào sử dụng.
+- Không thu thập giấy tờ định danh của phụ huynh/trẻ qua email thông thường. Thiết kế kênh xác minh an toàn và chỉ yêu cầu thông tin tối thiểu.
