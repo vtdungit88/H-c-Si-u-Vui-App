@@ -9,10 +9,13 @@ import type { StudentProfile } from '../types';
  * the SECURITY DEFINER RPCs public.start_quiz / answer_question / submit_quiz.
  */
 
-export type DbTier = 'basic' | 'application' | 'advanced';
-export type UiTier = 'easy' | 'medium' | 'hard';
-export const UI_TO_DB_TIER: Record<UiTier, DbTier> = { easy: 'basic', medium: 'application', hard: 'advanced' };
-export const DB_TO_UI_TIER: Record<DbTier, UiTier> = { basic: 'easy', application: 'medium', advanced: 'hard' };
+export type DbTier = 'basic' | 'application' | 'advanced' | 'mixed';
+export type UiTier = 'easy' | 'medium' | 'hard' | 'mixed';
+export const UI_TO_DB_TIER: Record<UiTier, DbTier> = { easy: 'basic', medium: 'application', hard: 'advanced', mixed: 'mixed' };
+export const DB_TO_UI_TIER: Record<DbTier, UiTier> = { basic: 'easy', application: 'medium', advanced: 'hard', mixed: 'mixed' };
+
+export type SubjectKey = 'math' | 'science' | 'all';
+const CHAPTER_PREFIX: Record<Exclude<SubjectKey, 'all'>, string> = { math: 'toan6-c', science: 'khtn6-c' };
 
 export interface DbChapter { id: string; code: string; title: string; sequence_no: number }
 export interface DbLesson {
@@ -95,16 +98,26 @@ export async function setAlias(alias: string) {
 }
 
 // ---------- Curriculum (public read of published content) ----------
-export async function fetchCurriculum(): Promise<Curriculum> {
-  const [ch, ls] = await Promise.all([
-    supabase.from('chapters').select('id,code,title,sequence_no').eq('grade_id', 6).eq('status', 'published').order('sequence_no'),
-    supabase.from('lessons').select('id,chapter_id,code,title,sequence_no,learning_material').eq('status', 'published').order('sequence_no')
-  ]);
-  if (ch.error) fail('chapters', ch.error);
-  if (ls.error) fail('lessons', ls.error);
-  const chapters = ch.data as DbChapter[];
-  const ids = new Set(chapters.map((c) => c.id));
-  return { chapters, lessons: (ls.data as DbLesson[]).filter((l) => ids.has(l.chapter_id)) };
+const curriculumCache = new Map<SubjectKey, Promise<Curriculum>>();
+
+export function fetchCurriculum(subject: SubjectKey = 'math'): Promise<Curriculum> {
+  const hit = curriculumCache.get(subject);
+  if (hit) return hit;
+  const p = (async () => {
+    const [ch, ls] = await Promise.all([
+      supabase.from('chapters').select('id,code,title,sequence_no').eq('grade_id', 6).eq('status', 'published').order('sequence_no'),
+      supabase.from('lessons').select('id,chapter_id,code,title,sequence_no,learning_material').eq('status', 'published').order('sequence_no')
+    ]);
+    if (ch.error) fail('chapters', ch.error);
+    if (ls.error) fail('lessons', ls.error);
+    const wanted = (Object.keys(CHAPTER_PREFIX) as (keyof typeof CHAPTER_PREFIX)[]).filter((k) => subject === 'all' || subject === k);
+    const chapters = (ch.data as DbChapter[]).filter((c) => wanted.some((k) => c.code.startsWith(CHAPTER_PREFIX[k])));
+    const ids = new Set(chapters.map((c) => c.id));
+    return { chapters, lessons: (ls.data as DbLesson[]).filter((l) => ids.has(l.chapter_id)) };
+  })();
+  curriculumCache.set(subject, p);
+  p.catch(() => curriculumCache.delete(subject));
+  return p;
 }
 
 // ---------- Quiz (server-side scoring) ----------
@@ -131,7 +144,7 @@ export async function submitQuiz(sessionId: string): Promise<QuizResult> {
 }
 
 // ---------- Student profile bundle (own data only; enforced by RLS) ----------
-export async function loadStudentProfile(user: User, curriculum?: Curriculum): Promise<StudentProfile> {
+export async function loadStudentProfile(user: User): Promise<StudentProfile> {
   const [prof, wallet, progress, sessions, cur] = await Promise.all([
     supabase.from('profiles').select('display_alias').eq('id', user.id).maybeSingle(),
     supabase.from('student_wallets').select('xp_balance,coin_balance').eq('student_id', user.id).maybeSingle(),
@@ -141,7 +154,7 @@ export async function loadStudentProfile(user: User, curriculum?: Curriculum): P
       .select('correct_count,total_count,submitted_at,tier:server_result->>tier,lesson_id:server_result->>lesson_id')
       .eq('student_id', user.id)
       .eq('status', 'graded'),
-    curriculum ? Promise.resolve(curriculum) : fetchCurriculum()
+    fetchCurriculum('all')
   ]);
   if (prof.error) fail('profile', prof.error);
   if (wallet.error) fail('wallet', wallet.error);

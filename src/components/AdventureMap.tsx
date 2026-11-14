@@ -34,7 +34,7 @@ export const AdventureMap: React.FC<AdventureMapProps> = ({
   const [curriculum, setCurriculum] = React.useState<Curriculum | null>(null);
   React.useEffect(() => {
     let alive = true;
-    fetchCurriculum().then((c) => alive && setCurriculum(c)).catch(() => undefined);
+    fetchCurriculum('math').then((c) => alive && setCurriculum(c)).catch(() => undefined);
     return () => { alive = false; };
   }, []);
   const activeLessons = React.useMemo(

@@ -1,5 +1,5 @@
 // Tier metadata only (no questions or answers). Questions live in Supabase.
-export type LessonDifficultyTier = 'easy' | 'medium' | 'hard';
+export type LessonDifficultyTier = 'easy' | 'medium' | 'hard' | 'mixed';
 
 export interface LessonTierMeta {
   tier: LessonDifficultyTier;
@@ -32,6 +32,16 @@ export const LESSON_TIERS_CONFIG: Record<LessonDifficultyTier, LessonTierMeta> =
     rewardCoins: 2,
     rewardStars: 1,
     badgeColor: 'bg-blue-50 text-blue-700 border-blue-300'
+  },
+  mixed: {
+    tier: 'mixed',
+    title: 'Ôn tập chương',
+    subTitle: 'Câu hỏi tổng hợp nhiều mức độ trong chương',
+    questionCount: 15,
+    timePerQuestionSeconds: 60,
+    rewardCoins: 2,
+    rewardStars: 1,
+    badgeColor: 'bg-violet-50 text-violet-700 border-violet-300'
   },
   hard: {
     tier: 'hard',

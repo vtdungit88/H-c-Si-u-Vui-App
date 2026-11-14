@@ -318,6 +318,7 @@ export default function App() {
             {/* Arena Lessons Browser & Quiz (Grades 1-9 & Math 6 Term 1 + Term 2) */}
             <MathGameArena
               student={student}
+              subjectId={currentSubjectId}
               currentGrade={currentGrade}
               currentTerm={currentTerm}
               onUpdateStudent={handleUpdateStudent}
