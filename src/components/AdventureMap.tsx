@@ -149,7 +149,7 @@ export const AdventureMap: React.FC<AdventureMapProps> = ({
               { name: 'Quy Tắc Âm Dương', icon: '⚡', color: 'bg-purple-50 text-purple-950 border-purple-400' },
               { name: 'Thành Tam Giác Đều', icon: '🔺', color: 'bg-rose-50 text-rose-950 border-rose-400' },
               { name: 'Sân Trường Hình Thoi', icon: '🪁', color: 'bg-blue-50 text-blue-950 border-blue-400' },
-              { name: 'Đền Thờ Đối Xứng', icon: '⭐', color: 'bg-yellow-50 text-yellow-950 border-yellow-400' }
+              { name: 'Đền Thờ Đối Xứng', icon: '🌠', color: 'bg-yellow-50 text-yellow-950 border-yellow-400' }
             ];
 
             const term2Themes = [

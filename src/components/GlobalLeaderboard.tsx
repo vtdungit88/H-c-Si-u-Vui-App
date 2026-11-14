@@ -62,7 +62,7 @@ export const GlobalLeaderboard: React.FC<GlobalLeaderboardProps> = ({
             Bảng Xếp Hạng Học Siêu Vui
           </h1>
           <p className="text-xs sm:text-sm text-amber-100 font-medium mt-1 max-w-xl">
-            Vinh danh các bạn học sinh có tổng số Sao ⭐ và Xu 🪙 tích lũy cao nhất từ các bài học SGK và Đấu trường 60 giây.
+            Vinh danh các bạn học sinh có tổng số Sao <StarIcon className="w-4 h-4 align-text-bottom" /> và Xu <CoinIcon className="w-4 h-4 align-text-bottom" /> tích lũy cao nhất từ các bài học SGK và Đấu trường 60 giây.
           </p>
         </div>
 

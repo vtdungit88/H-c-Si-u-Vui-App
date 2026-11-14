@@ -5,6 +5,7 @@ import { supabase, isSupabaseConfigured } from './lib/supabase';
 import { loadStudentProfile, signOut, isPlatformAdmin, getVisitStats, type VisitStats } from './lib/api';
 import { useOnlineCount, useRecordVisit } from './lib/presence';
 import { soundManager } from './utils/audio';
+import { CoinIcon, StarIcon } from './components/GameIcons';
 import { Navbar } from './components/Navbar';
 import { AvatarStudio } from './components/AvatarStudio';
 import { MathGameArena } from './components/MathGameArena';
@@ -240,7 +241,7 @@ export default function App() {
                   </h1>
 
                   <p className="text-xs sm:text-sm text-blue-100 leading-relaxed">
-                    Học tập là niềm vui bất tận! Đăng ký tài khoản để chinh phục kiến thức SGK, tích lũy Xu 🪙 và Sao ⭐ nâng cấp Studio của tôi!
+                    Học tập là niềm vui bất tận! Đăng ký tài khoản để chinh phục kiến thức SGK, tích lũy Xu <CoinIcon className="w-4 h-4 align-text-bottom" /> và Sao <StarIcon className="w-4 h-4 align-text-bottom" /> nâng cấp Studio của tôi!
                   </p>
 
                   {/* Mandatory sign-up invitation banner for guest */}
@@ -515,7 +516,7 @@ export default function App() {
                 </div>
                 <div className="flex items-start gap-2.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-1.5 shrink-0"></span>
-                  <span><strong>Bảng Xếp Hạng:</strong> Thi đua tích lũy Xu 🪙 và Sao ⭐ cùng bạn bè.</span>
+                  <span><strong>Bảng Xếp Hạng:</strong> Thi đua tích lũy Xu <CoinIcon className="w-4 h-4 align-text-bottom" /> và Sao <StarIcon className="w-4 h-4 align-text-bottom" /> cùng bạn bè.</span>
                 </div>
               </div>
             </div>
