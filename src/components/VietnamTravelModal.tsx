@@ -106,7 +106,7 @@ export const VietnamTravelModal: React.FC<VietnamTravelModalProps> = ({
             <div className="bg-gradient-to-br from-sky-600 via-indigo-700 to-violet-700 text-white rounded-3xl p-8 max-w-md w-full text-center space-y-4 shadow-2xl border border-white/20 animate-in zoom-in-95">
               <div className="w-20 h-20 mx-auto rounded-3xl bg-white/15 flex items-center justify-center animate-bounce">
                 {vehicleItem ? (
-                  <StudioItemThumbnail item={vehicleItem} size={64} />
+                  <StudioItemThumbnail renderType={vehicleItem.renderType} category={vehicleItem.category} rarity={vehicleItem.rarity} size="md" />
                 ) : (
                   <Navigation className="w-10 h-10 text-amber-300" />
                 )}
