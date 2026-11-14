@@ -65,3 +65,16 @@ Không xuất bản chính sách cho tới khi:
 5. Luồng đồng ý của phụ huynh/trẻ em được kiểm thử.
 6. Nội dung được luật sư/đơn vị chuyên môn rà soát.
 7. Chủ dự án phê duyệt version và ngày hiệu lực.
+
+
+## 6. Chủ thể vận hành – thông tin đã xác nhận
+
+- Hình thức vận hành: cá nhân.
+- Tính độc lập: dự án độc lập, không phải sản phẩm chính thức của VNPT.
+- Email liên hệ do chủ dự án cung cấp: dungvt.hbh@gmail.com.
+- Họ tên đầy đủ, địa chỉ liên hệ: chưa được cung cấp.
+- Mã số thuế/đăng ký: chưa xác định; cần đánh giá theo mô hình hoạt động thực tế, đặc biệt nếu có thu phí hoặc cung cấp dịch vụ mang tính kinh doanh.
+
+## 7. Trạng thái công bố
+
+Thông tin email có thể được điền vào bản dự thảo, nhưng chưa đủ điều kiện công bố bộ chính sách. Không dùng cụm “VNPT” như nhãn bảo trợ/đơn vị vận hành trên website nếu chưa có căn cứ cho phép. Source hiện có ticker đã được chỉnh trên nhánh pháp lý; các điểm hiển thị thương hiệu khác cần rà soát toàn bộ trước khi phát hành.
