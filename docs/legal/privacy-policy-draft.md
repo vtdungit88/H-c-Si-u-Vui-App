@@ -4,9 +4,10 @@
 - Phiên bản: 0.1
 - Ngày dự thảo: 14/11/2026
 - Ngày dự kiến hiệu lực: [CHỈ ĐIỀN SAU KHI ĐƯỢC PHÊ DUYỆT]
-- Đơn vị vận hành/ Bên kiểm soát dữ liệu: [TÊN PHÁP LÝ – BẮT BUỘC XÁC NHẬN]
-- Địa chỉ: [BỔ SUNG]
-- Email bảo vệ dữ liệu/tiếp nhận yêu cầu: [BỔ SUNG]
+- Đơn vị vận hành dự kiến: Cá nhân vận hành độc lập Học Siêu Vui (họ tên đầy đủ: [CHỦ DỰ ÁN BỔ SUNG]).
+- Tình trạng quan hệ: Dự án độc lập; không phải sản phẩm chính thức, không đại diện và không được hiểu là VNPT bảo trợ.
+- Địa chỉ liên hệ: [CHỦ DỰ ÁN BỔ SUNG TRƯỚC KHI CÔNG BỐ].
+- Email bảo vệ dữ liệu/tiếp nhận yêu cầu: dungvt.hbh@gmail.com
 - Website: https://vnptluongson.cloud/
 
 ## 1. Giới thiệu
@@ -96,7 +97,7 @@ Theo pháp luật hiện hành, chủ thể dữ liệu có các quyền tương
 
 Đối với trẻ em, cha mẹ/người đại diện hợp pháp có thể gửi yêu cầu thay mặt trẻ. HSV sẽ xác minh ở mức cần thiết, tránh thu thập quá mức giấy tờ định danh. Một số dữ liệu có thể cần được giữ lại nếu pháp luật yêu cầu hoặc cần thiết để giải quyết nghĩa vụ hợp pháp; HSV sẽ giải thích khi từ chối hoặc giới hạn yêu cầu.
 
-Gửi yêu cầu tới: [EMAIL/ĐỊA CHỈ TIẾP NHẬN – BẮT BUỘC BỔ SUNG].
+Gửi yêu cầu tới: dungvt.hbh@gmail.com. Địa chỉ liên hệ bổ sung: [CHỦ DỰ ÁN BỔ SUNG TRƯỚC KHI CÔNG BỐ].
 Thời hạn phản hồi và quy trình xử lý sẽ được vận hành theo quy định pháp luật áp dụng.
 
 ## 11. Bảo mật và sự cố
