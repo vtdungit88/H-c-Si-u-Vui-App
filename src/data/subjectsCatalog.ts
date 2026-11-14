@@ -6,18 +6,18 @@ export const SUBJECTS_CATALOG: SubjectMeta[] = [
     name: 'Toán Học',
     iconName: 'Calculator',
     color: 'from-blue-600 to-indigo-600',
-    description: 'Chương trình chuẩn SGK từ Tiểu học (Lớp 1-5) đến THCS (Lớp 6-9). Đầy đủ Tập 1 & Tập 2.',
+    description: 'Toán lớp 1 đến lớp 9 (Kết nối tri thức): mỗi chương một bài ôn luyện 15 câu.',
     status: 'active',
     availableGrades: [
-      { grade: '1', term1Available: false, term2Available: false, notes: 'Sắp ra mắt' },
-      { grade: '2', term1Available: false, term2Available: false, notes: 'Sắp ra mắt' },
-      { grade: '3', term1Available: false, term2Available: false, notes: 'Sắp ra mắt' },
-      { grade: '4', term1Available: false, term2Available: false, notes: 'Sắp ra mắt' },
-      { grade: '5', term1Available: false, term2Available: false, notes: 'Sắp ra mắt' },
-      { grade: '6', term1Available: true, term2Available: true, notes: 'Đầy đủ Tập 1 (5 chương) & Tập 2 (Chương 6-9)' },
-      { grade: '7', term1Available: false, term2Available: false, notes: 'Sắp ra mắt' },
-      { grade: '8', term1Available: false, term2Available: false, notes: 'Sắp ra mắt' },
-      { grade: '9', term1Available: false, term2Available: false, notes: 'Sắp ra mắt' }
+      { grade: '1', term1Available: true, term2Available: true, notes: 'Ngân hàng 5–10 chương, mỗi chương 15 câu trộn mọi mức độ' },
+      { grade: '2', term1Available: true, term2Available: true, notes: 'Ngân hàng 5–10 chương, mỗi chương 15 câu trộn mọi mức độ' },
+      { grade: '3', term1Available: true, term2Available: true, notes: 'Ngân hàng 5–10 chương, mỗi chương 15 câu trộn mọi mức độ' },
+      { grade: '4', term1Available: true, term2Available: true, notes: 'Ngân hàng 5–10 chương, mỗi chương 15 câu trộn mọi mức độ' },
+      { grade: '5', term1Available: true, term2Available: true, notes: 'Ngân hàng 5–10 chương, mỗi chương 15 câu trộn mọi mức độ' },
+      { grade: '6', term1Available: true, term2Available: true, notes: 'Ngân hàng 5–10 chương, mỗi chương 15 câu trộn mọi mức độ' },
+      { grade: '7', term1Available: true, term2Available: true, notes: 'Ngân hàng 5–10 chương, mỗi chương 15 câu trộn mọi mức độ' },
+      { grade: '8', term1Available: true, term2Available: true, notes: 'Ngân hàng 5–10 chương, mỗi chương 15 câu trộn mọi mức độ' },
+      { grade: '9', term1Available: true, term2Available: true, notes: 'Ngân hàng 5–10 chương, mỗi chương 15 câu trộn mọi mức độ' }
     ]
   },
   {
@@ -40,7 +40,7 @@ export const SUBJECTS_CATALOG: SubjectMeta[] = [
     iconName: 'Atom',
     color: 'from-emerald-500 to-teal-600',
     description: 'Khám phá thế giới vật lý, phản ứng hóa học kỳ thú và thế giới sinh học diệu kỳ.',
-    status: 'coming_soon',
+    status: 'active',
     availableGrades: [
       { grade: '6', term1Available: true, term2Available: true, notes: '10 chương, 150 câu (Kết nối tri thức, đã được chủ dự án duyệt) – dùng chung cho cả 2 học kỳ' },
       { grade: '7', term1Available: false, term2Available: false, notes: 'Sắp ra mắt' },
