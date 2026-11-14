@@ -51,7 +51,7 @@ export const SubjectGrid: React.FC<Props> = ({ onPick }) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+      <div className="hsv-subject-grid grid grid-cols-2 max-[380px]:grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         {subjects.map((subj) => {
           const open = subj.status === 'active';
           const info = getSubjectLevelInfo(subj, level);
