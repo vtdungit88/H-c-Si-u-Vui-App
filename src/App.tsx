@@ -40,7 +40,7 @@ import { SocialLobbyView } from './components/SocialLobbyView';
 import { LevelProgressionView } from './components/LevelProgressionView';
 import { VietnamTravelModal } from './components/VietnamTravelModal';
 import { APP_LOGO_SRC } from './data/versionHistory';
-import { GradeLevel } from './types';
+import { GradeLevel, SchoolLevel } from './types';
 import { ShieldCheck, Bell, X } from 'lucide-react';
 
 export default function App() {
@@ -71,6 +71,7 @@ export default function App() {
   const [learning, setLearning] = useState(false);
   const [pendingLesson, setPendingLesson] = useState<string | null>(null);
   const [pickSubject, setPickSubject] = useState<SubjectMeta | null>(null);
+  const [pickLevel, setPickLevel] = useState<SchoolLevel | undefined>(undefined);
   const activeSubjectMeta = SUBJECTS_CATALOG.find((x) => x.id === currentSubjectId) ?? SUBJECTS_CATALOG[0];
   const [currentGrade, setCurrentGrade] = useState<GradeLevel>('6');
   const [currentTerm, setCurrentTerm] = useState<1 | 2>(1);
@@ -390,7 +391,9 @@ export default function App() {
                 />
                 {pickSubject ? (
                   <CoursePicker
+                    key={`${pickSubject.id}-${pickLevel ?? "auto"}`}
                     subject={pickSubject}
+                    initialLevel={pickLevel}
                     onBack={() => setPickSubject(null)}
                     onStart={(grade, term) => {
                       soundManager.play('click');
@@ -399,12 +402,18 @@ export default function App() {
                       setCurrentTerm(term);
                       setLearning(true);
                     }}
+                    onJumpToActive={(targetSubj, lv) => {
+                      soundManager.play('click');
+                      setPickSubject(targetSubj);
+                      setPickLevel(lv);
+                    }}
                   />
                 ) : (
                   <SubjectGrid
-                    onPick={(subj) => {
+                    onPick={(subj, lv) => {
                       soundManager.play('click');
-                      if (subj.status === 'active') setPickSubject(subj);
+                      setPickSubject(subj);
+                      setPickLevel(lv);
                     }}
                   />
                 )}
