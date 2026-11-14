@@ -184,3 +184,69 @@ drop trigger if exists trg_profile_default_studio_items on public.profiles;
 create trigger trg_profile_default_studio_items
   after insert on public.profiles
   for each row execute function private.grant_default_studio_items();
+
+-- ===== 4. UPDATE save_avatar RPC TO SUPPORT backdropId & auraId =====
+create or replace function public.save_avatar(p_config jsonb)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $fn$
+declare
+  v_uid uuid := auth.uid();
+  v_owned text[];
+  v_out jsonb := '{}'::jsonb;
+  k text;
+  v text;
+  c_text text[] := array['gender','hairStyle','eyeExpression'];
+  c_color text[] := array['skinColor','hairColor'];
+  c_item text[] := array['outfitId','handheldId','phoneId','vehicleId','techId','petId','backdropId','auraId'];
+begin
+  if v_uid is null then raise exception 'not authenticated' using errcode = '28000'; end if;
+  if jsonb_typeof(p_config) <> 'object' then raise exception 'invalid config' using errcode = '22023'; end if;
+  v_owned := private.owned_item_keys(v_uid);
+  foreach k in array c_text loop
+    v := p_config->>k;
+    if v is not null then
+      if v !~ '^[a-z0-9_]{1,32}$' then raise exception 'invalid %', k using errcode = '22023'; end if;
+      v_out := v_out || jsonb_build_object(k, v);
+    end if;
+  end loop;
+  foreach k in array c_color loop
+    v := p_config->>k;
+    if v is not null then
+      if v !~ '^#[0-9A-Fa-f]{6}$' then raise exception 'invalid %', k using errcode = '22023'; end if;
+      v_out := v_out || jsonb_build_object(k, v);
+    end if;
+  end loop;
+  foreach k in array c_item loop
+    v := p_config->>k;
+    if v is not null then
+      if not (v = any(v_owned)) then raise exception 'item not owned: %', v using errcode = '42501'; end if;
+      v_out := v_out || jsonb_build_object(k, v);
+    end if;
+  end loop;
+  insert into public.student_avatars(student_id, config) values (v_uid, v_out)
+    on conflict (student_id) do update set config = excluded.config, updated_at = now();
+  return v_out;
+end $fn$;
+
+revoke all on function public.save_avatar(jsonb) from public, anon;
+grant execute on function public.save_avatar(jsonb) to authenticated, service_role;
+
+-- ===== 5. SOFT-RETIRE LEGACY pet_robot SUPERSEDED BY pet_vuibot =====
+insert into public.student_inventory (student_id, item_id)
+select inv.student_id, vuibot.id
+from public.student_inventory inv
+join public.shop_items legacy on legacy.id = inv.item_id and legacy.item_key = 'pet_robot'
+join public.shop_items vuibot on vuibot.item_key = 'pet_vuibot'
+on conflict do nothing;
+
+update public.shop_items
+set is_active = false,
+    price_coins = 85,
+    required_stars = 8,
+    rarity = 'vip',
+    render_type = 'robot',
+    sort_order = 999
+where item_key = 'pet_robot';
