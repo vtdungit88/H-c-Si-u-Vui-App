@@ -17,6 +17,11 @@ jobs:
           if [ -f package-lock.json ]; then npm ci; else npm install --no-audit --no-fund --package-lock; fi
       - run: npm run lint
       - run: npm run build
+      - name: Guard - no quiz answers or secrets in the browser bundle
+        run: |
+          ! grep -rEl "isCorrect:(!0|true)" dist/assets/*.js || { echo "answer data found in bundle"; exit 1; }
+          ! grep -rEl "service_role|sb_secret_" dist || { echo "secret found in bundle"; exit 1; }
+          echo "bundle clean"
       - uses: actions/upload-artifact@v4
         with:
           name: dist
