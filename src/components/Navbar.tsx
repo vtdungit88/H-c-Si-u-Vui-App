@@ -260,8 +260,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           );
         })}
-      </div>
-    </nav>
+      </nav>
     </header>
   );
 };
