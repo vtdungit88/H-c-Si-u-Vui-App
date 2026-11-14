@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { StudentProfile } from '../types';
-import { getLeaderboardData } from '../data/leaderboardData';
+import type { LeaderboardEntry } from '../data/leaderboardData';
+import { fetchGlobalLeaderboard, type GlobalLeaderboardData, type GlobalLeaderRow } from '../lib/api';
+import { levelFromXp } from '../data/levels';
+import { DEFAULT_AVATAR } from '../utils/studentStorage';
 import { AvatarRenderer } from './AvatarRenderer';
 import { soundManager } from '../utils/audio';
 import { SHOP_ITEMS } from '../data/items';
@@ -33,7 +36,40 @@ export const GlobalLeaderboard: React.FC<GlobalLeaderboardProps> = ({
 }) => {
   const [filter, setFilter] = useState<'all' | 'stars' | 'coins'>('all');
 
-  const { top10, activeStudentEntry, totalRealCount } = getLeaderboardData(student, filter);
+  const [data, setData] = useState<GlobalLeaderboardData | null>(null);
+  const [loadError, setLoadError] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Always read from the server so every visitor sees the same ranking; refresh while the page is open.
+  const load = useCallback(async () => {
+    try { setData(await fetchGlobalLeaderboard(filter)); setLoadError(false); }
+    catch { setLoadError(true); }
+    finally { setLoading(false); }
+  }, [filter]);
+  useEffect(() => {
+    setLoading(true);
+    void load();
+    const t = window.setInterval(() => void load(), 30000);
+    return () => window.clearInterval(t);
+  }, [load, student.id]);
+
+  const toEntry = (r: GlobalLeaderRow): LeaderboardEntry => {
+    const level = levelFromXp(r.xp);
+    return {
+      id: `${r.rank}-${r.alias}`, rank: r.rank, name: r.alias, grade: '', school: 'Học Siêu Vui', city: 'Việt Nam',
+      avatarConfig: { ...DEFAULT_AVATAR, ...(r.avatar ?? {}) } as LeaderboardEntry['avatarConfig'],
+      stars: r.stars, coins: r.coins, level,
+      title: level >= 20 ? 'Bậc Thầy Học Siêu Vui' : level >= 10 ? 'Chiến Thần Học Đường' : 'Tân Binh Học Siêu Vui',
+      motto: `Cấp ${level} • ${r.xp} XP`, isCurrentStudent: !!r.me
+    };
+  };
+  const top10: LeaderboardEntry[] = (data?.top ?? []).map(toEntry);
+  const meRow = data?.me ?? null;
+  const activeStudentEntry: LeaderboardEntry | undefined = meRow && meRow.rank
+    ? { id: 'me', rank: meRow.rank, name: meRow.alias, grade: '', school: '', city: '', avatarConfig: DEFAULT_AVATAR, stars: meRow.stars, coins: meRow.coins,
+        level: levelFromXp(meRow.xp), title: '', motto: '', isCurrentStudent: true }
+    : undefined;
+  const totalRealCount = data?.total ?? 0;
 
   const top1 = top10[0];
   const top2 = top10[1];
@@ -92,7 +128,7 @@ export const GlobalLeaderboard: React.FC<GlobalLeaderboardProps> = ({
               <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold text-slate-400">Vị trí của bạn:</span>
                 <span className="text-sm font-black text-slate-900 dark:text-white">
-                  {activeStudentEntry.name} ({activeStudentEntry.grade})
+                  {activeStudentEntry.name}
                 </span>
                 <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/40 px-2 py-0.5 rounded-md">
                   Cấp {activeStudentEntry.level}
@@ -179,12 +215,14 @@ export const GlobalLeaderboard: React.FC<GlobalLeaderboardProps> = ({
         </div>
 
         <span className="text-xs text-slate-400 dark:text-slate-500">
-          Hiện có: <strong>{totalRealCount} tài khoản</strong> tham gia đua top
+          {loadError ? <span className="text-rose-600 font-bold">Chưa tải được bảng từ máy chủ. Đang thử lại…</span> : <>Trực tuyến • <strong>{totalRealCount} bạn</strong> trên bảng{data?.updated_at ? ` • cập nhật ${new Date(data.updated_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}` : ''}</>}
         </span>
       </div>
 
       {/* IF NO STUDENTS IN LEADERBOARD YET */}
-      {top10.length === 0 ? (
+      {loading && !data ? (
+        <div className="text-center py-16 font-bold text-slate-500">Đang tải bảng xếp hạng trực tuyến…</div>
+      ) : top10.length === 0 ? (
         <div className="bg-white dark:bg-slate-900 rounded-3xl p-10 border border-slate-200 dark:border-slate-800 text-center space-y-4 shadow-sm">
           <div className="w-16 h-16 mx-auto rounded-3xl bg-amber-100 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center shadow-inner">
             <Trophy className="w-8 h-8" />
@@ -228,7 +266,7 @@ export const GlobalLeaderboard: React.FC<GlobalLeaderboardProps> = ({
                       {top2.name}
                     </h3>
                     <p className="text-[11px] text-blue-600 dark:text-blue-400 font-semibold">
-                      {top2.title} • Lớp {top2.grade}
+                      {top2.title}
                     </p>
                     <p className="text-[11px] italic text-slate-400 line-clamp-1">
                       "{top2.motto}"
@@ -278,7 +316,7 @@ export const GlobalLeaderboard: React.FC<GlobalLeaderboardProps> = ({
                       {top1.name}
                     </h3>
                     <p className="text-xs text-amber-600 dark:text-amber-400 font-extrabold uppercase tracking-wide">
-                      Quán Quân • Lớp {top1.grade}
+                      Quán Quân
                     </p>
                     <p className="text-xs italic text-slate-500 dark:text-slate-400 line-clamp-1">
                       "{top1.motto}"
@@ -319,7 +357,7 @@ export const GlobalLeaderboard: React.FC<GlobalLeaderboardProps> = ({
                       {top3.name}
                     </h3>
                     <p className="text-[11px] text-blue-600 dark:text-blue-400 font-semibold">
-                      {top3.title} • Lớp {top3.grade}
+                      {top3.title}
                     </p>
                     <p className="text-[11px] italic text-slate-400 line-clamp-1">
                       "{top3.motto}"
@@ -391,7 +429,7 @@ export const GlobalLeaderboard: React.FC<GlobalLeaderboardProps> = ({
                               {item.name}
                             </span>
                             <span className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/40 px-2 py-0.5 rounded-md">
-                              {item.grade}
+                              Cấp {item.level}
                             </span>
                             {isMe && (
                               <span className="text-[10px] font-black uppercase text-emerald-600 bg-emerald-100 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md">

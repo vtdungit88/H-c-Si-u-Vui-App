@@ -174,6 +174,15 @@ if (signedUp) {
     assert((await a.rpc('submit_feedback', { p_category: 'bad', p_rating: 5, p_message: 'x' })).error, 'bad category accepted');
     assert((await a.rpc('admin_feedback')).error, 'normal user read feedback');
   });
+  await check('global leaderboard: anon can read, test account can opt out', async () => {
+    const g = await anon.rpc('global_leaderboard', { p_sort: 'all' });
+    assert(!g.error && Array.isArray(g.data.top) && typeof g.data.total === 'number', g.error?.message);
+    assert(!(await a.rpc('set_leaderboard_visibility', { p_show: false })).error);
+    assert(!(await b.rpc('set_leaderboard_visibility', { p_show: false })).error);
+    assert((await anon.rpc('set_leaderboard_visibility', { p_show: true })).error, 'anon changed visibility');
+    const mine = await a.rpc('global_leaderboard', { p_sort: 'stars' });
+    assert(mine.data.me && mine.data.me.visible === false && mine.data.me.rank === null, 'opted-out user still ranked');
+  });
   await check('class room: create, join, outsiders blocked, submit before start rejected, anon blocked', async () => {
     const r = await a.rpc('room_create', { p_grade: 6 });
     assert(!r.error && /^\d{6}$/.test(r.data.pin), r.error?.message);

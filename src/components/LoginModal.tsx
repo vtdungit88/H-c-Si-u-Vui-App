@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { X, LogIn, UserPlus, LogOut, AlertCircle, User, Lock, Sparkles, Loader2 } from 'lucide-react';
 import { StudentProfile } from '../types';
 import { AvatarRenderer } from './AvatarRenderer';
 import { soundManager } from '../utils/audio';
 import { FUNNY_NICKNAMES } from '../utils/studentStorage';
-import { signInWithNickname, signUpWithNickname } from '../lib/api';
+import { fetchGlobalLeaderboard, setLeaderboardVisibility, signInWithNickname, signUpWithNickname } from '../lib/api';
 import { isSupabaseConfigured } from '../lib/supabase';
 import type { LegalPageKey } from './LegalCenter';
 
@@ -23,6 +23,18 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, activeS
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+
+  const [showOnBoard, setShowOnBoard] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (!isOpen || activeStudent.isGuest) return;
+    let alive = true;
+    fetchGlobalLeaderboard('all').then((d) => alive && setShowOnBoard(d.me ? d.me.visible : null)).catch(() => undefined);
+    return () => { alive = false; };
+  }, [isOpen, activeStudent.isGuest, activeStudent.id]);
+  const toggleBoard = async (next: boolean) => {
+    setShowOnBoard(next);
+    try { await setLeaderboardVisibility(next); } catch { setShowOnBoard(!next); }
+  };
 
   if (!isOpen) return null;
 
@@ -66,6 +78,12 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, activeS
               <div className="font-extrabold text-xl">{activeStudent.name}</div>
               <div className="text-sm text-slate-500">{activeStudent.coins} xu · {activeStudent.exp} XP · {Object.keys(activeStudent.completedLessons).filter((k) => !k.includes('_easy') && !k.includes('_medium') && !k.includes('_hard')).length} bài đã học</div>
             </div>
+            {showOnBoard !== null && (
+              <label className="flex items-start gap-3 text-left text-sm p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 cursor-pointer">
+                <input type="checkbox" checked={showOnBoard} onChange={(e) => void toggleBoard(e.target.checked)} className="mt-1 w-5 h-5 shrink-0" />
+                <span><strong>Hiện biệt danh của mình trên Bảng Xếp Hạng</strong><br /><span className="text-xs text-slate-500">Mọi người cùng thấy biệt danh, sao và xu. Bỏ chọn nếu bạn muốn ẩn.</span></span>
+              </label>
+            )}
             <button onClick={() => { onLogout(); onClose(); }} className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 font-bold">
               <LogOut className="w-4 h-4" /> Đăng xuất
             </button>

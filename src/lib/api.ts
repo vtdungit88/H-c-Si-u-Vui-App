@@ -557,3 +557,19 @@ export async function roomSubmit(roomId: string, ok: boolean[], ms: number[]): P
   if (error) roomErr(error);
   return data as { score: number; correct: number };
 }
+
+// ---------- Global leaderboard (online, shared by every visitor) ----------
+export interface GlobalLeaderRow { rank: number; alias: string; stars: number; coins: number; xp: number; avatar: Record<string, unknown> | null; me: boolean | null }
+export interface GlobalLeaderboardData {
+  total: number; updated_at: string; top: GlobalLeaderRow[];
+  me: { rank: number | null; alias: string; stars: number; coins: number; xp: number; visible: boolean } | null;
+}
+export async function fetchGlobalLeaderboard(sort: 'all' | 'stars' | 'coins'): Promise<GlobalLeaderboardData> {
+  const { data, error } = await supabase.rpc('global_leaderboard', { p_sort: sort });
+  if (error) fail('global_leaderboard', error);
+  return data as GlobalLeaderboardData;
+}
+export async function setLeaderboardVisibility(show: boolean): Promise<void> {
+  const { error } = await supabase.rpc('set_leaderboard_visibility', { p_show: show });
+  if (error) fail('set_leaderboard_visibility', error);
+}
