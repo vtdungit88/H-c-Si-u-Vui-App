@@ -160,7 +160,7 @@ export default function App() {
       )}
 
       {/* Main Content Area */}
-      <main className="flex-1 pb-16 md:pb-8">
+      <main className="flex-1 pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-8">
         {/* VIEW 1: STUDY & ARENA */}
         {currentView === 'study' && (
           <div className="space-y-4">
