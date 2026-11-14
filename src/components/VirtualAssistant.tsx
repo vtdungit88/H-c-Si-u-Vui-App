@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { soundManager } from '../utils/audio';
-import { saveUserFeedback } from '../utils/feedbackStorage';
+import { submitFeedback } from '../lib/api';
 import { StudentProfile } from '../types';
 import confetti from 'canvas-confetti';
 import { 
@@ -59,34 +59,27 @@ export const VirtualAssistant: React.FC<VirtualAssistantProps> = ({
   const [feedbackCategory, setFeedbackCategory] = useState<'suggestion' | 'bug' | 'compliment' | 'question'>('suggestion');
   const [feedbackRating, setFeedbackRating] = useState(5);
   const [feedbackMessage, setFeedbackMessage] = useState('');
-  const [feedbackContact, setFeedbackContact] = useState('');
+  const [feedbackError, setFeedbackError] = useState('');
+  const [sending, setSending] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const handleSubmitFeedback = (e: React.FormEvent) => {
+  const handleSubmitFeedback = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!feedbackMessage.trim()) return;
-
+    if (!feedbackMessage.trim() || sending) return;
+    setSending(true); setFeedbackError('');
+    try {
+      await submitFeedback(feedbackCategory, feedbackRating, feedbackMessage.trim());
+    } catch (err) {
+      setFeedbackError(err instanceof Error ? err.message : 'Không gửi được, thử lại sau nhé.');
+      setSending(false);
+      return;
+    }
+    setSending(false);
     soundManager.play('fanfare');
-    confetti({
-      particleCount: 50,
-      spread: 60,
-      origin: { y: 0.7 }
-    });
-
-    saveUserFeedback({
-      studentName: student.name || 'Học sinh ẩn danh',
-      grade: student.grade || 'Chưa cập nhật',
-      school: student.school || 'Chưa cập nhật',
-      contact: feedbackContact.trim(),
-      category: feedbackCategory,
-      message: feedbackMessage.trim(),
-      rating: feedbackRating
-    });
-
+    confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
     setIsSubmitted(true);
     setTimeout(() => {
       setFeedbackMessage('');
-      setFeedbackContact('');
       setIsSubmitted(false);
       setActiveTab('guide');
     }, 2500);
@@ -509,23 +502,13 @@ export const VirtualAssistant: React.FC<VirtualAssistantProps> = ({
                         />
                       </div>
 
-                      {/* Optional Contact */}
-                      <div>
-                        <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">
-                          Email hoặc số điện thoại (tùy chọn để quản trị viên phản hồi):
-                        </label>
-                        <input
-                          type="text"
-                          value={feedbackContact}
-                          onChange={(e) => setFeedbackContact(e.target.value)}
-                          placeholder="Ví dụ: dungvt.hbh@gmail.com hoặc Zalo..."
-                          className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                        />
-                      </div>
+                      <p className="text-[11px] text-slate-500">Đừng ghi tên thật, số điện thoại hay email nhé. Góp ý sẽ được gửi tới quản trị viên.</p>
+                      {feedbackError && <div role="alert" className="text-xs text-rose-700 bg-rose-50 p-2 rounded-xl">{feedbackError}</div>}
 
                       <button
                         type="submit"
-                        className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-xs rounded-xl shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all"
+                        disabled={sending}
+                        className="w-full py-3 px-4 disabled:opacity-60 bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-xs rounded-xl shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all"
                       >
                         <Send className="w-4 h-4" />
                         <span>Gửi Phản Hồi Về Quản Trị Viên</span>

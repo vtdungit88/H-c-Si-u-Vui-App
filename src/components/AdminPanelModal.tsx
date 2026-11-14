@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { ShieldCheck, X, Users, BarChart3, KeyRound, Loader2, RefreshCw, Eye } from 'lucide-react';
-import { adminOverview, adminResetPassword, type AdminOverview } from '../lib/api';
+import { adminOverview, adminResetPassword, adminFeedback, type AdminOverview, type FeedbackRow } from '../lib/api';
 
 interface Props { isOpen: boolean; onClose: () => void }
 
@@ -13,10 +13,11 @@ export const AdminPanelModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const [newPw, setNewPw] = useState('');
   const [msg, setMsg] = useState('');
   const [busy, setBusy] = useState(false);
+  const [feedback, setFeedback] = useState<FeedbackRow[]>([]);
 
   const load = useCallback(async () => {
     setLoading(true); setError('');
-    try { setData(await adminOverview()); } catch (e) { setError(e instanceof Error ? e.message : 'Không tải được dữ liệu'); }
+    try { const [o, f] = await Promise.all([adminOverview(), adminFeedback()]); setData(o); setFeedback(f); } catch (e) { setError(e instanceof Error ? e.message : 'Không tải được dữ liệu'); }
     finally { setLoading(false); }
   }, []);
 
@@ -103,6 +104,19 @@ export const AdminPanelModal: React.FC<Props> = ({ isOpen, onClose }) => {
             </section>
           </>
         )}
+        <div className="mt-4">
+          <h3 className="font-bold mb-2">Góp ý từ học sinh ({feedback.length})</h3>
+          {feedback.length === 0 ? <p className="text-sm text-slate-500">Chưa có góp ý nào.</p> : (
+            <ul className="space-y-2 max-h-64 overflow-y-auto">
+              {feedback.map((f) => (
+                <li key={f.id} className="text-sm bg-slate-50 dark:bg-slate-800 rounded-xl p-2.5">
+                  <div className="text-[11px] text-slate-500">{f.alias ?? 'Khách'} · {f.category}{f.rating ? ` · ${f.rating}/5` : ''} · {new Date(f.created_at).toLocaleString('vi-VN')}</div>
+                  <div className="whitespace-pre-wrap break-words">{f.message}</div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </div>
   );

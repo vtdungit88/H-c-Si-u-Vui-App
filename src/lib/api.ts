@@ -257,6 +257,21 @@ export async function adminResetPassword(alias: string, password: string) {
   await callAccountFn({ action: 'admin_reset_password', alias, password }, data.session?.access_token);
 }
 
+export type FeedbackCategory = 'suggestion' | 'bug' | 'compliment' | 'question';
+export interface FeedbackRow { id: string; alias: string | null; category: FeedbackCategory; rating: number | null; message: string; created_at: string }
+export async function submitFeedback(category: FeedbackCategory, rating: number, message: string) {
+  const { error } = await supabase.rpc('submit_feedback', { p_category: category, p_rating: rating, p_message: message });
+  if (error) {
+    if (/rate_limited/.test(error.message)) throw new Error('Bạn gửi hơi nhiều rồi, hãy thử lại sau ít phút nhé.');
+    fail('submit_feedback', error);
+  }
+}
+export async function adminFeedback(): Promise<FeedbackRow[]> {
+  const { data, error } = await supabase.rpc('admin_feedback');
+  if (error) fail('admin_feedback', error);
+  return (data ?? []) as FeedbackRow[];
+}
+
 // ---------- Adventure map ----------
 export interface NodeProgress { bestCorrect: number; total: number; attempts: number; stars: number }
 
