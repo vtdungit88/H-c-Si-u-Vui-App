@@ -40,12 +40,26 @@ Xây dựng bộ chính sách dễ hiểu, phù hợp nền tảng học tập c
 - Có dữ liệu học tập, bài làm, kết quả, tiến độ, biệt danh, avatar, XP/Xu, lịch sử sử dụng và góp ý.
 - Cần rà soát chính xác việc gọi dịch vụ AI, analytics, crash logging, hosting/CDN và các bên nhận dữ liệu khác trước khi công bố.
 
-## Các điểm chặn trước khi xuất bản
+## Thông tin chủ thể vận hành đã được chủ dự án xác nhận
 
-Không được điền giả định vào chính sách. Cần chủ dự án xác nhận:
-1. Chủ thể vận hành/kiểm soát dữ liệu là cá nhân hay pháp nhân nào; tên pháp lý, mã số thuế (nếu có), địa chỉ liên hệ.
-2. HSV có phải sản phẩm/chương trình chính thức của VNPT hay chỉ là dự án cá nhân/độc lập. Không dùng logo, tên hoặc hàm ý VNPT bảo trợ nếu chưa được phép.
-3. Email hỗ trợ và đầu mối tiếp nhận yêu cầu dữ liệu/đơn khiếu nại.
+- Mô hình: cá nhân vận hành.
+- Tính độc lập: dự án độc lập, không phải sản phẩm chính thức của VNPT và không đại diện/được VNPT bảo trợ theo xác nhận hiện có.
+- Email liên hệ do chủ dự án cung cấp: **dungvt.hbh@gmail.com**.
+- Họ tên đầy đủ của cá nhân chịu trách nhiệm: **chưa được cung cấp/xác minh để công bố**.
+- Địa chỉ liên hệ phục vụ thông báo pháp lý: **chưa được cung cấp**.
+- Mã số thuế/đăng ký kinh doanh (nếu có hoặc nếu mô hình hoạt động phát sinh nghĩa vụ): **chưa xác định**.
+
+Không tự suy ra tư cách pháp nhân, đăng ký kinh doanh, địa chỉ hoặc mã số thuế từ email/tên miền. Trong khi chưa xác minh, mọi tài liệu vẫn là bản nháp nội bộ.
+
+## Các điểm chặn còn lại trước khi xuất bản
+
+1. Họ tên đầy đủ của cá nhân vận hành và địa chỉ liên hệ phù hợp để công bố.
+2. Xác định mô hình cung cấp dịch vụ có thu phí, bán hàng, thanh toán, quảng cáo hoặc mua vật phẩm bằng tiền thật hay không.
+3. Đối tượng tuổi, cách xác minh tuổi và cách xác minh cha mẹ/người đại diện.
+4. Hosting/CDN, Supabase region, Google/AI/analytics và các bên xử lý dữ liệu thực tế.
+5. Thời hạn lưu cụ thể cho từng loại dữ liệu và quy trình xóa/ẩn danh.
+6. Phạm vi leaderboard và cơ chế đồng ý riêng cho mọi dữ liệu có thể nhận diện.
+7. Đầu mối bảo vệ dữ liệu cá nhân và quy trình xử lý sự cố.
 4. Đối tượng tuổi, cách xác minh tuổi, cách xác minh cha mẹ/người đại diện.
 5. Có thu phí, bán hàng, thanh toán, quảng cáo hoặc mua vật phẩm bằng tiền thật không.
 6. Hosting/CDN, Supabase region, Google/AI/analytics và các bên xử lý dữ liệu thực tế.
