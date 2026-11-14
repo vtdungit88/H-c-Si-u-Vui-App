@@ -9,7 +9,7 @@ import { CoinIcon, StarIcon } from './components/GameIcons';
 import { Navbar } from './components/Navbar';
 import { AvatarStudio } from './components/AvatarStudio';
 import { MathGameArena } from './components/MathGameArena';
-import { SpeedRunBlitz } from './components/SpeedRunBlitz';
+import { ArenaHub } from './components/arena/ArenaHub';
 import { AdventureMap } from './components/AdventureMap';
 import { LoginModal } from './components/LoginModal';
 import { StudentIdCardModal } from './components/StudentIdCardModal';
@@ -289,10 +289,9 @@ export default function App() {
 
         {/* VIEW 3: SPEED RUN BLITZ (60s) */}
         {currentView === 'blitz' && (
-          <SpeedRunBlitz
+          <ArenaHub
             student={student}
             onUpdateStudent={handleUpdateStudent}
-            onNavigateToShop={() => setCurrentView('shop')}
             onRequireLogin={handleRequireLogin}
           />
         )}

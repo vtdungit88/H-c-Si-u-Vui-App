@@ -309,3 +309,33 @@ export async function fetchAdventureLeaderboard(subject: SubjectKey, grade: numb
   if (error) fail('adventure_leaderboard', error);
   return (data ?? []) as MapLeaderRow[];
 }
+
+// ---------- Arena (Blitz) ----------
+export interface ArenaStart { match_id: string; seed: number; duration: number }
+export interface ArenaResult {
+  score: number; correct: number; wrong?: number; max_combo?: number; coins: number;
+  previous_best?: number; is_record?: boolean; rewards_left_today?: number; already?: boolean;
+}
+export interface ArenaStatus { best: number; rewards_left_today: number }
+export interface ArenaLeaderRow { rank: number; alias: string; score: number; correct: number }
+
+export async function arenaStartBlitz(grade: number): Promise<ArenaStart> {
+  const { data, error } = await supabase.rpc('arena_start_blitz', { p_grade: grade });
+  if (error) fail('arena_start_blitz', error);
+  return data as ArenaStart;
+}
+export async function arenaSubmitBlitz(matchId: string, correct: number, wrong: number, maxCombo: number): Promise<ArenaResult> {
+  const { data, error } = await supabase.rpc('arena_submit_blitz', { p_match: matchId, p_correct: correct, p_wrong: wrong, p_max_combo: maxCombo });
+  if (error) fail('arena_submit_blitz', error);
+  return data as ArenaResult;
+}
+export async function arenaStatus(grade: number): Promise<ArenaStatus> {
+  const { data, error } = await supabase.rpc('arena_status', { p_grade: grade });
+  if (error) fail('arena_status', error);
+  return data as ArenaStatus;
+}
+export async function arenaLeaderboard(grade: number): Promise<ArenaLeaderRow[]> {
+  const { data, error } = await supabase.rpc('arena_leaderboard', { p_grade: grade });
+  if (error) fail('arena_leaderboard', error);
+  return (data ?? []) as ArenaLeaderRow[];
+}

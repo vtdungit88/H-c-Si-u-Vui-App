@@ -164,6 +164,16 @@ if (signedUp) {
     assert((await a.rpc('moderate_alias', { p_user: (await a.auth.getUser()).data.user.id, p_approve: true })).error);
     assert((await a.rpc('admin_get_question_explanation', { p_question: crypto.randomUUID() })).error);
   });
+  await check('arena: start ok, early submit rejected, anon blocked, feedback validated', async () => {
+    const st = await a.rpc('arena_start_blitz', { p_grade: 6 });
+    assert(!st.error && st.data.match_id && st.data.duration === 60, st.error?.message);
+    assert((await a.rpc('arena_submit_blitz', { p_match: st.data.match_id, p_correct: 50, p_wrong: 0, p_max_combo: 50 })).error, 'early submit accepted');
+    assert((await b.rpc('arena_submit_blitz', { p_match: st.data.match_id, p_correct: 0, p_wrong: 0, p_max_combo: 0 })).error, 'B submitted A match');
+    assert((await anon.rpc('arena_start_blitz', { p_grade: 6 })).error, 'anon started arena');
+    assert(!(await anon.rpc('arena_leaderboard', { p_grade: 6 })).error);
+    assert((await a.rpc('submit_feedback', { p_category: 'bad', p_rating: 5, p_message: 'x' })).error, 'bad category accepted');
+    assert((await a.rpc('admin_feedback')).error, 'normal user read feedback');
+  });
 }
 
 const failed = results.filter((r) => r[0] === 'FAIL');
