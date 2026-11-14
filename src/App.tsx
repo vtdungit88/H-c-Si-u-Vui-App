@@ -35,6 +35,7 @@ import { SUBJECTS_CATALOG } from './data/subjectsCatalog';
 import type { SubjectMeta } from './types';
 import { VirtualAssistant } from './components/VirtualAssistant';
 import { MascotReaction } from './components/MascotReaction';
+import { AppBackdrop } from './components/AppBackdrop';
 import { SocialLobbyView } from './components/SocialLobbyView';
 import { LevelProgressionView } from './components/LevelProgressionView';
 import { VietnamTravelModal } from './components/VietnamTravelModal';
@@ -225,7 +226,8 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans flex flex-col selection:bg-blue-500 selection:text-white">
+    <div className="relative min-h-screen bg-sky-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans flex flex-col selection:bg-blue-500 selection:text-white">
+      <AppBackdrop view={currentView} />
       {/* 3-Zone Navigation Header */}
       <Navbar
         currentView={currentView}
@@ -297,7 +299,7 @@ export default function App() {
       )}
 
       {/* Main Content Area */}
-      <main className="flex-1 pb-16 md:pb-8">
+      <main className="relative z-10 flex-1 pb-20 md:pb-8">
         {/* VIEW 1: STUDY & ARENA */}
         {currentView === 'study' && (
           <div className="max-w-6xl mx-auto px-4 pt-4 sm:pt-6 space-y-8">
@@ -479,7 +481,7 @@ export default function App() {
       </main>
 
       {/* Footer with Brand Logo & Version Info */}
-      <footer className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-6 px-4 text-center text-xs text-slate-500 dark:text-slate-400">
+      <footer className="relative z-10 border-t border-slate-200 dark:border-slate-800 bg-white/85 dark:bg-slate-900 backdrop-blur py-6 px-4 text-center text-xs text-slate-500 dark:text-slate-400">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
             <img

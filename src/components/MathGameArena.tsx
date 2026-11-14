@@ -31,6 +31,7 @@ import {
   Play
 } from 'lucide-react';
 import { CoinIcon, StarIcon } from './GameIcons';
+import { MathText } from './MathText';
 
 interface MathGameArenaProps {
   student: StudentProfile;
@@ -420,7 +421,7 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
               {/* Question Text */}
               <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
                 <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-relaxed">
-                  {activeQuestions[currentQuestionIndex]?.questionText}
+                  <MathText text={activeQuestions[currentQuestionIndex]?.questionText ?? ''} />
                 </h3>
 
                 {/* Optional visual simulation container */}
@@ -467,7 +468,7 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
                       disabled={isAnswerSubmitted}
                       className={`p-4 rounded-2xl border text-left text-sm transition-all flex items-center justify-between ${optionClass}`}
                     >
-                      <span className="font-semibold">{opt.text}</span>
+                      <span className="font-semibold"><MathText text={opt.text} /></span>
                       {isAnswerSubmitted && opt.isCorrect && (
                         <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
                       )}
@@ -507,7 +508,7 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
                     )}
                   </div>
                   <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
-                    {activeQuestions[currentQuestionIndex]?.explanation}
+                    <MathText text={activeQuestions[currentQuestionIndex]?.explanation ?? ''} />
                   </p>
                   <p className="text-xs italic text-blue-600 dark:text-blue-400 font-semibold">
                     💡 Mẹo ghi nhớ: {activeQuestions[currentQuestionIndex]?.funnyTip}

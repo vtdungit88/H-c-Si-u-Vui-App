@@ -20,7 +20,16 @@ import {
   HeartHandshake
 } from 'lucide-react';
 import { StarIcon } from './GameIcons';
-import { answerQuestion, QUICK_QUESTIONS, type BrainAnswer } from '../lib/assistantBrain';
+import { answerQuestion, QUICK_QUESTIONS, type BrainAnswer, type NavView } from '../lib/assistantBrain';
+
+const GUIDE_ITEMS: { title: string; desc: string; cta: string; view: NavView; Icon: React.ComponentType<{ className?: string }>; tone: string }[] = [
+  { title: 'Bài Học', desc: 'Chọn môn, lớp, tập và chương rồi làm 15 câu. Đúng mỗi câu được xu.', cta: 'Bắt đầu học', view: 'study', Icon: BookOpen, tone: 'bg-blue-100 text-blue-600' },
+  { title: 'Bản Đồ Ải', desc: 'Mỗi chương là một hòn đảo. Đạt 1–3 sao để mở ải sau, đánh bại Trùm Cuối.', cta: 'Mở bản đồ', view: 'map', Icon: Map, tone: 'bg-emerald-100 text-emerald-600' },
+  { title: 'Đấu Trường', desc: 'Siêu Tốc 60 giây, Thách Đấu 1v1 với Vui-Bot để lên hạng Elo, hoặc Phòng Lớp Học bằng mã PIN.', cta: 'Vào đấu trường', view: 'blitz', Icon: Zap, tone: 'bg-orange-100 text-orange-600' },
+  { title: 'Studio của tôi', desc: 'Đổi tóc, trang phục, hậu cảnh cho nhân vật và mở rương. Đồ lưu trên tài khoản.', cta: 'Tới Studio', view: 'shop', Icon: Shirt, tone: 'bg-amber-100 text-amber-600' },
+  { title: 'Sảnh Online & Du hành', desc: 'Gặp bạn bè trực tuyến, xem cấp độ và du hành khắp Việt Nam.', cta: 'Vào sảnh', view: 'lobby', Icon: Compass, tone: 'bg-teal-100 text-teal-600' },
+  { title: 'Bảng Xếp Hạng', desc: 'Xem Top học sinh nhiều sao và xu nhất.', cta: 'Xem bảng vàng', view: 'leaderboard', Icon: Trophy, tone: 'bg-yellow-100 text-yellow-600' }
+];
 
 const MASCOT_FACE = `${import.meta.env.BASE_URL}assets/icons/mascot-face.webp`;
 const MASCOT_FULL = `${import.meta.env.BASE_URL}assets/icons/mascot-full.webp`;
@@ -28,7 +37,7 @@ const MASCOT_FULL = `${import.meta.env.BASE_URL}assets/icons/mascot-full.webp`;
 
 interface VirtualAssistantProps {
   student: StudentProfile;
-  onNavigateToView: (view: 'study' | 'shop' | 'blitz' | 'map' | 'leaderboard') => void;
+  onNavigateToView: (view: NavView) => void;
 }
 
 export const VirtualAssistant: React.FC<VirtualAssistantProps> = ({
@@ -257,150 +266,21 @@ export const VirtualAssistant: React.FC<VirtualAssistantProps> = ({
                   <p className="text-[11px] text-slate-400">Bé Siêu Vui là trợ lý hướng dẫn của Học Siêu Vui, chưa giải được bài tập cụ thể.</p>
                 </div>
               ) : activeTab === 'guide' ? (
-                /* TAB 1: SYSTEM INTRO & FEATURE GUIDE */
-                <div className="space-y-4">
-                  {/* Brief Intro */}
-                  <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-850 border border-blue-200 dark:border-slate-700">
-                    <div className="flex items-center gap-2 text-xs font-black text-blue-700 dark:text-blue-300 mb-1">
-                      <Sparkles className="w-4 h-4 text-amber-500" />
-                      <span>HỆ THỐNG VỪA HỌC VỪA CHƠI SGK</span>
-                    </div>
-                    <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
-                      Chào bạn! <strong>Học Siêu Vui</strong> là nền tảng luyện toán thông minh bám sát chương trình SGK. Mỗi bài học gồm <strong>3 cấp độ (Cơ bản, Tiêu chuẩn, Nâng cao)</strong> với <strong>15 câu/bài (60s/câu)</strong>, giúp bạn ghi nhớ kiến thức sâu sắc, nhận Xu và Sao để thỏa thích nâng cấp Studio!
-                    </p>
+                <div className="space-y-3">
+                  <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-850 border border-blue-200 dark:border-slate-700 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+                    <strong>Học Siêu Vui</strong> giúp bạn luyện <strong>Toán lớp 1–9</strong> và <strong>Khoa học tự nhiên lớp 6–9</strong> bám sát SGK. Mỗi chương có một bài 15 câu trộn đủ mức dễ đến khó, có lời giải sau mỗi câu. Làm bài để nhận <strong>xu</strong> và <strong>sao</strong>!
                   </div>
-
-                  {/* Feature Guide Cards */}
-                  <div className="space-y-2.5">
-                    <h4 className="text-xs font-black uppercase tracking-wider text-slate-400">
-                      Bản Đồ Chỉ Đường Các Chức Năng
-                    </h4>
-
-                    {/* Feature 1 */}
-                    <div 
-                      onClick={() => {
-                        soundManager.play('click');
-                        onNavigateToView('study');
-                        setIsOpen(false);
-                      }}
-                      className="p-3.5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-blue-500 transition-all cursor-pointer flex items-center justify-between group"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-950 text-blue-600 flex items-center justify-center shrink-0">
-                          <BookOpen className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <div className="text-xs font-black text-slate-900 dark:text-white group-hover:text-blue-600 transition-colors">
-                            1. Bài Học SGK (3 Bài Tập 15 Câu)
-                          </div>
-                          <div className="text-[11px] text-slate-500 dark:text-slate-400">
-                            Chọn Khởi Động, Tiêu Chuẩn hoặc Nâng Cao. Mỗi câu có 60 giây suy nghĩ kèm giải thích ôn bài.
-                          </div>
-                        </div>
-                      </div>
-                      <span className="text-[11px] font-bold text-blue-600 shrink-0">Vào Học ➔</span>
-                    </div>
-
-                    {/* Feature 2 */}
-                    <div 
-                      onClick={() => {
-                        soundManager.play('click');
-                        onNavigateToView('blitz');
-                        setIsOpen(false);
-                      }}
-                      className="p-3.5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-orange-500 transition-all cursor-pointer flex items-center justify-between group"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-orange-100 dark:bg-orange-950 text-orange-600 flex items-center justify-center shrink-0">
-                          <Zap className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <div className="text-xs font-black text-slate-900 dark:text-white group-hover:text-orange-600 transition-colors">
-                            2. Đấu Trường Siêu Tốc (60 Giây)
-                          </div>
-                          <div className="text-[11px] text-slate-500 dark:text-slate-400">
-                            Luyện phản xạ tính nhẩm nhanh cho cả Tiểu học và THCS. Nhận thưởng Xu & Sao!
-                          </div>
-                        </div>
-                      </div>
-                      <span className="text-[11px] font-bold text-orange-600 shrink-0">Chơi Ngay ➔</span>
-                    </div>
-
-                    {/* Feature 3 */}
-                    <div 
-                      onClick={() => {
-                        soundManager.play('click');
-                        onNavigateToView('shop');
-                        setIsOpen(false);
-                      }}
-                      className="p-3.5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-amber-500 transition-all cursor-pointer flex items-center justify-between group"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-950 text-amber-600 flex items-center justify-center shrink-0">
-                          <Shirt className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <div className="text-xs font-black text-slate-900 dark:text-white group-hover:text-amber-600 transition-colors">
-                            3. Studio Của Tôi (Tủ Đồ Avatar)
-                          </div>
-                          <div className="text-[11px] text-slate-500 dark:text-slate-400">
-                            Dùng Xu & Sao mở khóa xe đạp thể thao, iPhone 16 Pro Max, laptop, mèo thần tài!
-                          </div>
-                        </div>
-                      </div>
-                      <span className="text-[11px] font-bold text-amber-600 shrink-0">Vào Studio ➔</span>
-                    </div>
-
-                    {/* Feature 4 */}
-                    <div 
-                      onClick={() => {
-                        soundManager.play('click');
-                        onNavigateToView('map');
-                        setIsOpen(false);
-                      }}
-                      className="p-3.5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-emerald-500 transition-all cursor-pointer flex items-center justify-between group"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 flex items-center justify-center shrink-0">
-                          <Map className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <div className="text-xs font-black text-slate-900 dark:text-white group-hover:text-emerald-600 transition-colors">
-                            4. Bản Đồ Thám Hiểm
-                          </div>
-                          <div className="text-[11px] text-slate-500 dark:text-slate-400">
-                            Vượt qua các quần đảo kiến thức số tự nhiên, phân số và hình học bí ẩn.
-                          </div>
-                        </div>
-                      </div>
-                      <span className="text-[11px] font-bold text-emerald-600 shrink-0">Khám Phá ➔</span>
-                    </div>
-
-                    {/* Feature 5 */}
-                    <div 
-                      onClick={() => {
-                        soundManager.play('click');
-                        onNavigateToView('leaderboard');
-                        setIsOpen(false);
-                      }}
-                      className="p-3.5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-yellow-500 transition-all cursor-pointer flex items-center justify-between group"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-yellow-100 dark:bg-yellow-950 text-yellow-600 flex items-center justify-center shrink-0">
-                          <Trophy className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <div className="text-xs font-black text-slate-900 dark:text-white group-hover:text-yellow-600 transition-colors">
-                            5. Đua Top Bảng Vàng
-                          </div>
-                          <div className="text-[11px] text-slate-500 dark:text-slate-400">
-                            Vinh danh Top 10 học sinh thật có nhiều Sao và Xu nhất toàn trường!
-                          </div>
-                        </div>
-                      </div>
-                      <span className="text-[11px] font-bold text-yellow-600 shrink-0">Xem Top ➔</span>
-                    </div>
-                  </div>
+                  {GUIDE_ITEMS.map((g) => (
+                    <button key={g.title} onClick={() => { soundManager.play('click'); onNavigateToView(g.view); setIsOpen(false); }}
+                      className="w-full text-left p-3 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-blue-400 flex items-start gap-3 cursor-pointer">
+                      <span className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${g.tone}`}><g.Icon className="w-5 h-5" /></span>
+                      <span className="min-w-0">
+                        <span className="block text-sm font-black text-slate-900 dark:text-white">{g.title}</span>
+                        <span className="block text-xs text-slate-600 dark:text-slate-400 leading-relaxed">{g.desc}</span>
+                        <span className="block text-xs font-bold text-blue-600 mt-0.5">{g.cta} →</span>
+                      </span>
+                    </button>
+                  ))}
                 </div>
               ) : (
                 /* TAB 2: USER FEEDBACK FORM */
@@ -414,7 +294,7 @@ export const VirtualAssistant: React.FC<VirtualAssistantProps> = ({
                         Gửi Phản Hồi Thành Công!
                       </h4>
                       <p className="text-xs text-emerald-700 dark:text-emerald-300 max-w-sm mx-auto leading-relaxed">
-                        Cảm ơn bạn! Ý kiến đóng góp của bạn đã được chuyển thẳng tới Quản trị viên <strong>dungvt.hbh@gmail.com</strong> để tiếp tục nâng cấp hệ thống!
+                        Cảm ơn bạn! Ý kiến đóng góp của bạn đã được gửi tới quản trị viên để giúp Học Siêu Vui tốt hơn mỗi ngày!
                       </p>
                     </div>
                   ) : (

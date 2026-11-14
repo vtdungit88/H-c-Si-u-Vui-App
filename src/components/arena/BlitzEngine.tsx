@@ -5,6 +5,7 @@ import { buildArenaQuestionDeck, type ArenaQuestion } from '../../utils/arenaQue
 import { soundManager } from '../../utils/audio';
 import type { GradeLevel } from '../../types';
 import { emitMascot } from '../../lib/mascotBus';
+import { MathText } from '../MathText';
 
 export interface WrongItem { question: ArenaQuestion; chosen: string }
 export interface BlitzOutcome { correct: number; wrong: number; maxCombo: number; wrongItems: WrongItem[] }
@@ -100,7 +101,7 @@ export const BlitzEngine: React.FC<Props> = ({ grade, seed, duration, onFinish }
       </div>
       <div className={`rounded-3xl border-2 p-5 mb-4 text-center bg-white dark:bg-slate-900 transition-colors ${flash === 'ok' ? 'border-emerald-400' : flash === 'bad' ? 'border-rose-400' : 'border-slate-200 dark:border-slate-700'}`}>
         <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">{q.topicTag}</div>
-        <div className="text-xl sm:text-2xl font-black text-slate-800 dark:text-slate-50 leading-snug">{q.questionText}</div>
+        <div className="text-xl sm:text-2xl font-black text-slate-800 dark:text-slate-50 leading-snug"><MathText text={q.questionText} /></div>
         {youngKid && (
           <button onClick={speak} className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-sky-100 text-sky-700 text-xs font-bold cursor-pointer" aria-label="Đọc đề">
             <Volume2 className="w-4 h-4" /> Đọc đề cho mình
@@ -112,7 +113,7 @@ export const BlitzEngine: React.FC<Props> = ({ grade, seed, duration, onFinish }
           <button key={o.id} onClick={() => answer(o.id)} disabled={!!flash}
             className={`rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-black text-slate-800 dark:text-slate-100 hover:border-sky-400 active:scale-95 transition cursor-pointer flex items-center gap-2 px-3 ${youngKid ? 'py-6 text-2xl' : 'py-4 text-lg'}`}>
             <span className="w-7 h-7 shrink-0 rounded-full bg-sky-100 text-sky-700 text-sm flex items-center justify-center">{LETTERS[i]}</span>
-            <span className="flex-1 text-center">{o.text}</span>
+            <span className="flex-1 text-center"><MathText text={o.text} /></span>
           </button>
         ))}
       </div>

@@ -4,6 +4,7 @@ import { CoinIcon } from '../GameIcons';
 import type { ArenaResult, DuelResult } from '../../lib/api';
 import { rankOf } from '../../utils/arenaRank';
 import type { WrongItem } from './BlitzEngine';
+import { MathText } from '../MathText';
 
 interface Props {
   result: ArenaResult | null;
@@ -58,9 +59,9 @@ export const PostMatchReview: React.FC<Props> = ({ result, duel, saveError, wron
             const right = w.question.options.find((o) => o.right)?.text;
             return (
               <li key={i} className="text-sm rounded-2xl bg-slate-50 dark:bg-slate-800 p-3">
-                <div className="font-bold">{w.question.questionText}</div>
-                <div className="mt-1"><span className="text-rose-600">Bạn chọn: {w.chosen}</span> • <span className="text-emerald-700 font-bold">Đáp án: {right}</span></div>
-                <div className="text-slate-600 dark:text-slate-300 mt-1">💡 {w.question.explanation}</div>
+                <div className="font-bold"><MathText text={w.question.questionText} /></div>
+                <div className="mt-1"><span className="text-rose-600">Bạn chọn: <MathText text={w.chosen} /></span> • <span className="text-emerald-700 font-bold">Đáp án: <MathText text={right ?? ''} /></span></div>
+                <div className="text-slate-600 dark:text-slate-300 mt-1">💡 <MathText text={w.question.explanation} /></div>
               </li>
             );
           })}

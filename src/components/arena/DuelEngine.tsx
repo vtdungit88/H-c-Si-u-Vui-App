@@ -4,6 +4,7 @@ import { buildArenaQuestionDeck } from '../../utils/arenaQuestionGenerator';
 import { soundManager } from '../../utils/audio';
 import type { GradeLevel } from '../../types';
 import type { WrongItem } from './BlitzEngine';
+import { MathText } from '../MathText';
 
 export interface DuelOutcome { ok: boolean[]; ms: number[]; wrongItems: WrongItem[] }
 interface Props {
@@ -100,7 +101,7 @@ export const DuelEngine: React.FC<Props> = ({ grade, seed, limitMs, plan, studen
       <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden mb-3"><div className="h-full bg-sky-500" style={{ width: `${(msLeft / limitMs) * 100}%` }} /></div>
       <div className="rounded-3xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 mb-3 text-center">
         <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">{q.topicTag}</div>
-        <div className="text-xl font-black leading-snug">{q.questionText}</div>
+        <div className="text-xl font-black leading-snug"><MathText text={q.questionText} /></div>
       </div>
       <div className="grid grid-cols-2 gap-3">
         {q.options.map((o, i) => {
@@ -110,7 +111,7 @@ export const DuelEngine: React.FC<Props> = ({ grade, seed, limitMs, plan, studen
             <button key={o.id} disabled={gone || !!picked} onClick={() => record(o.id)}
               className={`rounded-2xl border-2 px-3 py-4 text-lg font-black flex items-center gap-2 cursor-pointer transition ${gone ? 'opacity-20' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-sky-400'} ${show || ''}`}>
               <span className="w-7 h-7 shrink-0 rounded-full bg-sky-100 text-sky-700 text-sm flex items-center justify-center">{LETTERS[i]}</span>
-              <span className="flex-1 text-center">{o.text}</span>
+              <span className="flex-1 text-center"><MathText text={o.text} /></span>
             </button>
           );
         })}

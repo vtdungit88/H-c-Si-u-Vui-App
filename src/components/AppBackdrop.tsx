@@ -9,27 +9,42 @@ const DOODLES = [
 ];
 
 /** Fixed, decorative page background: sky, drifting clouds, floating maths symbols and rolling hills. */
-export const AppBackdrop: React.FC = () => (
-  <div aria-hidden className="fixed inset-0 -z-0 overflow-hidden pointer-events-none">
-    <div className="absolute inset-0 bg-gradient-to-b from-sky-200 via-sky-100 to-emerald-100 dark:from-slate-950 dark:via-indigo-950 dark:to-slate-900" />
-    <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-yellow-200/60 dark:bg-yellow-300/10 blur-3xl" />
-    <div className="absolute top-1/3 -right-24 w-96 h-96 rounded-full bg-pink-200/50 dark:bg-fuchsia-500/10 blur-3xl" />
+export type BackdropView = 'study' | 'shop' | 'blitz' | 'map' | 'lobby' | 'leaderboard';
+const THEMES: Record<BackdropView, { sky: string; blob1: string; blob2: string; hills: [string, string, string]; ink: string }> = {
+  study: { sky: 'from-sky-400 via-cyan-200 to-emerald-200', blob1: 'bg-yellow-300/70', blob2: 'bg-pink-300/60', hills: ['#86efac', '#4ade80', '#16a34a'], ink: 'text-white' },
+  shop: { sky: 'from-fuchsia-400 via-violet-300 to-sky-200', blob1: 'bg-pink-300/70', blob2: 'bg-indigo-300/60', hills: ['#f0abfc', '#c084fc', '#7c3aed'], ink: 'text-white' },
+  blitz: { sky: 'from-orange-400 via-amber-300 to-rose-200', blob1: 'bg-yellow-200/80', blob2: 'bg-red-300/60', hills: ['#fdba74', '#fb923c', '#ea580c'], ink: 'text-white' },
+  map: { sky: 'from-cyan-400 via-sky-300 to-blue-200', blob1: 'bg-white/60', blob2: 'bg-teal-300/60', hills: ['#5eead4', '#2dd4bf', '#0d9488'], ink: 'text-white' },
+  lobby: { sky: 'from-teal-400 via-emerald-300 to-lime-200', blob1: 'bg-lime-200/70', blob2: 'bg-sky-300/60', hills: ['#bef264', '#84cc16', '#4d7c0f'], ink: 'text-white' },
+  leaderboard: { sky: 'from-amber-400 via-yellow-200 to-orange-200', blob1: 'bg-white/70', blob2: 'bg-orange-300/60', hills: ['#fde68a', '#fbbf24', '#d97706'], ink: 'text-white' }
+};
+
+export const AppBackdrop: React.FC<{ view?: BackdropView }> = ({ view = 'study' }) => {
+  const t = THEMES[view];
+  return (
+  <div aria-hidden className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+    <div className={`absolute inset-0 bg-gradient-to-b ${t.sky} dark:from-slate-950 dark:via-indigo-950 dark:to-slate-900 transition-colors duration-700`} />
+    <div className={`absolute -top-24 -left-24 w-96 h-96 rounded-full ${t.blob1} dark:opacity-10 blur-3xl`} />
+    <div className={`absolute top-1/3 -right-24 w-96 h-96 rounded-full ${t.blob2} dark:opacity-10 blur-3xl`} />
+    <div className="absolute inset-0 opacity-30 dark:opacity-10" style={{ backgroundImage: 'radial-gradient(rgba(255,255,255,.9) 2px, transparent 2px)', backgroundSize: '34px 34px' }} />
     {[8, 24, 46, 63].map((top, i) => (
       <div key={i} className="absolute hsv-anim-drift opacity-90 dark:opacity-15" style={{ top: `${top}%`, left: `${-20 + i * 18}%`, ['--d' as string]: `${70 + i * 18}s`, animationDelay: `${-i * 17}s` }}>
         <svg width="150" height="60" viewBox="0 0 120 50"><g fill="#fff"><ellipse cx="40" cy="32" rx="30" ry="16" /><ellipse cx="68" cy="26" rx="26" ry="18" /><ellipse cx="92" cy="34" rx="22" ry="12" /></g></svg>
       </div>
     ))}
     {DOODLES.map((d, i) => (
-      <span key={i} className={`absolute font-display font-extrabold hsv-anim-float opacity-40 dark:opacity-25 select-none ${d.c}`}
+      <span key={i} className={`absolute font-display font-extrabold hsv-anim-float opacity-70 dark:opacity-25 select-none ${d.c}`}
         style={{ left: `${d.x}%`, top: `${d.y}%`, fontSize: d.s, ['--d' as string]: `${d.d}s`, animationDelay: `${-i * 1.3}s` }}>{d.t}</span>
     ))}
     {Array.from({ length: 14 }, (_, i) => (
       <span key={i} className="absolute hsv-anim-twinkle text-yellow-300 dark:text-yellow-200" style={{ left: `${(i * 37 + 9) % 96}%`, top: `${(i * 23 + 5) % 80}%`, fontSize: 14 + (i % 3) * 6, animationDelay: `${-i * 0.6}s` }}>✦</span>
     ))}
     <svg className="absolute bottom-0 left-0 w-full h-1/3 min-h-[180px]" viewBox="0 0 1440 320" preserveAspectRatio="none">
-      <path d="M0 200 Q240 120 480 190 T960 170 T1440 200 L1440 320 L0 320 Z" fill="#86efac" opacity=".55" className="dark:opacity-15" />
-      <path d="M0 240 Q300 170 620 235 T1440 225 L1440 320 L0 320 Z" fill="#4ade80" opacity=".5" className="dark:opacity-15" />
-      <path d="M0 280 Q360 230 760 275 T1440 270 L1440 320 L0 320 Z" fill="#22c55e" opacity=".45" className="dark:opacity-15" />
+      <path d="M0 200 Q240 120 480 190 T960 170 T1440 200 L1440 320 L0 320 Z" fill={t.hills[0]} opacity=".7" className="dark:opacity-15" />
+      <path d="M0 240 Q300 170 620 235 T1440 225 L1440 320 L0 320 Z" fill={t.hills[1]} opacity=".65" className="dark:opacity-15" />
+      <path d="M0 280 Q360 230 760 275 T1440 270 L1440 320 L0 320 Z" fill={t.hills[2]} opacity=".6" className="dark:opacity-15" />
     </svg>
   </div>
-);
+
+  );
+};
