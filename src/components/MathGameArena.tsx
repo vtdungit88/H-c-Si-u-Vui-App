@@ -4,9 +4,10 @@ import { StudentProfile, MathLesson, MathQuestion, GradeLevel } from '../types';
 import { 
   LESSON_TIERS_CONFIG, 
   LessonDifficultyTier 
-} from '../data/expandedQuestionBank';
+} from '../data/lessonTiers';
 import { soundManager } from '../utils/audio';
 import { supabase } from '../lib/supabase';
+import { toMathLessons } from '../lib/curriculum';
 import {
   fetchCurriculum, startQuiz, answerQuestion, submitQuiz, loadStudentProfile,
   type Curriculum, type QuizQuestion
@@ -68,30 +69,8 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
   );
 
   const currentLessons: MathLesson[] = React.useMemo(() => {
-    if (currentGrade !== '6' || !curriculum) return [];
-    const chapterById = new Map(curriculum.chapters.map((c) => [c.id, c] as const));
-    return curriculum.lessons
-      .map((l) => {
-        const ch = chapterById.get(l.chapter_id);
-        if (!ch) return null;
-        const lm = l.learning_material ?? {};
-        return {
-          id: l.code,
-          chapter: ch.sequence_no,
-          chapterTitle: ch.title,
-          lessonNumber: l.sequence_no,
-          title: l.title,
-          subTitle: lm.subtitle ?? '',
-          sgkPage: lm.sgk_page ?? '',
-          conceptSummary: lm.concepts ?? [],
-          questions: [],
-          rewardCoins: lm.reward_coins ?? 0,
-          rewardStars: lm.reward_stars ?? 0
-        } as MathLesson;
-      })
-      .filter((x): x is MathLesson => x !== null)
-      .filter((l) => (currentTerm === 1 ? l.chapter <= 5 : l.chapter >= 6))
-      .sort((x, y) => x.chapter - y.chapter || x.lessonNumber - y.lessonNumber);
+    if (currentGrade !== '6') return [];
+    return toMathLessons(curriculum).filter((l) => (currentTerm === 1 ? l.chapter <= 5 : l.chapter >= 6));
   }, [currentGrade, currentTerm, curriculum]);
 
   // Extract unique chapters
