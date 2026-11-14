@@ -12,8 +12,6 @@ import {
   VolumeX, 
   User, 
   IdCard, 
-  Coins, 
-  Star,
   Trophy,
   LogOut,
   LogIn,
@@ -22,6 +20,7 @@ import {
   Download,
   Share2
 } from 'lucide-react';
+import { CoinIcon, StarIcon } from './GameIcons';
 
 interface NavbarProps {
   currentView: 'study' | 'shop' | 'blitz' | 'map' | 'leaderboard';
@@ -214,12 +213,12 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Quick Wallet preview */}
           <div className="hidden sm:flex items-center gap-2 shrink-0 text-xs font-mono font-bold px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700">
             <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
-              <Coins className="w-3.5 h-3.5" />
+              <CoinIcon className="w-3.5 h-3.5" />
               {student.coins}
             </span>
             <span className="text-slate-300 dark:text-slate-600">|</span>
             <span className="flex items-center gap-1 text-yellow-500 dark:text-yellow-400">
-              <Star className="w-3.5 h-3.5 fill-yellow-400" />
+              <StarIcon className="w-3.5 h-3.5 fill-yellow-400" />
               {student.stars}
             </span>
           </div>

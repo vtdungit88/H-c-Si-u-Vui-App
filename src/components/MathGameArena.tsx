@@ -17,8 +17,6 @@ import {
   CheckCircle2, 
   XCircle, 
   Sparkles, 
-  Coins, 
-  Star, 
   RotateCcw, 
   ChevronRight, 
   Trophy,
@@ -31,6 +29,7 @@ import {
   X,
   Play
 } from 'lucide-react';
+import { CoinIcon, StarIcon } from './GameIcons';
 
 interface MathGameArenaProps {
   student: StudentProfile;
@@ -553,7 +552,7 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
               {/* Reward pill */}
               <div className="inline-flex items-center gap-6 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-inner">
                 <div className="flex items-center gap-2">
-                  <Coins className="w-6 h-6 text-amber-500" />
+                  <CoinIcon className="w-6 h-6 text-amber-500" />
                   <div className="text-left">
                     <div className="text-[10px] text-slate-400 uppercase font-semibold">Xu Nhận Được</div>
                     <div className="text-lg font-black font-mono text-amber-600 dark:text-amber-400">
@@ -565,7 +564,7 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
                 <div className="h-8 w-px bg-slate-200 dark:bg-slate-700" />
 
                 <div className="flex items-center gap-2">
-                  <Star className="w-6 h-6 text-yellow-400 fill-yellow-400" />
+                  <StarIcon className="w-6 h-6 text-yellow-400 fill-yellow-400" />
                   <div className="text-left">
                     <div className="text-[10px] text-slate-400 uppercase font-semibold">Sao Tích Lũy</div>
                     <div className="text-lg font-black font-mono text-yellow-500">
@@ -688,7 +687,7 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
                           <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded">
                             Đã làm
                           </span>
-                          <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
+                          <StarIcon className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
                         </div>
                       ) : (
                         <span className="text-[11px] font-semibold text-amber-600 dark:text-amber-400">
@@ -713,7 +712,7 @@ export const MathGameArena: React.FC<MathGameArenaProps> = ({
                   {/* Bottom bar */}
                   <div className="pt-3 flex items-center justify-between">
                     <div className="flex items-center gap-2 text-xs font-bold text-amber-600 dark:text-amber-400">
-                      <Coins className="w-3.5 h-3.5" />
+                      <CoinIcon className="w-3.5 h-3.5" />
                       <span>15 câu • 60s/câu</span>
                     </div>
 

@@ -7,8 +7,6 @@ import { SHOP_ITEMS } from '../data/items';
 import { 
   Trophy, 
   Crown, 
-  Star, 
-  Coins, 
   Sparkles, 
   Zap, 
   School, 
@@ -16,6 +14,7 @@ import {
   ChevronRight,
   UserPlus
 } from 'lucide-react';
+import { CoinIcon, StarIcon } from './GameIcons';
 
 interface GlobalLeaderboardProps {
   student: StudentProfile;
@@ -110,11 +109,11 @@ export const GlobalLeaderboard: React.FC<GlobalLeaderboardProps> = ({
           <div className="flex items-center gap-4 self-stretch sm:self-auto justify-between sm:justify-end border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-100 dark:border-slate-800">
             <div className="flex items-center gap-3 text-xs font-mono font-bold">
               <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
-                <Coins className="w-4 h-4" />
+                <CoinIcon className="w-4 h-4" />
                 <span className="tabular-nums">{activeStudentEntry.coins}</span> xu
               </span>
               <span className="flex items-center gap-1 text-yellow-500 dark:text-yellow-400">
-                <Star className="w-4 h-4 fill-yellow-400" />
+                <StarIcon className="w-4 h-4 fill-yellow-400" />
                 <span className="tabular-nums">{activeStudentEntry.stars}</span> sao
               </span>
             </div>
@@ -160,7 +159,7 @@ export const GlobalLeaderboard: React.FC<GlobalLeaderboardProps> = ({
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
             }`}
           >
-            <Star className="w-3.5 h-3.5 fill-amber-400" />
+            <StarIcon className="w-3.5 h-3.5 fill-amber-400" />
             <span>Vua Sao Vàng</span>
           </button>
           <button
@@ -174,7 +173,7 @@ export const GlobalLeaderboard: React.FC<GlobalLeaderboardProps> = ({
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
             }`}
           >
-            <Coins className="w-3.5 h-3.5" />
+            <CoinIcon className="w-3.5 h-3.5" />
             <span>Đại Gia Xu</span>
           </button>
         </div>
@@ -238,12 +237,12 @@ export const GlobalLeaderboard: React.FC<GlobalLeaderboardProps> = ({
 
                   <div className="w-full mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-around font-mono text-xs font-bold">
                     <span className="text-yellow-500 flex items-center gap-1">
-                      <Star className="w-3.5 h-3.5 fill-yellow-400" />
+                      <StarIcon className="w-3.5 h-3.5 fill-yellow-400" />
                       <span className="tabular-nums">{top2.stars}</span>
                     </span>
                     <span className="text-slate-300 dark:text-slate-700">|</span>
                     <span className="text-amber-600 dark:text-amber-400 flex items-center gap-1">
-                      <Coins className="w-3.5 h-3.5" />
+                      <CoinIcon className="w-3.5 h-3.5" />
                       <span className="tabular-nums">{top2.coins}</span>
                     </span>
                   </div>
@@ -288,12 +287,12 @@ export const GlobalLeaderboard: React.FC<GlobalLeaderboardProps> = ({
 
                   <div className="w-full mt-4 pt-3 border-t border-amber-200 dark:border-amber-900/50 flex items-center justify-around font-mono text-sm font-black bg-amber-100/50 dark:bg-amber-950/40 p-2.5 rounded-2xl">
                     <span className="text-yellow-600 dark:text-yellow-400 flex items-center gap-1">
-                      <Star className="w-4 h-4 fill-yellow-400" />
+                      <StarIcon className="w-4 h-4 fill-yellow-400" />
                       <span className="tabular-nums">{top1.stars}</span> Sao
                     </span>
                     <span className="text-amber-300">|</span>
                     <span className="text-amber-600 dark:text-amber-400 flex items-center gap-1">
-                      <Coins className="w-4 h-4" />
+                      <CoinIcon className="w-4 h-4" />
                       <span className="tabular-nums">{top1.coins}</span> Xu
                     </span>
                   </div>
@@ -329,12 +328,12 @@ export const GlobalLeaderboard: React.FC<GlobalLeaderboardProps> = ({
 
                   <div className="w-full mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-around font-mono text-xs font-bold">
                     <span className="text-yellow-500 flex items-center gap-1">
-                      <Star className="w-3.5 h-3.5 fill-yellow-400" />
+                      <StarIcon className="w-3.5 h-3.5 fill-yellow-400" />
                       <span className="tabular-nums">{top3.stars}</span>
                     </span>
                     <span className="text-slate-300 dark:text-slate-700">|</span>
                     <span className="text-amber-600 dark:text-amber-400 flex items-center gap-1">
-                      <Coins className="w-3.5 h-3.5" />
+                      <CoinIcon className="w-3.5 h-3.5" />
                       <span className="tabular-nums">{top3.coins}</span>
                     </span>
                   </div>
@@ -417,11 +416,11 @@ export const GlobalLeaderboard: React.FC<GlobalLeaderboardProps> = ({
 
                         <div className="flex items-center gap-4 text-xs font-mono font-bold">
                           <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
-                            <Coins className="w-3.5 h-3.5" />
+                            <CoinIcon className="w-3.5 h-3.5" />
                             <span className="tabular-nums">{item.coins}</span> xu
                           </span>
                           <span className="flex items-center gap-1 text-yellow-500 dark:text-yellow-400">
-                            <Star className="w-3.5 h-3.5 fill-yellow-400" />
+                            <StarIcon className="w-3.5 h-3.5 fill-yellow-400" />
                             <span className="tabular-nums">{item.stars}</span> sao
                           </span>
                         </div>

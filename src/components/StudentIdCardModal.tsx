@@ -3,7 +3,8 @@ import { StudentProfile } from '../types';
 import { AvatarRenderer } from './AvatarRenderer';
 import { soundManager } from '../utils/audio';
 import { APP_LOGO_SRC, CURRENT_VERSION } from '../data/versionHistory';
-import { X, Award, Printer, Sparkles, School, Star, Coins } from 'lucide-react';
+import { X, Award, Printer, Sparkles, School, } from 'lucide-react';
+import { CoinIcon, StarIcon } from './GameIcons';
 
 interface StudentIdCardModalProps {
   isOpen: boolean;
@@ -102,11 +103,11 @@ export const StudentIdCardModal: React.FC<StudentIdCardModalProps> = ({
 
                 <div className="flex items-center gap-3 pt-1 text-xs">
                   <div className="flex items-center gap-1 bg-black/20 px-2 py-0.5 rounded-md font-mono">
-                    <Coins className="w-3.5 h-3.5 text-amber-300" />
+                    <CoinIcon className="w-3.5 h-3.5 text-amber-300" />
                     <span>{student.coins}</span>
                   </div>
                   <div className="flex items-center gap-1 bg-black/20 px-2 py-0.5 rounded-md font-mono">
-                    <Star className="w-3.5 h-3.5 text-yellow-300 fill-yellow-300" />
+                    <StarIcon className="w-3.5 h-3.5 text-yellow-300 fill-yellow-300" />
                     <span>{student.stars}</span>
                   </div>
                 </div>

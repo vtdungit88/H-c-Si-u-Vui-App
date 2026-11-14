@@ -5,7 +5,6 @@ import { toMathLessons } from '../lib/curriculum';
 import { soundManager } from '../utils/audio';
 import { AvatarRenderer } from './AvatarRenderer';
 import { 
-  Star, 
   MapPin, 
   Play, 
   CheckCircle2, 
@@ -17,6 +16,7 @@ import {
   Flag,
   Ship
 } from 'lucide-react';
+import { StarIcon } from './GameIcons';
 
 interface AdventureMapProps {
   student: StudentProfile;
@@ -108,7 +108,7 @@ export const AdventureMap: React.FC<AdventureMapProps> = ({
             <div>
               <div className="text-[10px] text-emerald-200 uppercase font-semibold">Sao Tích Lũy</div>
               <div className="text-xl font-black font-mono text-yellow-300 flex items-center justify-center gap-1">
-                <Star className="w-4 h-4 fill-yellow-300" />
+                <StarIcon className="w-4 h-4 fill-yellow-300" />
                 <span>{student.stars}</span>
               </div>
             </div>
@@ -218,7 +218,7 @@ export const AdventureMap: React.FC<AdventureMapProps> = ({
                   {isCompleted ? (
                     <div className="flex items-center gap-0.5">
                       {[1, 2, 3].map((s) => (
-                        <Star
+                        <StarIcon
                           key={s}
                           className={`w-3.5 h-3.5 ${
                             s <= stars

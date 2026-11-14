@@ -3,7 +3,8 @@ import confetti from 'canvas-confetti';
 import { StudentProfile } from '../types';
 import { soundManager } from '../utils/audio';
 import { updateActiveStudent } from '../utils/studentStorage';
-import { Zap, Timer, Flame, Trophy, Coins, RotateCcw, ArrowRight, Sparkles, Star, GraduationCap } from 'lucide-react';
+import { Zap, Timer, Flame, Trophy, RotateCcw, ArrowRight, Sparkles, GraduationCap } from 'lucide-react';
+import { CoinIcon, StarIcon } from './GameIcons';
 
 interface SpeedRunBlitzProps {
   student: StudentProfile;
@@ -345,7 +346,7 @@ export const SpeedRunBlitz: React.FC<SpeedRunBlitzProps> = ({
           {/* Reward Pill (LOWEST REWARDS) */}
           <div className="inline-flex items-center gap-6 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-inner">
             <div className="flex items-center gap-2">
-              <Coins className="w-6 h-6 text-amber-500" />
+              <CoinIcon className="w-6 h-6 text-amber-500" />
               <div className="text-left">
                 <div className="text-[10px] text-slate-400 uppercase font-semibold">Xu Thưởng</div>
                 <div className="text-lg font-black font-mono text-amber-600 dark:text-amber-400">
@@ -357,7 +358,7 @@ export const SpeedRunBlitz: React.FC<SpeedRunBlitzProps> = ({
             <div className="h-8 w-px bg-slate-200 dark:bg-slate-700" />
 
             <div className="flex items-center gap-2">
-              <Star className="w-6 h-6 text-yellow-400 fill-yellow-400" />
+              <StarIcon className="w-6 h-6 text-yellow-400 fill-yellow-400" />
               <div className="text-left">
                 <div className="text-[10px] text-slate-400 uppercase font-semibold">Sao Thưởng</div>
                 <div className="text-lg font-black font-mono text-yellow-500">

@@ -15,11 +15,11 @@ import {
   Trophy, 
   CheckCircle2, 
   MessageSquareHeart, 
-  Star, 
   Lightbulb,
   Compass,
   HeartHandshake
 } from 'lucide-react';
+import { StarIcon } from './GameIcons';
 import { APP_LOGO_SRC } from '../data/versionHistory';
 
 interface VirtualAssistantProps {
@@ -411,7 +411,7 @@ export const VirtualAssistant: React.FC<VirtualAssistantProps> = ({
                               }}
                               className="p-1 cursor-pointer transition-transform hover:scale-125"
                             >
-                              <Star
+                              <StarIcon
                                 className={`w-6 h-6 ${
                                   star <= feedbackRating
                                     ? 'text-yellow-400 fill-yellow-400'

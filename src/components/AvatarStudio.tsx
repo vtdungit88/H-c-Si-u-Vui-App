@@ -7,8 +7,6 @@ import { soundManager } from '../utils/audio';
 import { updateActiveStudent } from '../utils/studentStorage';
 import { 
   Sparkles, 
-  Coins, 
-  Star, 
   Check, 
   Lock, 
   ShoppingBag, 
@@ -22,6 +20,7 @@ import {
   ChevronRight,
   BookOpen
 } from 'lucide-react';
+import { CoinIcon, StarIcon } from './GameIcons';
 
 interface AvatarStudioProps {
   student: StudentProfile;
@@ -161,7 +160,7 @@ export const AvatarStudio: React.FC<AvatarStudioProps> = ({
         <div className="flex items-center gap-3 bg-black/25 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/20 self-stretch md:self-auto justify-between md:justify-start">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-amber-400 flex items-center justify-center text-slate-900 shadow">
-              <Coins className="w-5 h-5 fill-slate-900" />
+              <CoinIcon className="w-5 h-5 fill-slate-900" />
             </div>
             <div>
               <div className="text-[10px] text-blue-200 uppercase font-semibold">Ví Tiền Xu</div>
@@ -173,7 +172,7 @@ export const AvatarStudio: React.FC<AvatarStudioProps> = ({
 
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center text-slate-900 shadow">
-              <Star className="w-5 h-5 fill-slate-900" />
+              <StarIcon className="w-5 h-5 fill-slate-900" />
             </div>
             <div>
               <div className="text-[10px] text-blue-200 uppercase font-semibold">Sao Danh Dự</div>
@@ -626,14 +625,14 @@ export const AvatarStudio: React.FC<AvatarStudioProps> = ({
                             <div className="flex items-center gap-2 text-xs font-bold">
                               {item.costCoins > 0 ? (
                                 <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
-                                  <Coins className="w-3.5 h-3.5" /> {item.costCoins} xu
+                                  <CoinIcon className="w-3.5 h-3.5" /> {item.costCoins} xu
                                 </span>
                               ) : (
                                 <span className="text-emerald-600 font-bold">Miễn phí</span>
                               )}
                               {item.costStars > 0 && (
                                 <span className="flex items-center gap-1 text-yellow-500 dark:text-yellow-400">
-                                  <Star className="w-3.5 h-3.5 fill-yellow-400" /> {item.costStars} sao
+                                  <StarIcon className="w-3.5 h-3.5 fill-yellow-400" /> {item.costStars} sao
                                 </span>
                               )}
                             </div>
