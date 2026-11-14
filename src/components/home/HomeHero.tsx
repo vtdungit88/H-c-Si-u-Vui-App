@@ -29,12 +29,12 @@ export const HomeHero: React.FC<Props> = ({
 }) => {
   const guest = student.isGuest;
   return (
-    <section className="relative overflow-hidden rounded-[2rem] shadow-xl text-white bg-gradient-to-br from-indigo-700 via-violet-600 to-fuchsia-600">
+    <section className="hsv-home-hero relative overflow-hidden rounded-[1.5rem] sm:rounded-[2rem] shadow-xl text-white bg-gradient-to-br from-indigo-700 via-violet-600 to-fuchsia-600">
       {/* decorative blobs */}
       <div aria-hidden className="pointer-events-none absolute -top-16 -left-10 w-56 h-56 rounded-full bg-sky-400/30 blur-3xl" />
       <div aria-hidden className="pointer-events-none absolute -bottom-20 right-10 w-72 h-72 rounded-full bg-amber-400/30 blur-3xl" />
       <div aria-hidden className="pointer-events-none absolute top-6 right-1/3 text-4xl opacity-30 select-none">✨</div>
-      <div className="relative z-10 p-6 sm:p-9 flex flex-col md:flex-row items-center justify-between gap-6">
+      <div className="hsv-home-hero-inner relative z-10 p-4 sm:p-9 flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6">
         <div className="max-w-2xl space-y-4 text-center md:text-left">
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
             <span className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur px-3 py-1 rounded-full border border-white/30">
@@ -48,7 +48,7 @@ export const HomeHero: React.FC<Props> = ({
               <Bell className="w-3.5 h-3.5 text-amber-200" /> Có gì mới
             </button>
           </div>
-          <h1 className="text-3xl sm:text-5xl font-black leading-tight tracking-tight drop-shadow-[0_2px_6px_rgba(0,0,0,0.35)]">
+          <h1 className="hsv-home-hero-title text-3xl sm:text-5xl font-black leading-tight tracking-tight drop-shadow-[0_2px_6px_rgba(0,0,0,0.35)]">
             {guest ? (
               <>
                 Chào bạn nhỏ!{' '}

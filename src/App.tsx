@@ -300,7 +300,7 @@ export default function App() {
       )}
 
       {/* Main Content Area */}
-      <main className="relative z-10 flex-1 pb-20 md:pb-8">
+      <main className="relative z-10 flex-1 pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-8">
         {/* VIEW 1: STUDY & ARENA */}
         {currentView === 'study' && (
           <div className="max-w-6xl mx-auto px-4 pt-4 sm:pt-6 space-y-8">

@@ -1,5 +1,68 @@
 @import "tailwindcss";
 
+/* Học Siêu Vui responsive foundation */
+:root {
+  --hsv-content-max: 80rem;
+  --hsv-page-gutter: clamp(0.75rem, 2.4vw, 1.5rem);
+  --hsv-nav-height: 4.5rem;
+  --hsv-safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+html, body, #root { min-height: 100%; }
+html { scroll-padding-top: 5.25rem; }
+body { overflow-x: clip; }
+button, a, [role="button"] { -webkit-tap-highlight-color: transparent; }
+img, svg, video, canvas { max-width: 100%; }
+
+.hsv-mobile-nav {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 60;
+  min-height: var(--hsv-nav-height);
+  padding-bottom: calc(0.375rem + var(--hsv-safe-bottom));
+  box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.10);
+}
+.hsv-mobile-nav button { min-height: 3.25rem; }
+.hsv-page-content { width: min(100%, var(--hsv-content-max)); margin-inline: auto; padding-inline: var(--hsv-page-gutter); }
+.hsv-map-scroll { max-height: min(72svh, 48rem); overflow: auto; overscroll-behavior: contain; scrollbar-gutter: stable; }
+.hsv-map-canvas { width: 100%; min-width: 0; }
+.hsv-studio-preview { min-width: 0; }
+.hsv-studio-stage { min-height: 21rem; }
+.hsv-studio-categories { display: flex; flex-wrap: nowrap; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; }
+.hsv-studio-categories button { flex: 0 0 auto; }
+.hsv-studio-items { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.hsv-subject-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.hsv-question-card { min-width: 0; }
+.hsv-arena-page { width: min(100%, 64rem); padding-inline: var(--hsv-page-gutter); }
+
+@media (min-width: 768px) {
+  .hsv-mobile-nav { display: none; }
+}
+@media (max-width: 767px) {
+  html { font-size: 16px; }
+  .hsv-studio-preview { position: sticky; top: 6.25rem; z-index: 25; }
+  .hsv-studio-preview > section,
+  .hsv-studio-preview > div { box-shadow: 0 8px 20px rgba(15,23,42,.08); }
+  .hsv-studio-stage { min-height: clamp(12rem, 27svh, 18rem); max-height: 31svh; }
+  .hsv-studio-stage svg { max-height: 28svh; }
+  .hsv-studio-items { gap: .625rem; }
+  .hsv-subject-grid > button { min-height: 9rem; padding: .875rem; }
+  .hsv-subject-grid > button h4 { font-size: 1rem; }
+  .hsv-studio-items > * { min-width: 0; }
+  .hsv-map-scroll { max-height: 64svh; }
+  .hsv-question-card { padding: 1rem; gap: 1rem; }
+  .hsv-arena-page { padding-top: .75rem; padding-bottom: 1rem; }
+  .hsv-home-hero-inner { padding: 1rem; gap: 1rem; }
+  .hsv-home-hero-title { font-size: clamp(1.55rem, 7vw, 2.25rem); }
+}
+@media (max-width: 380px) {
+  .hsv-studio-items { grid-template-columns: minmax(0, 1fr); }
+  .hsv-subject-grid { grid-template-columns: minmax(0, 1fr); }
+  .hsv-mobile-nav button { font-size: 10px; }
+}
+
+
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {

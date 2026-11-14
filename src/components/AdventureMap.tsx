@@ -130,7 +130,7 @@ export const AdventureMap: React.FC<Props> = ({ student, initialSubjectId, initi
   );
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-6 space-y-4">
+    <div className="hsv-adventure-map max-w-3xl mx-auto px-3 sm:px-4 py-3 sm:py-6 space-y-3 sm:space-y-4">
       <header className="rounded-3xl p-5 text-white shadow-xl bg-gradient-to-br from-cyan-600 via-sky-600 to-indigo-600 space-y-3">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -170,7 +170,7 @@ export const AdventureMap: React.FC<Props> = ({ student, initialSubjectId, initi
             </div>
           </div>
 
-          <div className="relative rounded-3xl overflow-hidden border-4 border-white dark:border-slate-700 shadow-xl" style={{ aspectRatio: `${W} / ${H}` }}>
+          <div className="hsv-map-scroll rounded-3xl border-4 border-white dark:border-slate-700 shadow-xl"><div className="hsv-map-canvas relative overflow-hidden" style={{ aspectRatio: `${W} / ${H}` }}>
             <MapScenery nodeCount={nodes.length} width={W} height={H} top={TOP} step={STEP} />
             <MapCritters nodeCount={nodes.length} width={W} height={H} top={TOP} step={STEP} />
             <svg viewBox={`0 0 ${W} ${H}`} className="absolute inset-0 w-full h-full" aria-hidden>
@@ -221,7 +221,7 @@ export const AdventureMap: React.FC<Props> = ({ student, initialSubjectId, initi
                 </div>
               );
             })}
-          </div>
+          </div></div>
         </>
       )}
 
