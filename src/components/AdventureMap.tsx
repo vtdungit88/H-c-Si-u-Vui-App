@@ -108,7 +108,7 @@ export const AdventureMap: React.FC<AdventureMapProps> = ({
       </div>
 
       {/* INTERACTIVE VECTOR ADVENTURE MAP (Vibrant, Never Black!) */}
-      <div className="relative rounded-3xl overflow-hidden border-2 border-emerald-300 dark:border-emerald-800 shadow-xl bg-gradient-to-b from-sky-400 via-teal-500 to-emerald-600 p-4 sm:p-8 select-none">
+      <div className="hsv-map-panel relative rounded-3xl overflow-x-hidden border-2 border-emerald-300 dark:border-emerald-800 shadow-xl bg-gradient-to-b from-sky-400 via-teal-500 to-emerald-600 p-3 sm:p-8 select-none">
         {/* Sky, Clouds, Sea Waves */}
         <div className="absolute inset-0 bg-gradient-to-b from-sky-300/40 via-cyan-400/20 to-teal-800/40 pointer-events-none" />
 

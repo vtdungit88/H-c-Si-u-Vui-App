@@ -45,3 +45,28 @@ h1, h2, h3, h4, .font-display {
   animation-play-state: paused;
 }
 
+
+
+/* Học Siêu Vui responsive foundation — isolated mobile layout improvements */
+:root { --hsv-mobile-nav-height:4.5rem; --hsv-safe-bottom:env(safe-area-inset-bottom,0px); }
+html,body,#root{min-height:100%} html{scroll-padding-top:5.25rem} body{overflow-x:clip}
+img,svg,video,canvas{max-width:100%} button,a,[role="button"]{-webkit-tap-highlight-color:transparent}
+.hsv-mobile-nav{position:fixed;inset-inline:0;bottom:0;z-index:60;min-height:var(--hsv-mobile-nav-height);padding-bottom:calc(.375rem + var(--hsv-safe-bottom));box-shadow:0 -8px 24px rgba(15,23,42,.10)}
+.hsv-mobile-nav button{min-height:3.25rem}
+.hsv-studio-items{grid-template-columns:repeat(2,minmax(0,1fr))}
+.hsv-map-panel{max-height:min(72svh,48rem);overflow-y:auto;overscroll-behavior:contain}
+.hsv-question-card{min-width:0}
+@media(max-width:767px){
+.hsv-studio-preview{position:sticky;top:6.25rem;z-index:25}
+.hsv-studio-preview>div{box-shadow:0 8px 20px rgba(15,23,42,.08)}
+.hsv-studio-stage{min-height:clamp(12rem,27svh,18rem);max-height:31svh}
+.hsv-studio-stage svg{max-height:28svh}
+.hsv-studio-categories{display:flex;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin}
+.hsv-studio-categories button{flex:0 0 auto}
+.hsv-studio-items{gap:.625rem}.hsv-studio-items>*{min-width:0}
+.hsv-map-panel{max-height:64svh}.hsv-question-card{padding:1rem;gap:1rem}
+.hsv-question-options{grid-template-columns:repeat(2,minmax(0,1fr));gap:.625rem}
+}
+@media(max-width:420px){.hsv-question-options{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:380px){.hsv-studio-items{grid-template-columns:minmax(0,1fr)}}
+@media(min-width:768px){.hsv-mobile-nav{display:none}}
