@@ -5,6 +5,8 @@ export interface CityTrivia {
   fact: string;
 }
 
+export type PinAnchor = 'top' | 'bottom' | 'left' | 'right' | 'bottom-left';
+
 export interface DestinationCity {
   destKey: string;
   name: string;
@@ -15,11 +17,40 @@ export interface DestinationCity {
   requiredLevel: number;
   description: string;
   funFact: string;
+  lat: number;
+  lon: number;
   mapX: number;
   mapY: number;
+  pinAnchor: PinAnchor;
   accentColor: string;
   trivia: CityTrivia;
 }
+
+/** Shared equirectangular projection (aspect 500x560) matching VietnamAccurateMap. */
+export const MAP_BOUNDS = {
+  lonMin: 101.6,
+  lonMax: 117.6,
+  latMax: 23.8,
+  latMin: 6.6,
+  width: 500,
+  height: 560
+} as const;
+
+export function projectVietnamLatLon(lat: number, lon: number) {
+  const x = ((lon - MAP_BOUNDS.lonMin) / (MAP_BOUNDS.lonMax - MAP_BOUNDS.lonMin)) * MAP_BOUNDS.width;
+  const y = ((MAP_BOUNDS.latMax - lat) / (MAP_BOUNDS.latMax - MAP_BOUNDS.latMin)) * MAP_BOUNDS.height;
+  return {
+    x: Math.round(x * 10) / 10,
+    y: Math.round(y * 10) / 10,
+    pctX: Math.round((x / MAP_BOUNDS.width) * 1000) / 10,
+    pctY: Math.round((y / MAP_BOUNDS.height) * 1000) / 10
+  };
+}
+
+const makePos = (lat: number, lon: number) => {
+  const p = projectVietnamLatLon(lat, lon);
+  return { lat, lon, mapX: p.pctX, mapY: p.pctY };
+};
 
 export const DESTINATIONS: DestinationCity[] = [
   {
@@ -32,8 +63,8 @@ export const DESTINATIONS: DestinationCity[] = [
     requiredLevel: 1,
     description: 'Điểm xuất phát Km 0 tại Thủ đô Hà Nội với sân trường nắng mai, ghế đá và công viên xanh mát.',
     funFact: 'Thủ đô Hà Nội hơn 1.000 năm văn hiến là trạm khởi hành mọi chuyến du hành tri thức.',
-    mapX: 44.5,
-    mapY: 18.0,
+    ...makePos(21.03, 105.85),
+    pinAnchor: 'top',
     accentColor: '#2563eb',
     trivia: {
       question: 'Hà Nội được chọn là điểm Km 0 trung tâm của bản đồ Du Hành. Từ Hà Nội đi TP.HCM dài khoảng 1.720 km, nếu đi tàu tốc độ 86 km/h liên tục mất mấy giờ?',
@@ -52,8 +83,8 @@ export const DESTINATIONS: DestinationCity[] = [
     requiredLevel: 1,
     description: 'Dạo bước quanh Hồ Hoàn Kiếm soi bóng Tháp Rùa cổ kính và cây cầu Thê Húc đỏ son rực rỡ.',
     funFact: 'Cầu Thê Húc có nghĩa là "nơi đậu ánh sáng Mặt Trời buổi sáng sớm".',
-    mapX: 49.0,
-    mapY: 20.5,
+    ...makePos(20.99, 105.88),
+    pinAnchor: 'bottom-left',
     accentColor: '#dc2626',
     trivia: {
       question: 'Chu vi đường đi bộ quanh Hồ Gươm dài khoảng 1.750 mét. Nếu bạn đi dạo đủ 2 vòng thì đi được quãng đường bao nhiêu km?',
@@ -72,8 +103,8 @@ export const DESTINATIONS: DestinationCity[] = [
     requiredLevel: 2,
     description: 'Chiêm ngưỡng hàng nghìn hòn đảo đá vôi kỳ vĩ nhấp nhô trên làn nước ngọc bích xanh thẳm.',
     funFact: 'Vịnh Hạ Long được UNESCO nhiều lần vinh danh là Di sản Thiên nhiên Thế giới.',
-    mapX: 60.5,
-    mapY: 17.5,
+    ...makePos(20.95, 107.08),
+    pinAnchor: 'right',
     accentColor: '#0284c7',
     trivia: {
       question: 'Vịnh Hạ Long có khoảng 1.969 hòn đảo lớn nhỏ. Số 1969 làm tròn đến hàng trăm gần nhất là bao nhiêu?',
@@ -92,8 +123,8 @@ export const DESTINATIONS: DestinationCity[] = [
     requiredLevel: 3,
     description: 'Săn mây trên Nóc nhà Đông Dương cao 3.143 m giữa thung lũng ruộng bậc thang vàng óng.',
     funFact: 'Đỉnh Fansipan nằm trên dãy Hoàng Liên Sơn hùng vĩ của tỉnh Lào Cai.',
-    mapX: 31.0,
-    mapY: 10.5,
+    ...makePos(22.34, 103.84),
+    pinAnchor: 'left',
     accentColor: '#4f46e5',
     trivia: {
       question: 'Đỉnh Fansipan cao 3.143 m so với mực nước biển. Đỉnh cao hơn mặt bằng trung tâm Hà Nội (cao khoảng 13 m) bao nhiêu mét?',
@@ -112,8 +143,8 @@ export const DESTINATIONS: DestinationCity[] = [
     requiredLevel: 5,
     description: 'Ngắm dòng sông Hương thơ mộng, Cầu Trường Tiền sáu vài mười hai nhịp và Ngọ Môn uy nghi.',
     funFact: 'Quần thể Di tích Cố đô Huế là Di sản Văn hóa Thế giới đầu tiên của Việt Nam được UNESCO công nhận.',
-    mapX: 52.0,
-    mapY: 43.0,
+    ...makePos(16.46, 107.59),
+    pinAnchor: 'left',
     accentColor: '#9333ea',
     trivia: {
       question: 'Cầu Trường Tiền bắc qua sông Hương gồm 6 nhịp vòm thép, mỗi nhịp dài 67 mét. Tổng chiều dài 6 nhịp là bao nhiêu?',
@@ -132,8 +163,8 @@ export const DESTINATIONS: DestinationCity[] = [
     requiredLevel: 6,
     description: 'Check-in Cầu Rồng rực rỡ bên sông Hàn cùng bãi biển Mỹ Khê nắng vàng cát mịn.',
     funFact: 'Vào tối cuối tuần, Cầu Rồng Đà Nẵng có màn trình diễn phun lửa và phun nước độc đáo.',
-    mapX: 57.0,
-    mapY: 48.0,
+    ...makePos(16.05, 108.22),
+    pinAnchor: 'right',
     accentColor: '#0ea5e9',
     trivia: {
       question: 'Nếu một đoàn xe đạp vượt chặng Hà Nội → Đà Nẵng dài 765 km trong 9 ngày đều đặn, trung bình mỗi ngày đi bao nhiêu km?',
@@ -152,8 +183,8 @@ export const DESTINATIONS: DestinationCity[] = [
     requiredLevel: 8,
     description: 'Đón gió biển xanh biếc, tháp Trầm Hương rạng ngời và khu vui chơi Đảo Hòn Tre.',
     funFact: 'Vịnh Nha Trang được công nhận là một trong những vịnh biển đẹp nhất hành tinh.',
-    mapX: 64.5,
-    mapY: 66.0,
+    ...makePos(12.24, 109.20),
+    pinAnchor: 'right',
     accentColor: '#06b6d4',
     trivia: {
       question: 'Từ Hà Nội đi Nha Trang dài 1.280 km. Quãng đường đi và về (khứ hồi) tổng cộng dài bao nhiêu km?',
@@ -172,8 +203,8 @@ export const DESTINATIONS: DestinationCity[] = [
     requiredLevel: 10,
     description: 'Hít thở khí trời se lạnh giữa rừng thông reo, Hồ Xuân Hương và quảng trường hoa Dã Quỳ.',
     funFact: 'Đà Lạt nằm trên cao nguyên Lâm Viên ở độ cao khoảng 1.500 m nên mát mẻ quanh năm.',
-    mapX: 58.5,
-    mapY: 71.0,
+    ...makePos(11.94, 108.44),
+    pinAnchor: 'left',
     accentColor: '#a855f7',
     trivia: {
       question: 'Hồ nước thơ mộng hình trăng lưỡi liềm nằm ngay giữa trung tâm thành phố Đà Lạt tên là gì?',
@@ -192,8 +223,8 @@ export const DESTINATIONS: DestinationCity[] = [
     requiredLevel: 12,
     description: 'Hội ngộ tại thành phố năng động bậc nhất phía Nam với Chợ Bến Thành và tòa tháp Landmark 81.',
     funFact: 'Khoảng cách tuyến Bắc-Nam từ Hà Nội đến TP.HCM hơn 1.700 km.',
-    mapX: 49.5,
-    mapY: 79.0,
+    ...makePos(10.78, 106.70),
+    pinAnchor: 'right',
     accentColor: '#ea580c',
     trivia: {
       question: 'Tòa tháp Landmark 81 tại TP.HCM cao 461,2m với 81 tầng nổi. Nếu 1 tòa nhà khác có 27 tầng, Landmark 81 nhiều gấp mấy lần số tầng?',
@@ -212,8 +243,8 @@ export const DESTINATIONS: DestinationCity[] = [
     requiredLevel: 15,
     description: 'Đi cáp treo vượt biển dài nhất và ngắm hoàng hôn rực rỡ trên bờ cát trắng Đảo Ngọc.',
     funFact: 'Phú Quốc là hòn đảo lớn nhất Việt Nam nằm tại vùng biển Tây Nam thanh bình.',
-    mapX: 34.5,
-    mapY: 86.0,
+    ...makePos(10.23, 103.96),
+    pinAnchor: 'bottom',
     accentColor: '#f97316',
     trivia: {
       question: 'Nếu máy bay bay từ Hà Nội tới Phú Quốc mất 2 giờ 10 phút và cất cánh lúc 08:30, bạn sẽ hạ cánh lúc mấy giờ?',
