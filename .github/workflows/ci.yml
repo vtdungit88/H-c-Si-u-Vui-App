@@ -45,3 +45,25 @@ jobs:
         env:
           VITE_SUPABASE_URL: https://owqbwykjabwevkbjroym.supabase.co
           VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_mFToduXSchitIMvx1HWQaw_JWrWD3IG
+  layout:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund
+      - run: npm install --no-save --no-audit --no-fund playwright@1.49.1
+      - run: npx playwright install --with-deps chromium
+      - name: Build (Pages base path)
+        run: npm run build
+        env:
+          VITE_BASE: /hocsieuvui/
+          VITE_SUPABASE_URL: https://owqbwykjabwevkbjroym.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_mFToduXSchitIMvx1HWQaw_JWrWD3IG
+      - name: Serve and check responsive layout (phone / tablet / desktop)
+        run: |
+          npx vite preview --port 4173 --host 127.0.0.1 > preview.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:4173/hocsieuvui/ >/dev/null && break; sleep 1; done
+          PREVIEW_URL=http://127.0.0.1:4173/hocsieuvui/ node tests/layout-check.mjs
