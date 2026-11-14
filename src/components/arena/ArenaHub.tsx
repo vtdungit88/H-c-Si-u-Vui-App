@@ -9,6 +9,7 @@ import {
 import { BlitzEngine, type BlitzOutcome, type WrongItem } from './BlitzEngine';
 import { PostMatchReview } from './PostMatchReview';
 import { DuelEngine, type DuelOutcome } from './DuelEngine';
+import { ClassRoom } from './ClassRoom';
 import { rankOf, nextRank } from '../../utils/arenaRank';
 
 interface Props {
@@ -25,7 +26,7 @@ const gradeOf = (s: StudentProfile): GradeLevel => {
 
 export const ArenaHub: React.FC<Props> = ({ student, onUpdateStudent, onRequireLogin }) => {
   const [grade, setGrade] = useState<GradeLevel>(() => gradeOf(student));
-  const [phase, setPhase] = useState<'hub' | 'playing' | 'duel' | 'result'>('hub');
+  const [phase, setPhase] = useState<'hub' | 'playing' | 'duel' | 'result' | 'room'>('hub');
   const [duelStart, setDuelStart] = useState<DuelStart | null>(null);
   const [duelRes, setDuelRes] = useState<DuelResult | null>(null);
   const [eloBoard, setEloBoard] = useState<EloLeaderRow[]>([]);
@@ -93,6 +94,7 @@ export const ArenaHub: React.FC<Props> = ({ student, onUpdateStudent, onRequireL
   if (phase === 'playing' && start) {
     return <div className="py-4"><BlitzEngine grade={grade} seed={start.seed} duration={start.duration} onFinish={onFinish} /></div>;
   }
+  if (phase === 'room') return <ClassRoom student={student} defaultGrade={grade} onBack={() => setPhase('hub')} />;
   if (phase === 'duel' && duelStart) {
     return <div className="py-4"><DuelEngine grade={grade} seed={duelStart.seed} limitMs={duelStart.limit_ms} plan={duelStart.plan} studentName={student.name || 'Bạn'} onFinish={onDuelFinish} /></div>;
   }
@@ -137,12 +139,13 @@ export const ArenaHub: React.FC<Props> = ({ student, onUpdateStudent, onRequireL
           <div className="text-xs font-semibold">10 câu đấu với VNPT Vui-Bot, thắng để lên hạng Elo.</div>
           <div className="mt-2 font-black text-sm">{student.isGuest ? 'Đăng nhập để chơi' : 'Vào đấu ▶'}</div>
         </button>
-        <div className="rounded-3xl p-4 bg-slate-100 dark:bg-slate-800 text-slate-500 relative">
+        <button onClick={() => { if (student.isGuest) { soundManager.play('wrong'); onRequireLogin?.(); return; } soundManager.play('click'); setPhase('room'); }}
+          className="text-left rounded-3xl p-4 bg-fuchsia-600 hover:bg-fuchsia-500 text-white shadow-lg cursor-pointer">
           <Users className="w-7 h-7 mb-1" />
           <div className="font-black text-lg">Phòng Lớp Học</div>
-          <div className="text-xs">Thi đua theo mã PIN như Kahoot.</div>
-          <span className="absolute top-3 right-3 text-[10px] font-black bg-slate-300 dark:bg-slate-600 text-slate-700 dark:text-slate-100 rounded-full px-2 py-0.5">Sắp ra mắt</span>
-        </div>
+          <div className="text-xs font-semibold">Thi đua cả lớp bằng mã PIN 6 số.</div>
+          <div className="mt-2 font-black text-sm">{student.isGuest ? 'Đăng nhập để chơi' : 'Tạo / vào phòng ▶'}</div>
+        </button>
       </div>
       {error && <div role="alert" className="text-sm text-rose-700 bg-rose-50 rounded-xl p-3">{error}</div>}
 

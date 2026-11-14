@@ -8,7 +8,7 @@ import type { WrongItem } from './BlitzEngine';
 export interface DuelOutcome { ok: boolean[]; ms: number[]; wrongItems: WrongItem[] }
 interface Props {
   grade: GradeLevel; seed: number; limitMs: number;
-  plan: { ok: boolean; ms: number }[]; studentName: string;
+  plan?: { ok: boolean; ms: number }[]; studentName: string;
   onFinish: (o: DuelOutcome) => void;
 }
 const TOTAL = 10;
@@ -33,6 +33,7 @@ export const DuelEngine: React.FC<Props> = ({ grade, seed, limitMs, plan, studen
 
   // bot progress from its server-issued schedule
   useEffect(() => {
+    if (!plan) return;
     const cum: number[] = []; plan.reduce((a, p, i) => (cum[i] = a + p.ms, a + p.ms), 0);
     const t = window.setInterval(() => {
       const el = performance.now() - matchStart.current;
@@ -82,7 +83,7 @@ export const DuelEngine: React.FC<Props> = ({ grade, seed, limitMs, plan, studen
   return (
     <div className="max-w-xl mx-auto">
       <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-3 mb-3 space-y-2 text-xs font-bold">
-        {[{ n: studentName, icon: User, v: idx, c: 'bg-sky-500' }, { n: 'VNPT Vui-Bot [AI]', icon: Bot, v: botDone, c: 'bg-rose-500' }].map((r) => (
+        {[{ n: studentName, icon: User, v: idx, c: 'bg-sky-500' }, ...(plan ? [{ n: 'VNPT Vui-Bot [AI]', icon: Bot, v: botDone, c: 'bg-rose-500' }] : [])].map((r) => (
           <div key={r.n} className="flex items-center gap-2">
             <r.icon className="w-4 h-4 shrink-0" /><span className="w-28 truncate">{r.n}</span>
             <div className="flex-1 h-2.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden"><div className={`h-full ${r.c} transition-all`} style={{ width: `${(r.v / TOTAL) * 100}%` }} /></div>

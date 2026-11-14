@@ -511,3 +511,48 @@ export async function adminModerateLobby(reportId: string, action: 'hide_msg' | 
   const { error } = await supabase.rpc('admin_moderate_lobby', { p_report_id: reportId, p_action: action });
   if (error) fail('admin_moderate_lobby', error);
 }
+
+// ---------- Class rooms (PIN) ----------
+export interface RoomPlayer { alias: string; score: number | null; correct: number | null; done: boolean; me: boolean }
+export interface RoomState {
+  room_id: string; pin: string; status: 'lobby' | 'playing' | 'finished'; grade: number; is_host: boolean;
+  seed: number | null; limit_ms: number; questions: number; started_at: string | null; me_done: boolean; players: RoomPlayer[];
+}
+const roomErr = (e: { message: string }): never => {
+  const m = e.message;
+  if (/room_not_found/.test(m)) throw new Error('Không tìm thấy phòng với mã PIN này. Hãy kiểm tra lại nhé.');
+  if (/room_closed/.test(m)) throw new Error('Phòng đã bắt đầu hoặc đã đóng, không vào thêm được.');
+  if (/room_full/.test(m)) throw new Error('Phòng đã đủ 60 bạn.');
+  if (/too many rooms/.test(m)) throw new Error('Hôm nay bạn đã tạo quá nhiều phòng.');
+  if (/no_players/.test(m)) throw new Error('Chưa có bạn nào vào phòng.');
+  if (/not_in_room/.test(m)) throw new Error('Bạn chưa ở trong phòng này.');
+  throw new Error('Có lỗi với phòng lớp học, thử lại nhé.');
+};
+export async function roomCreate(grade: number): Promise<{ room_id: string; pin: string }> {
+  const { data, error } = await supabase.rpc('room_create', { p_grade: grade });
+  if (error) roomErr(error);
+  return data as { room_id: string; pin: string };
+}
+export async function roomJoin(pin: string): Promise<{ room_id: string; pin: string; is_host: boolean }> {
+  const { data, error } = await supabase.rpc('room_join', { p_pin: pin });
+  if (error) roomErr(error);
+  return data as { room_id: string; pin: string; is_host: boolean };
+}
+export async function roomState(pin: string): Promise<RoomState> {
+  const { data, error } = await supabase.rpc('room_state', { p_pin: pin });
+  if (error) roomErr(error);
+  return data as RoomState;
+}
+export async function roomStart(roomId: string): Promise<void> {
+  const { error } = await supabase.rpc('room_start', { p_room: roomId });
+  if (error) roomErr(error);
+}
+export async function roomEnd(roomId: string): Promise<void> {
+  const { error } = await supabase.rpc('room_end', { p_room: roomId });
+  if (error) roomErr(error);
+}
+export async function roomSubmit(roomId: string, ok: boolean[], ms: number[]): Promise<{ score: number; correct: number }> {
+  const { data, error } = await supabase.rpc('room_submit', { p_room: roomId, p_ok: ok, p_ms: ms });
+  if (error) roomErr(error);
+  return data as { score: number; correct: number };
+}

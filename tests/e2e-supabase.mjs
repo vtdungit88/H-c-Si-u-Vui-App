@@ -174,6 +174,18 @@ if (signedUp) {
     assert((await a.rpc('submit_feedback', { p_category: 'bad', p_rating: 5, p_message: 'x' })).error, 'bad category accepted');
     assert((await a.rpc('admin_feedback')).error, 'normal user read feedback');
   });
+  await check('class room: create, join, outsiders blocked, submit before start rejected, anon blocked', async () => {
+    const r = await a.rpc('room_create', { p_grade: 6 });
+    assert(!r.error && /^\d{6}$/.test(r.data.pin), r.error?.message);
+    const j = await b.rpc('room_join', { p_pin: r.data.pin });
+    assert(!j.error && j.data.is_host === false, j.error?.message);
+    const st = await b.rpc('room_state', { p_pin: r.data.pin });
+    assert(!st.error && st.data.seed === null && st.data.status === 'lobby', 'seed leaked in lobby');
+    assert((await b.rpc('room_start', { p_room: r.data.room_id })).error, 'non-host started room');
+    assert((await b.rpc('room_submit', { p_room: r.data.room_id, p_ok: Array(10).fill(true), p_ms: Array(10).fill(1000) })).error, 'submit before start accepted');
+    assert((await anon.rpc('room_create', { p_grade: 6 })).error, 'anon created room');
+    await a.rpc('room_end', { p_room: r.data.room_id });
+  });
   await check('arena duel: start returns bot plan, instant submit rejected, anon blocked, Elo board public', async () => {
     const d = await a.rpc('arena_start_duel', { p_grade: 6 });
     assert(!d.error && d.data.plan.length === 10 && d.data.elo === 1000, d.error?.message);
